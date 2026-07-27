@@ -1,0 +1,48 @@
+/* CSS variables for Kiki Traiteur - Official Brand Colors (White, Bordeaux, Red, Beige) */
+:root {
+  /* Color Palette - Official Brand Swatch on White Background */
+  --bg-primary: #FFFFFF;       /* Pure white main background */
+  --bg-secondary: #FAF8F4;     /* Very soft warm tint (beige-white) for cards/sections */
+  --bg-tertiary: #F3EDE0;      /* Soft beige for subtle separators and hover backgrounds */
+  --bg-white: #FFFFFF;         /* Crisp white */
+  
+  --primary-color: #E51D24;    /* Vibrant Red (#e51d24) */
+  --primary-dark: #721513;     /* Burgundy / Bordeaux Dark Red (#721513) */
+  --primary-light: #F03C42;    /* Medium Red for hover highlights */
+  
+  --accent-color: #E6DABA;     /* Beige / Champagne Gold (#e6daba) */
+  --accent-hover: #D5C8A6;     /* Muted Champagne Gold */
+  
+  --text-main: #332724;        /* Deep bordeaux-tinted charcoal for high-end contrast readability */
+  --text-muted: #6E5A56;       /* Muted brown-grey for subtitle details */
+  --text-light: #FFFFFF;       /* Pure white text */
+  
+  --border-color: #EDE7DC;     /* Soft border line color */
+  --border-color-focus: #E51D24;
+  
+  --success-color: #606C38;    /* Olive green for successes */
+  --warning-color: #DDA15E;    /* Yellow/orange for warnings */
+  --danger-color: #BC6C25;     /* Error color */
+  
+  /* Fonts */
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Poppins', 'Inter', system-ui, -apple-system, sans-serif;
+  
+  /* Layout and Spacing */
+  --max-width: 1200px;
+  --header-height: 80px;
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 16px;
+  --border-radius-xl: 32px; /* Rounded card styles inspired by Sarab */
+  
+  /* Shadows and Premium Effects */
+  --shadow-sm: 0 2px 8px rgba(114, 21, 19, 0.04);
+  --shadow-md: 0 10px 25px rgba(114, 21, 19, 0.06);
+  --shadow-lg: 0 20px 40px rgba(114, 21, 19, 0.09);
+  
+  /* Transitions */
+  --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
