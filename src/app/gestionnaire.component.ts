@@ -87,7 +87,7 @@ import { KikiDataService } from './services/kiki-data.service';
             <h1>{{ getTitle() }}</h1>
             <p>{{ getSubtitle() }}</p>
           </div>
-          <div class="header-actions">
+          <div *ngIf="activeTab !== 'requests'" class="header-actions">
             <button type="button" (click)="openCreateEventModal()" class="btn-create-event">
               <i class="fas fa-plus-circle"></i> CRÉER UN ÉVÉNEMENT
             </button>
@@ -321,12 +321,6 @@ import { KikiDataService } from './services/kiki-data.service';
 
         <!-- TAB 2: REQUESTS -->
         <section *ngIf="activeTab === 'requests'" class="dashboard-section active">
-          <!-- En-tête principal Demandes de devis -->
-          <div style="margin-bottom: 1.2rem;">
-            <h1 style="color: #7A1C1C; font-size: 1.5rem; font-weight: 700; margin: 0 0 0.25rem 0;">Demandes de devis</h1>
-            <p style="color: #64748B; font-size: 0.8rem; margin: 0;">Chiffrez les propositions commerciales et gérez les statuts.</p>
-          </div>
-
           <div class="panel">
             <!-- En-tête de la table avec bouton Créer un Devis -->
             <div class="panel-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
@@ -397,8 +391,11 @@ import { KikiDataService } from './services/kiki-data.service';
                     </td>
                     <td>
                       <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center;">
-                        <!-- 1. En attente (pending) : Accepter ou Refuser -->
-                        <ng-container *ngIf="req.status === 'pending'">
+                        <!-- 1. En attente (pending) : Voir détails avant acceptation, Accepter ou Refuser -->
+                        <ng-container *ngIf="isPendingStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openTraceabilityModal(req)" title="Voir les détails de la demande">
+                            <i class="fas fa-eye"></i>
+                          </button>
                           <button class="btn btn-sm" style="background: #059669; color: white;" (click)="acceptRequest(req)" title="Accepter la demande">
                             <i class="fas fa-check"></i>
                           </button>
@@ -1087,7 +1084,14 @@ import { KikiDataService } from './services/kiki-data.service';
                 <div style="margin-bottom: 1.25rem; position: relative;">
                   <span style="position: absolute; left: -1.75rem; top: 0.1rem; width: 12px; height: 12px; border-radius: 50%; background: #059669; border: 2px solid white;"></span>
                   <strong style="color: #1E293B;">1. Demande soumise par le client</strong><br>
-                  <small style="color: #64748B;">Le {{ formatDate(currentTraceRequest.submittedDate) }} — Pour prestation {{ getPrestationName(currentTraceRequest.prestationId) }} ({{ currentTraceRequest.guests }} pers.)</small>
+                  <div style="background: #F8FAFC; padding: 0.75rem; border-radius: 8px; margin-top: 0.4rem; font-size: 0.8rem; color: #334155;">
+                    <div><strong>Client :</strong> {{ getClientName(currentTraceRequest.clientId) }}</div>
+                    <div><strong>Prestation :</strong> {{ getPrestationName(currentTraceRequest.prestationId) }} ({{ currentTraceRequest.guests }} convives)</div>
+                    <div><strong>Date souhaitée :</strong> {{ formatDate(currentTraceRequest.date) }} — <strong>Lieu :</strong> {{ currentTraceRequest.location || 'À définir' }}</div>
+                    <div *ngIf="currentTraceRequest.message" style="margin-top: 0.3rem; font-style: italic; color: #475569;">
+                      "{{ currentTraceRequest.message }}"
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Étape 2 : Devis créé / envoyé -->
@@ -2396,6 +2400,11 @@ export class GestionnaireComponent implements OnInit {
       case 'rejected': return 'badge-rejected';
       default: return 'badge-pending';
     }
+  }
+
+  isPendingStatus(status: string): boolean {
+    return !status || status === 'pending' || status === 'approved' || status === 'new' || status === 'en_attente' ||
+           (status !== 'accepted' && status !== 'sent' && status !== 'quoted' && status !== 'aboutis' && status !== 'rejected');
   }
 
   formatDate(d: string): string {

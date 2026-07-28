@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
@@ -45,6 +45,19 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
             <li><a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a></li>
           </ul>
           <div class="nav-actions">
+            <!-- THEME SWITCHER -->
+            <div class="theme-switcher" role="group" aria-label="Sélection du thème">
+              <button type="button" (click)="setTheme('light')" [class.active]="currentTheme === 'light'" title="Mode Clair">
+                <i class="fas fa-sun"></i>
+              </button>
+              <button type="button" (click)="setTheme('dark')" [class.active]="currentTheme === 'dark'" title="Mode Sombre">
+                <i class="fas fa-moon"></i>
+              </button>
+              <button type="button" (click)="setTheme('system')" [class.active]="currentTheme === 'system'" title="Mode Système (Auto)">
+                <i class="fas fa-desktop"></i>
+              </button>
+            </div>
+
             <a routerLink="/login-client" routerLinkActive="active" class="btn-header-mykiki" (click)="closeMenu()"><i class="fa-regular fa-user"></i> MYKIKI</a>
             <a routerLink="/devis" routerLinkActive="active" class="btn-header-devis" (click)="closeMenu()"><i class="fa-regular fa-calendar-days"></i> DEMANDER UN DEVIS</a>
           </div>
@@ -127,10 +140,61 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       </div>
     </footer>
   `,
-  styles: [":host { display: block; }"]
+  styles: [
+    `
+    :host { display: block; }
+    .theme-switcher {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 50px;
+      padding: 3px;
+      margin-right: 0.75rem;
+    }
+    .theme-switcher button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.25s ease;
+    }
+    .theme-switcher button:hover {
+      color: var(--primary-color);
+    }
+    .theme-switcher button.active {
+      background: var(--primary-color);
+      color: #FFFFFF;
+      box-shadow: 0 2px 6px rgba(229, 29, 36, 0.3);
+    }
+    `
+  ]
 })
-export class SiteComponent {
+export class SiteComponent implements OnInit {
   isMenuOpen = false;
+  currentTheme: 'light' | 'dark' | 'system' = 'light';
+
+  ngOnInit(): void {
+    const saved = localStorage.getItem('kiki-theme') as 'light' | 'dark' | 'system' | null;
+    if (saved && ['light', 'dark', 'system'].includes(saved)) {
+      this.setTheme(saved);
+    } else {
+      this.setTheme('light');
+    }
+  }
+
+  setTheme(theme: 'light' | 'dark' | 'system'): void {
+    this.currentTheme = theme;
+    localStorage.setItem('kiki-theme', theme);
+    document.documentElement.setAttribute('data-theme', theme);
+  }
 
   toggleMenu(): void {
     this.isMenuOpen = !this.isMenuOpen;
@@ -147,3 +211,4 @@ export class SiteComponent {
     }
   }
 }
+

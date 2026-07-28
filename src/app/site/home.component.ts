@@ -119,9 +119,11 @@ import { KikiDataService } from '../services/kiki-data.service';
     <section class="section-padding" style="background-color: var(--bg-secondary);">
       <div class="container about-grid">
         <div class="animate-fade" style="position: relative;">
-          <div class="hero-frame" style="border-radius: var(--border-radius-xl); overflow:hidden;">
-            <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?q=80&w=800"
-              alt="Mme Christiane Lopez Diaw - Kiki Traiteur" style="width:100%; height:420px; object-fit:cover;">
+          <div class="hero-frame" style="border-radius: var(--border-radius-xl); overflow:hidden; box-shadow: var(--shadow-lg); background: #000;">
+            <video src="https://assets.mixkit.co/videos/preview/mixkit-chef-cooking-in-a-kitchen-41006-large.mp4"
+              autoplay loop muted playsinline
+              style="width:100%; height:420px; object-fit:cover; display:block;">
+            </video>
           </div>
         </div>
         <div class="animate-fade delay-1">

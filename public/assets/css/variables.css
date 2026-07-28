@@ -46,3 +46,52 @@
   --transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   --transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Luxury Dark Theme for Kiki Traiteur */
+[data-theme="dark"] {
+  --bg-primary: #0F1115;       /* Deep luxury obsidian background */
+  --bg-secondary: #16181F;     /* Rich dark graphite for sections/cards */
+  --bg-tertiary: #1E212B;      /* Elegant dark grey-blue for cards & hover */
+  --bg-white: #1A1D26;         /* Dark card background */
+  
+  --primary-color: #EF4444;    /* Vibrant Red that pops on dark backgrounds */
+  --primary-dark: #F8FAFC;     /* Bright crisp white for headings in dark mode so serif headings shine! */
+  --primary-light: #F87171;    /* Lighter red for hover */
+  
+  --accent-color: #D5C8A6;     /* Soft Champagne Gold */
+  --accent-hover: #E6DABA;     /* Bright Champagne Gold */
+  
+  --text-main: #F1F5F9;        /* High-contrast crisp light grey/white text */
+  --text-muted: #94A3B8;       /* Sophisticated slate grey for subtitles */
+  --text-light: #FFFFFF;       /* Pure white text */
+  
+  --border-color: #2D323E;     /* Dark elegant border lines */
+  --border-color-focus: #EF4444;
+  
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  [data-theme="system"] {
+    --bg-primary: #0F1115;
+    --bg-secondary: #16181F;
+    --bg-tertiary: #1E212B;
+    --bg-white: #1A1D26;
+    --primary-color: #EF4444;
+    --primary-dark: #F8FAFC;
+    --primary-light: #F87171;
+    --accent-color: #D5C8A6;
+    --accent-hover: #E6DABA;
+    --text-main: #F1F5F9;
+    --text-muted: #94A3B8;
+    --text-light: #FFFFFF;
+    --border-color: #2D323E;
+    --border-color-focus: #EF4444;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 10px 25px rgba(0, 0, 0, 0.5);
+    --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.6);
+  }
+}
+

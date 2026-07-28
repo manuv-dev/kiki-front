@@ -40,9 +40,13 @@ import { PolitiqueConfidentialiteComponent } from './politique-confidentialite.c
           { path: 'realisations', component: RealisationsComponent },
           { path: 'contact', component: ContactComponent },
           { path: 'login-client', component: LoginClientComponent },
+          { path: 'login', redirectTo: 'login-client', pathMatch: 'full' },
+          { path: 'auth', redirectTo: 'login-client', pathMatch: 'full' },
           { path: 'login-staff', component: LoginStaffComponent },
+          { path: 'admin-login', component: LoginStaffComponent },
+          { path: 'kiki-admin', component: LoginStaffComponent },
+          { path: 'gestionnaire-login', component: LoginStaffComponent },
           { path: 'devis', component: DevisComponent },
-          { path: 'auth', component: AuthComponent },
           { path: 'mentions-legales', component: MentionsLegalesComponent },
           { path: 'politique-confidentialite', component: PolitiqueConfidentialiteComponent }
         ]

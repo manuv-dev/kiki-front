@@ -206,7 +206,7 @@ export class KikiDataService {
           guests: 120,
           isInstitution: false,
           organization: '',
-          status: 'approved',
+          status: 'pending',
           dateSubmitted: this.getRelativeDate(-3),
           message: 'Demande pour le mariage de ma fille. Nous souhaitons la salle La Diva et le service traiteur associé.'
         },
@@ -230,7 +230,7 @@ export class KikiDataService {
           guests: 200,
           isInstitution: true,
           organization: 'Fondation Rocher',
-          status: 'pending',
+          status: 'accepted',
           dateSubmitted: this.getRelativeDate(0),
           message: 'Conférence de presse et cocktail dinatoire caritatif dans votre salle La Diva.'
         },
@@ -242,9 +242,57 @@ export class KikiDataService {
           guests: 50,
           isInstitution: false,
           organization: '',
-          status: 'approved',
+          status: 'accepted',
           dateSubmitted: this.getRelativeDate(-10),
           message: 'Anniversaire privé. Thème bohème chic avec décoration florale suspendue.'
+        },
+        {
+          id: 'req_105',
+          clientId: 'cli_1',
+          prestationId: 'evenements',
+          date: this.getRelativeDate(15),
+          guests: 150,
+          isInstitution: false,
+          organization: '',
+          status: 'sent',
+          dateSubmitted: this.getRelativeDate(-5),
+          message: 'Organisation complète d’une soirée de gala avec traiteur et décoration lumineuse.'
+        },
+        {
+          id: 'req_106',
+          clientId: 'cli_2',
+          prestationId: 'traiteur',
+          date: this.getRelativeDate(20),
+          guests: 300,
+          isInstitution: true,
+          organization: 'Banque BOA Sénégal',
+          status: 'quoted',
+          dateSubmitted: this.getRelativeDate(-7),
+          message: 'Buffet gastronomique annuel pour la direction et les partenaires.'
+        },
+        {
+          id: 'req_107',
+          clientId: 'cli_3',
+          prestationId: 'location',
+          date: this.getRelativeDate(25),
+          guests: 40,
+          isInstitution: false,
+          organization: '',
+          status: 'rejected',
+          dateSubmitted: this.getRelativeDate(-12),
+          message: 'Location de matériel et vaisselle dorée pour dîner privé.'
+        },
+        {
+          id: 'req_108',
+          clientId: 'cli_4',
+          prestationId: 'salle-diva',
+          date: this.getRelativeDate(30),
+          guests: 180,
+          isInstitution: true,
+          organization: 'Sonatel Orange',
+          status: 'aboutis',
+          dateSubmitted: this.getRelativeDate(-15),
+          message: 'Séminaire de direction couronné par un cocktail dînatoire dans la salle La Diva.'
         }
       ];
       localStorage.setItem(this.STORAGE_KEYS.REQUESTS, JSON.stringify(initialRequests));
@@ -254,20 +302,36 @@ export class KikiDataService {
       const initialDevis: DevisItem[] = [
         {
           id: 'dev_501',
-          requestId: 'req_101',
+          requestId: 'req_105',
           dateCreated: this.getRelativeDate(-2),
           items: [
-            { desc: 'Location Salle La Diva (forfait journée)', qty: 1, unitPrice: 3500 },
-            { desc: 'Menu Gastronomique 3 services (par pers.)', qty: 120, unitPrice: 65 },
-            { desc: 'Forfait Boissons fines (par pers.)', qty: 120, unitPrice: 20 },
-            { desc: 'Service en salle & Maître d’hôtel', qty: 5, unitPrice: 250 }
+            { desc: 'Organisation complète soirée de gala', qty: 1, unitPrice: 350000 },
+            { desc: 'Menu Gastronomique 3 services (par pers.)', qty: 150, unitPrice: 18000 },
+            { desc: 'Forfait Boissons fines (par pers.)', qty: 150, unitPrice: 5000 },
+            { desc: 'Service en salle & Maître d’hôtel', qty: 8, unitPrice: 25000 }
           ],
-          tvaRate: 20,
-          discount: 0,
+          tvaRate: 0,
+          discount: 5,
           status: 'sent',
           history: [
             { date: this.getRelativeDate(-2), action: 'Devis initial généré #dev_501' },
-            { date: this.getRelativeDate(-1), action: 'Devis envoyé au client par email (sophie.l@gmail.com)' }
+            { date: this.getRelativeDate(-1), action: 'Devis envoyé au client par email' }
+          ]
+        },
+        {
+          id: 'dev_502',
+          requestId: 'req_106',
+          dateCreated: this.getRelativeDate(-4),
+          items: [
+            { desc: 'Buffet Gastronomique VIP (par pers.)', qty: 300, unitPrice: 22000 },
+            { desc: 'Ateliers culinaires animés par les Chefs', qty: 4, unitPrice: 75000 }
+          ],
+          tvaRate: 0,
+          discount: 10,
+          status: 'sent',
+          history: [
+            { date: this.getRelativeDate(-4), action: 'Devis initial généré #dev_502' },
+            { date: this.getRelativeDate(-3), action: 'Devis envoyé au client par email' }
           ]
         }
       ];
