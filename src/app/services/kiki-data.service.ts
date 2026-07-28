@@ -32,6 +32,7 @@ export interface RequestItem {
   clientEmail?: string;
   clientPhone?: string;
   prestationTitle?: string;
+  location?: string;
 }
 
 export interface DevisItem {
@@ -42,6 +43,7 @@ export interface DevisItem {
   tvaRate: number;
   discount: number;
   status: string;
+  history?: Array<{ date: string; action: string }>;
 }
 
 export interface RealisationItem {
@@ -52,6 +54,56 @@ export interface RealisationItem {
   desc: string;
 }
 
+export interface EventItem {
+  id: string;
+  title: string;
+  type: string;
+  date: string;
+  time: string;
+  guests: number;
+  clientId: string;
+  clientName?: string;
+  clientPhone?: string;
+  location: string;
+  staffIds: string[];
+  requestId?: string;
+  status: 'confirmé' | 'en cours' | 'terminé' | string;
+  createdDate: string;
+}
+
+export interface StaffItem {
+  id: string;
+  name: string;
+  role: string;
+  phone: string;
+  available: boolean;
+}
+
+export interface FaqItem {
+  id: string;
+  question: string;
+  answer: string;
+  category?: string;
+}
+
+export interface MediaItem {
+  id: string;
+  title: string;
+  url: string;
+  type: 'image' | 'video';
+  eventId?: string;
+  eventTitle?: string;
+  category?: string;
+}
+
+export interface ManagerItem {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  blocked: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -60,7 +112,12 @@ export class KikiDataService {
     PRESTATIONS: 'kiki_prestations',
     CLIENTS: 'kiki_clients',
     REQUESTS: 'kiki_requests',
-    DEVIS: 'kiki_devis'
+    DEVIS: 'kiki_devis',
+    EVENTS: 'kiki_events',
+    STAFF: 'kiki_staff',
+    FAQS: 'kiki_faqs',
+    MEDIA: 'kiki_media',
+    MANAGERS: 'kiki_managers'
   };
 
   constructor() {
@@ -207,10 +264,88 @@ export class KikiDataService {
           ],
           tvaRate: 20,
           discount: 0,
-          status: 'sent'
+          status: 'sent',
+          history: [
+            { date: this.getRelativeDate(-2), action: 'Devis initial généré #dev_501' },
+            { date: this.getRelativeDate(-1), action: 'Devis envoyé au client par email (sophie.l@gmail.com)' }
+          ]
         }
       ];
       localStorage.setItem(this.STORAGE_KEYS.DEVIS, JSON.stringify(initialDevis));
+    }
+
+    if (!localStorage.getItem(this.STORAGE_KEYS.EVENTS)) {
+      const initialEvents: EventItem[] = [
+        {
+          id: 'ev_1',
+          title: 'Mariage de la fille de Sophie Laurent',
+          type: 'salle-diva',
+          date: this.getRelativeDate(1),
+          time: '19:00',
+          guests: 120,
+          clientId: 'cli_1',
+          location: 'Salle La Diva, Hann Maristes',
+          staffIds: ['st_1', 'st_2', 'st_4'],
+          requestId: 'req_101',
+          status: 'confirmé',
+          createdDate: this.getRelativeDate(-2)
+        },
+        {
+          id: 'ev_2',
+          title: 'Cocktail Anniversaire Chic',
+          type: 'decoration',
+          date: this.getRelativeDate(-2),
+          time: '20:00',
+          guests: 50,
+          clientId: 'cli_4',
+          location: 'Villa Almadies, Dakar',
+          staffIds: ['st_3', 'st_4'],
+          requestId: 'req_104',
+          status: 'terminé',
+          createdDate: this.getRelativeDate(-10)
+        }
+      ];
+      localStorage.setItem(this.STORAGE_KEYS.EVENTS, JSON.stringify(initialEvents));
+    }
+
+    if (!localStorage.getItem(this.STORAGE_KEYS.STAFF)) {
+      const initialStaff: StaffItem[] = [
+        { id: 'st_1', name: 'Mamadou Ndiaye', role: 'Chef Cuisinier Exécutif', phone: '+221 77 123 45 67', available: true },
+        { id: 'st_2', name: 'Fatou Sow', role: 'Responsable Salle La Diva', phone: '+221 78 234 56 78', available: true },
+        { id: 'st_3', name: 'Ousmane Fall', role: 'Chef Scénographe & Décoration', phone: '+221 76 345 67 89', available: true },
+        { id: 'st_4', name: 'Awa Diop', role: 'Maître d\'Hôtel Réceptions', phone: '+221 77 456 78 90', available: false }
+      ];
+      localStorage.setItem(this.STORAGE_KEYS.STAFF, JSON.stringify(initialStaff));
+    }
+
+    if (!localStorage.getItem(this.STORAGE_KEYS.FAQS)) {
+      const initialFaqs: FaqItem[] = [
+        { id: 'faq_1', question: 'Comment réserver la Salle La Diva ?', answer: 'Vous pouvez soumettre une demande de devis en ligne. Notre gestionnaire vous enverra une proposition personnalisée en moins de 24h.' },
+        { id: 'faq_2', question: 'Proposez-vous des menus adaptés aux régimes spécifiques ?', answer: 'Oui, notre chef cuisinier propose des menus halal, végétariens et sans gluten sur demande lors de la conception du menu.' },
+        { id: 'faq_3', question: 'Quelles sont les conditions de paiement et d\'annulation ?', answer: 'Un acompte de 40% est demandé à la signature du devis. L\'annulation est gratuite jusqu\'à 15 jours avant la date de la réception.' }
+      ];
+      localStorage.setItem(this.STORAGE_KEYS.FAQS, JSON.stringify(initialFaqs));
+    }
+
+    if (!localStorage.getItem(this.STORAGE_KEYS.MEDIA)) {
+      const initialMedia: MediaItem[] = [
+        { id: 'med_1', title: 'Mariage de la fille de Sophie Laurent - Salle VIP', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800', type: 'image', eventId: 'ev_1', eventTitle: 'Mariage de la fille de Sophie Laurent' },
+        { id: 'med_2', title: 'Mariage de la fille de Sophie Laurent - Buffet Traiteur', url: 'https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=800', type: 'image', eventId: 'ev_1', eventTitle: 'Mariage de la fille de Sophie Laurent' },
+        { id: 'med_3', title: 'Cocktail Anniversaire Chic - Décoration florale', url: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?q=80&w=800', type: 'image', eventId: 'ev_2', eventTitle: 'Cocktail Anniversaire Chic' },
+        { id: 'med_4', title: 'Cocktail Anniversaire Chic - Mise en table', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800', type: 'image', eventId: 'ev_2', eventTitle: 'Cocktail Anniversaire Chic' },
+        { id: 'med_5', title: 'Gala LVMH - Prestige Service', url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800', type: 'image', eventId: 'ev_gala', eventTitle: 'Gala LVMH (Événement Institutionnel)' },
+        { id: 'med_6', title: 'Gala LVMH - Vue d\'ensemble', url: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800', type: 'image', eventId: 'ev_gala', eventTitle: 'Gala LVMH (Événement Institutionnel)' }
+      ];
+      localStorage.setItem(this.STORAGE_KEYS.MEDIA, JSON.stringify(initialMedia));
+    }
+
+    if (!localStorage.getItem(this.STORAGE_KEYS.MANAGERS)) {
+      const initialManagers: ManagerItem[] = [
+        { id: 'mng_1', name: 'Marie V.', email: 'marie.v@kikitraiteur.sn', role: 'Gestionnaire Senior', blocked: false },
+        { id: 'mng_2', name: 'Cheikh Diop', email: 'c.diop@kikitraiteur.sn', role: 'Gestionnaire Logistique', blocked: false },
+        { id: 'mng_3', name: 'Amina Fall', email: 'a.fall@kikitraiteur.sn', role: 'Gestionnaire Relations Client', blocked: true }
+      ];
+      localStorage.setItem(this.STORAGE_KEYS.MANAGERS, JSON.stringify(initialManagers));
     }
   }
 
@@ -324,9 +459,230 @@ export class KikiDataService {
     localStorage.setItem(this.STORAGE_KEYS.REQUESTS, JSON.stringify(requests));
   }
 
+  getEvents(): EventItem[] {
+    const data = localStorage.getItem(this.STORAGE_KEYS.EVENTS);
+    return data ? JSON.parse(data) : [];
+  }
+
+  saveEvents(events: EventItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.EVENTS, JSON.stringify(events));
+  }
+
+  addEvent(event: Partial<EventItem>): EventItem {
+    const events = this.getEvents();
+    const newEvent: EventItem = {
+      id: 'ev_' + (Math.floor(Math.random() * 8999) + 1000),
+      title: event.title || 'Nouvel événement',
+      type: event.type || 'traiteur',
+      date: event.date || new Date().toISOString().split('T')[0],
+      time: event.time || '12:00',
+      guests: Number(event.guests) || 50,
+      clientId: event.clientId || '',
+      clientName: event.clientName || '',
+      location: event.location || 'Dakar',
+      staffIds: event.staffIds || [],
+      requestId: event.requestId || '',
+      status: 'confirmé',
+      createdDate: new Date().toISOString().split('T')[0]
+    };
+    events.unshift(newEvent);
+    this.saveEvents(events);
+    return newEvent;
+  }
+
+  updateEvent(id: string, updated: Partial<EventItem>): void {
+    let events = this.getEvents();
+    events = events.map(e => e.id === id ? { ...e, ...updated } : e);
+    this.saveEvents(events);
+  }
+
+  deleteEvent(id: string): void {
+    let events = this.getEvents();
+    events = events.filter(e => e.id !== id);
+    this.saveEvents(events);
+  }
+
+  getStaff(): StaffItem[] {
+    const data = localStorage.getItem(this.STORAGE_KEYS.STAFF);
+    return data ? JSON.parse(data) : [];
+  }
+
+  saveStaff(staff: StaffItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.STAFF, JSON.stringify(staff));
+  }
+
+  addStaff(member: Partial<StaffItem>): StaffItem {
+    const staff = this.getStaff();
+    const newStaff: StaffItem = {
+      id: 'st_' + (Math.floor(Math.random() * 899) + 100),
+      name: member.name || 'Nouveau Personnel',
+      role: member.role || 'Service',
+      phone: member.phone || '',
+      available: member.available !== undefined ? member.available : true
+    };
+    staff.push(newStaff);
+    this.saveStaff(staff);
+    return newStaff;
+  }
+
+  updateStaff(id: string, updated: Partial<StaffItem>): void {
+    let staff = this.getStaff();
+    staff = staff.map(s => s.id === id ? { ...s, ...updated } : s);
+    this.saveStaff(staff);
+  }
+
+  deleteStaff(id: string): void {
+    let staff = this.getStaff();
+    staff = staff.filter(s => s.id !== id);
+    this.saveStaff(staff);
+  }
+
+  getFaqs(): FaqItem[] {
+    const data = localStorage.getItem(this.STORAGE_KEYS.FAQS);
+    return data ? JSON.parse(data) : [];
+  }
+
+  saveFaqs(faqs: FaqItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.FAQS, JSON.stringify(faqs));
+  }
+
+  addFaq(faq: Partial<FaqItem>): FaqItem {
+    const faqs = this.getFaqs();
+    const newFaq: FaqItem = {
+      id: 'faq_' + (Math.floor(Math.random() * 899) + 100),
+      question: faq.question || '',
+      answer: faq.answer || '',
+      category: faq.category || 'Général'
+    };
+    faqs.unshift(newFaq);
+    this.saveFaqs(faqs);
+    return newFaq;
+  }
+
+  updateFaq(id: string, updated: Partial<FaqItem>): void {
+    let faqs = this.getFaqs();
+    faqs = faqs.map(f => f.id === id ? { ...f, ...updated } : f);
+    this.saveFaqs(faqs);
+  }
+
+  deleteFaq(id: string): void {
+    let faqs = this.getFaqs();
+    faqs = faqs.filter(f => f.id !== id);
+    this.saveFaqs(faqs);
+  }
+
+  getMedia(): MediaItem[] {
+    const data = localStorage.getItem(this.STORAGE_KEYS.MEDIA);
+    return data ? JSON.parse(data) : [];
+  }
+
+  saveMedia(media: MediaItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.MEDIA, JSON.stringify(media));
+  }
+
+  addMedia(media: Partial<MediaItem>): MediaItem {
+    const list = this.getMedia();
+    const newMed: MediaItem = {
+      id: 'med_' + (Math.floor(Math.random() * 899) + 100),
+      title: media.title || 'Nouveau Média',
+      url: media.url || 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800',
+      type: media.type || 'image',
+      eventId: media.eventId || '',
+      eventTitle: media.eventTitle || 'Autre Média',
+      category: media.category || ''
+    };
+    list.unshift(newMed);
+    this.saveMedia(list);
+    return newMed;
+  }
+
+  deleteMedia(id: string): void {
+    let list = this.getMedia();
+    list = list.filter(m => m.id !== id);
+    this.saveMedia(list);
+  }
+
+  updateClient(id: string, updated: Partial<ClientItem>): void {
+    const data = localStorage.getItem(this.STORAGE_KEYS.CLIENTS);
+    let clients: ClientItem[] = data ? JSON.parse(data) : [];
+    clients = clients.map(c => c.id === id ? { ...c, ...updated } : c);
+    localStorage.setItem(this.STORAGE_KEYS.CLIENTS, JSON.stringify(clients));
+  }
+
+  getManagers(): ManagerItem[] {
+    const data = localStorage.getItem(this.STORAGE_KEYS.MANAGERS);
+    return data ? JSON.parse(data) : [];
+  }
+
+  saveManagers(managers: ManagerItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.MANAGERS, JSON.stringify(managers));
+  }
+
+  addManager(mgr: Partial<ManagerItem>): ManagerItem {
+    const list = this.getManagers();
+    const newMgr: ManagerItem = {
+      id: 'mng_' + (Math.floor(Math.random() * 899) + 100),
+      name: mgr.name || 'Nouveau Gestionnaire',
+      email: mgr.email || '',
+      role: mgr.role || 'Gestionnaire ERP',
+      blocked: false
+    };
+    list.push(newMgr);
+    this.saveManagers(list);
+    return newMgr;
+  }
+
+  toggleManagerBlock(id: string): void {
+    let list = this.getManagers();
+    list = list.map(m => m.id === id ? { ...m, blocked: !m.blocked } : m);
+    this.saveManagers(list);
+  }
+
   getDevis(): DevisItem[] {
     const data = localStorage.getItem(this.STORAGE_KEYS.DEVIS);
     return data ? JSON.parse(data) : [];
+  }
+
+  saveDevis(devis: DevisItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.DEVIS, JSON.stringify(devis));
+  }
+
+  addDevis(devis: Partial<DevisItem>): DevisItem {
+    const list = this.getDevis();
+    const newDevis: DevisItem = {
+      id: 'dev_' + (Math.floor(Math.random() * 899) + 100),
+      requestId: devis.requestId || '',
+      dateCreated: new Date().toISOString().split('T')[0],
+      items: devis.items || [{ desc: 'Prestation Traiteur - Forfait', qty: 1, unitPrice: 15000 }],
+      tvaRate: devis.tvaRate !== undefined ? devis.tvaRate : 18,
+      discount: devis.discount || 0,
+      status: devis.status || 'sent',
+      history: [
+        { date: new Date().toISOString().split('T')[0], action: 'Devis créé et envoyé par mail au client' }
+      ]
+    };
+    list.unshift(newDevis);
+    this.saveDevis(list);
+    return newDevis;
+  }
+
+  updateDevis(id: string, updated: Partial<DevisItem>, actionMsg?: string): void {
+    let list = this.getDevis();
+    list = list.map(d => {
+      if (d.id === id) {
+        const history = d.history ? [...d.history] : [];
+        if (actionMsg) {
+          history.push({ date: new Date().toISOString().split('T')[0], action: actionMsg });
+        }
+        return { ...d, ...updated, history };
+      }
+      return d;
+    });
+    this.saveDevis(list);
+  }
+
+  getDevisByRequest(requestId: string): DevisItem | undefined {
+    return this.getDevis().find(d => d.requestId === requestId);
   }
 
   showToast(message: string, isError = false): void {
