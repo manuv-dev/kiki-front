@@ -145,7 +145,7 @@ interface PrestationData {
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        background: #ffffff;
+        background: var(--bg-white);
         border: 2px solid rgba(114, 21, 19, 0.15);
         color: #1e293b;
         padding: 0.75rem 1.4rem;
@@ -178,7 +178,7 @@ interface PrestationData {
         grid-template-columns: 1fr 1.15fr;
         gap: 3.5rem;
         align-items: center;
-        background: #ffffff;
+        background: var(--bg-white);
         padding: 1rem 0 2rem;
         min-height: 420px;
       }
@@ -308,7 +308,7 @@ interface PrestationData {
         display: inline-flex;
         align-items: center;
         gap: 0.75rem;
-        background: #ffffff;
+        background: var(--bg-white);
         color: #721513;
         border: 2px solid rgba(114, 21, 19, 0.2);
         padding: 0.75rem 1.6rem;
@@ -407,6 +407,25 @@ interface PrestationData {
           flex-direction: column;
           text-align: center;
         }
+      }
+
+      /* ===== DARK MODE OVERRIDES ===== */
+      [data-theme="dark"] .master-tab-btn {
+        color: var(--text-main);
+        border-color: var(--border-color);
+      }
+      [data-theme="dark"] .master-nav-btn {
+        color: var(--primary-dark);
+        border-color: var(--border-color);
+      }
+      [data-theme="dark"] .prestation-info h3,
+      [data-theme="dark"] .prestation-desc {
+        color: var(--text-main);
+      }
+      [data-theme="dark"] .master-counter .sep,
+      [data-theme="dark"] .master-counter .total-num,
+      [data-theme="dark"] .master-counter .prest-name {
+        color: var(--text-muted);
       }
     `
   ]

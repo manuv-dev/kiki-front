@@ -390,41 +390,66 @@ import { KikiDataService } from './services/kiki-data.service';
                       </span>
                     </td>
                     <td>
-                      <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center;">
-                        <!-- 1. En attente (pending) : Voir détails avant acceptation, Accepter ou Refuser -->
+                      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center;">
+                        <!-- 1. En attente (pending) : Voir détails demande client (popup), Accepter, Refuser -->
                         <ng-container *ngIf="isPendingStatus(req.status)">
-                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openTraceabilityModal(req)" title="Voir les détails de la demande">
-                            <i class="fas fa-eye"></i>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande envoyée par le client">
+                            <i class="fas fa-eye me-1"></i> Détails
                           </button>
-                          <button class="btn btn-sm" style="background: #059669; color: white;" (click)="acceptRequest(req)" title="Accepter la demande">
-                            <i class="fas fa-check"></i>
+                          <button class="btn btn-sm" style="background: #059669; color: white; font-weight: 600;" (click)="acceptRequest(req)" title="Accepter la demande">
+                            <i class="fas fa-check"></i> Accepter
                           </button>
-                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="setStatus(req.id, 'rejected')" title="Refuser">
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser la demande">
                             <i class="fas fa-times"></i>
                           </button>
                         </ng-container>
 
-                        <!-- 2. Accepté (accepted) : Bouton Modifier (pour faire ou envoyer le devis) -->
-                        <ng-container *ngIf="req.status === 'accepted'">
-                          <button class="btn btn-sm" style="background: #7F1D1D; color: white;" (click)="openDevisModal(req, false)" title="Modifier et envoyer le devis">
-                            <i class="fas fa-edit"></i>
+                        <!-- 2. Accepté (accepted) : Éditer le devis, Refuser, Voir détails -->
+                        <ng-container *ngIf="isAcceptedStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #7A1C1C; color: white; font-weight: 600;" (click)="openDevisModal(req, false)" title="Éditer et envoyer le devis PDF au client">
+                            <i class="fas fa-file-invoice-dollar me-1"></i> Éditer le devis
+                          </button>
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser">
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les infos de la demande">
+                            <i class="fas fa-eye"></i>
                           </button>
                         </ng-container>
 
-                        <!-- 3. Envoyé (sent ou quoted) : Voir et Modifier -->
-                        <ng-container *ngIf="req.status === 'sent' || req.status === 'quoted'">
-                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis envoyé">
-                            <i class="fas fa-eye"></i>
+                        <!-- 3. Devis envoyé (sent/quoted) : Modifier devis, Créer événement, Refuser, Voir détails -->
+                        <ng-container *ngIf="isSentStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #2563EB; color: white;" (click)="openDevisModal(req, false)" title="Modifier et renvoyer le devis PDF au client">
+                            <i class="fas fa-edit me-1"></i> Modifier devis
                           </button>
-                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="openDevisModal(req, false)" title="Modifier le devis">
-                            <i class="fas fa-edit"></i>
+                          <button class="btn btn-sm" style="background: #059669; color: white; font-weight: 600;" (click)="acceptDevisAndCreateEvent(req)" title="Le client a accepté : créer l'événement">
+                            <i class="fas fa-calendar-plus me-1"></i> Créer événement
+                          </button>
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Le client a refusé le devis">
+                            <i class="fas fa-times me-1"></i> Refuser
+                          </button>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les infos du client">
+                            <i class="fas fa-eye"></i>
                           </button>
                         </ng-container>
 
-                        <!-- 4. Aboutis (aboutis) ou Refusé (rejected) : Voir -->
-                        <ng-container *ngIf="req.status === 'aboutis' || req.status === 'rejected'">
-                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openDevisModal(req, true)" title="Voir les détails">
+                        <!-- 4. Aboutis (aboutis) : Voir devis, Voir détails -->
+                        <ng-container *ngIf="isAboutisStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #5B21B6; color: white; font-weight: 600;" (click)="openDevisModal(req, true)" title="Voir le devis conclu">
+                            <i class="fas fa-file-invoice me-1"></i> Voir devis
+                          </button>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande">
                             <i class="fas fa-eye"></i>
+                          </button>
+                        </ng-container>
+
+                        <!-- 5. Refusé (rejected) : Voir détails (et Voir devis si existant) -->
+                        <ng-container *ngIf="isRejectedStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande">
+                            <i class="fas fa-eye me-1"></i> Détails
+                          </button>
+                          <button class="btn btn-sm" style="background: #64748B; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis (si émis)">
+                            <i class="fas fa-file-invoice"></i>
                           </button>
                         </ng-container>
                       </div>
@@ -938,7 +963,7 @@ import { KikiDataService } from './services/kiki-data.service';
         <div *ngIf="showDevisModal" class="custom-modal-backdrop" (click)="closeDevisModal()">
           <div class="custom-modal-box" style="max-width: 680px;" (click)="$event.stopPropagation()">
             <div class="modal-header">
-              <h3 style="margin: 0; color: #7A1C1C;"><i class="fas fa-file-invoice-dollar me-2"></i>Édition & Envoi du Devis par Mail</h3>
+              <h3 style="margin: 0; color: #7A1C1C;"><i class="fas fa-file-invoice-dollar me-2"></i>{{ isNewDevis ? 'Création de devis' : 'Édition & Envoi du Devis par Mail' }}</h3>
               <button class="btn-close" (click)="closeDevisModal()"><i class="fas fa-times"></i></button>
             </div>
             <div class="modal-body">
@@ -983,7 +1008,7 @@ import { KikiDataService } from './services/kiki-data.service';
                     <input type="number" class="form-control" [(ngModel)]="devisForm.guests" style="font-size: 0.8rem;">
                   </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                <div style="display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 0.75rem;">
                   <div>
                     <label style="font-size: 0.75rem; color: #475569;">Lieu de réception</label>
                     <input type="text" class="form-control" [(ngModel)]="devisForm.location" style="font-size: 0.8rem;">
@@ -991,6 +1016,10 @@ import { KikiDataService } from './services/kiki-data.service';
                   <div>
                     <label style="font-size: 0.75rem; color: #475569;">Date prévue</label>
                     <input type="date" class="form-control" [(ngModel)]="devisForm.date" style="font-size: 0.8rem;">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.75rem; color: #475569;">Heure</label>
+                    <input type="time" class="form-control" [(ngModel)]="devisForm.time" style="font-size: 0.8rem;">
                   </div>
                 </div>
               </div>
@@ -1006,20 +1035,18 @@ import { KikiDataService } from './services/kiki-data.service';
                 <span class="badge" style="background: #FEF3C7; color: #D97706;">{{ devisForm.status | uppercase }}</span>
               </div>
 
-              <!-- Lignes du devis -->
+              <!-- Lignes du devis (sans quantité ni TVA, uniquement Titre et Montant en FCFA + Remise) -->
               <table class="admin-table" style="margin-bottom: 1rem;">
                 <thead>
                   <tr>
-                    <th>Description de la prestation</th>
-                    <th style="width: 80px;">Qté</th>
-                    <th style="width: 120px;">P.U (FCFA)</th>
+                    <th>Titre / Description du montant</th>
+                    <th style="width: 170px;">Montant (FCFA)</th>
                     <th style="width: 50px;"></th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let item of devisForm.items; let i = index">
-                    <td><input type="text" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="item.desc" (ngModelChange)="onDevisFormChange()"></td>
-                    <td><input type="number" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="item.qty" (ngModelChange)="onDevisFormChange()"></td>
+                    <td><input type="text" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="item.desc" (ngModelChange)="onDevisFormChange()" placeholder="Ex: Forfait Buffet Gastronomique"></td>
                     <td><input type="number" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="item.unitPrice" (ngModelChange)="onDevisFormChange()"></td>
                     <td>
                       <button *ngIf="!isDevisReadonly" type="button" class="btn btn-sm" style="color: #DC2626;" (click)="removeDevisItem(i)">
@@ -1030,19 +1057,19 @@ import { KikiDataService } from './services/kiki-data.service';
                 </tbody>
               </table>
               <button *ngIf="!isDevisReadonly" type="button" class="btn btn-sm btn-outline" (click)="addDevisItem()" style="margin-bottom: 1.25rem;">
-                <i class="fas fa-plus me-1"></i> Ajouter une ligne
+                <i class="fas fa-plus me-1"></i> Ajouter un titre de montant
               </button>
 
               <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
-                <div style="width: 260px; background: #F8FAFC; padding: 1rem; border-radius: 8px;">
-                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem;">
+                <div style="width: 280px; background: #F8FAFC; padding: 1.15rem; border-radius: 10px; border: 1px solid #E2E8F0;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem;">
                     <span>Sous-total :</span> <strong>{{ getDevisSubtotal() | number }} FCFA</strong>
                   </div>
-                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.4rem; align-items: center;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 0.6rem; align-items: center; font-size: 0.85rem;">
                     <span>Remise (%) :</span>
-                    <input type="number" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.discount" (ngModelChange)="onDevisFormChange()" style="width: 70px; padding: 0.2rem;">
+                    <input type="number" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.discount" (ngModelChange)="onDevisFormChange()" style="width: 75px; padding: 0.25rem 0.5rem; text-align: right;">
                   </div>
-                  <div style="display: flex; justify-content: space-between; border-top: 1px solid #CBD5E1; padding-top: 0.5rem; color: #7A1C1C; font-size: 1.05rem;">
+                  <div style="display: flex; justify-content: space-between; border-top: 2px solid #CBD5E1; padding-top: 0.6rem; color: #7A1C1C; font-size: 1.12rem; font-weight: 800;">
                     <span>Total Net :</span> <strong>{{ getDevisTotal() | number }} FCFA</strong>
                   </div>
                 </div>
@@ -1050,20 +1077,98 @@ import { KikiDataService } from './services/kiki-data.service';
             </div>
             <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
               <button type="button" class="btn btn-outline" (click)="closeDevisModal()">{{ isDevisReadonly ? 'Fermer' : 'Annuler' }}</button>
-              <div *ngIf="!isDevisReadonly" style="display: flex; gap: 0.6rem;">
-                <!-- Devis déjà envoyé : par défaut Créer un événement, si modifié Enregistrer et envoyer -->
-                <ng-container *ngIf="devisForm.status === 'sent' || devisForm.status === 'quoted'">
-                  <button *ngIf="!isDevisModified" type="button" class="btn" style="background: #059669; color: white;" (click)="concludeDevisAndCreateEvent()">
-                    <i class="fas fa-calendar-plus me-1"></i> Créer un événement
+              <div *ngIf="!isDevisReadonly" style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
+                <!-- Bouton principal : Enregistrer et envoyer la version en PDF par mail -->
+                <button type="button" class="btn" style="background: #7A1C1C; color: white; font-weight: 700; padding: 0.55rem 1.2rem;" (click)="sendDevisByEmail()">
+                  <i class="fas fa-file-pdf me-1"></i> ENREGISTRER ET ENVOYER PAR MAIL (PDF)
+                </button>
+                <!-- Si le devis est en cours/émis ou nouveau, actions complémentaires -->
+                <button *ngIf="isNewDevis || isSentStatus(devisForm.status)" type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="concludeDevisAndCreateEvent()">
+                  <i class="fas fa-calendar-plus me-1"></i> Créer un événement
+                </button>
+                <button *ngIf="!isNewDevis && isSentStatus(devisForm.status)" type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="rejectDevisFromModal()">
+                  <i class="fas fa-times me-1"></i> Refuser
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL : DÉTAILS DE LA DEMANDE CLIENT (EN ATTENTE, ACCEPTÉE, ETC.) -->
+        <div *ngIf="showRequestDetailsModal && currentDetailRequest" class="custom-modal-backdrop" (click)="closeRequestDetailsModal()">
+          <div class="custom-modal-box" style="max-width: 580px; background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);" (click)="$event.stopPropagation()">
+            <!-- Header bordeaux premium -->
+            <div class="modal-header" style="background: #7A1C1C; color: #FFFFFF; padding: 1.25rem 1.5rem; border-bottom: none;">
+              <h3 style="margin: 0; color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.2rem;">
+                <i class="fas fa-file-alt me-2"></i>Détails de la demande #{{ currentDetailRequest.id }}
+              </h3>
+              <button class="btn-close" style="color: #FFFFFF; opacity: 0.9;" (click)="closeRequestDetailsModal()"><i class="fas fa-times"></i></button>
+            </div>
+
+            <!-- Body : informations complètes envoyées par le client -->
+            <div class="modal-body" style="padding: 1.75rem 1.5rem;">
+              <!-- Client Banner -->
+              <div style="display: flex; align-items: center; gap: 1rem; background: #FDFBF7; border: 1px solid #EBE4D5; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: #7A1C1C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem;">
+                  {{ getClientInitials(currentDetailRequest.clientId) }}
+                </div>
+                <div>
+                  <h4 style="margin: 0; color: #1E293B; font-size: 1.1rem; font-weight: 700;">{{ getClientName(currentDetailRequest.clientId) }}</h4>
+                  <div style="font-size: 0.8rem; color: #64748B; margin-top: 0.2rem;">
+                    <i class="fas fa-envelope me-1" style="color: #7A1C1C;"></i> {{ getClientEmail(currentDetailRequest.clientId) }} &nbsp;|&nbsp;
+                    <i class="fas fa-phone me-1" style="color: #7A1C1C;"></i> {{ getClientPhone(currentDetailRequest.clientId) }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Grille d'informations -->
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">PRESTATION DEMANDÉE</span>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #7A1C1C; margin-top: 0.3rem;">
+                    <i class="fas fa-utensils me-1"></i> {{ getPrestationName(currentDetailRequest.prestationId) }}
+                  </div>
+                </div>
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">NOMBRE DE CONVIVES</span>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+                    <i class="fas fa-users me-1" style="color: #D97706;"></i> {{ currentDetailRequest.guests || 'Non spécifié' }} personnes
+                  </div>
+                </div>
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">DATE SOUHAITÉE</span>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+                    <i class="fas fa-calendar-alt me-1" style="color: #2563EB;"></i> {{ formatDate(currentDetailRequest.date) }}
+                  </div>
+                </div>
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">LIEU / ADRESSE</span>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+                    <i class="fas fa-map-marker-alt me-1" style="color: #DC2626;"></i> {{ currentDetailRequest.location || 'Dakar / À définir' }}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Notes & Commentaire client -->
+              <div style="background: #F1F5F9; border-left: 4px solid #7A1C1C; border-radius: 6px; padding: 1rem; margin-bottom: 0.5rem;">
+                <span style="font-size: 0.72rem; color: #64748B; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">PRÉCISONS / MESSAGE DU CLIENT :</span>
+                <p style="margin: 0; font-style: italic; color: #334155; font-size: 0.9rem; line-height: 1.5;">
+                  "{{ currentDetailRequest.message || 'Aucune note supplémentaire n\'a été transmise par le client lors de la demande.' }}"
+                </p>
+              </div>
+            </div>
+
+            <!-- Footer : Actions dynamiques selon le statut -->
+            <div class="modal-footer" style="background: #F8FAFC; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0;">
+              <button type="button" class="btn btn-outline" (click)="closeRequestDetailsModal()">Fermer</button>
+              <div style="display: flex; gap: 0.6rem;">
+                <!-- Si en attente : possibilité d'accepter ou refuser -->
+                <ng-container *ngIf="isPendingStatus(currentDetailRequest.status)">
+                  <button type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="acceptRequestFromDetails()">
+                    <i class="fas fa-check me-1"></i> ACCEPTER LA DEMANDE
                   </button>
-                  <button *ngIf="isDevisModified" type="button" class="btn" style="background: #2563EB; color: white;" (click)="sendDevisByEmail()">
-                    <i class="fas fa-paper-plane me-1"></i> Enregistrer et envoyer par mail (PDF)
-                  </button>
-                </ng-container>
-                <!-- Autres statuts / nouveau devis -->
-                <ng-container *ngIf="devisForm.status !== 'sent' && devisForm.status !== 'quoted'">
-                  <button type="button" class="btn" style="background: #2563EB; color: white;" (click)="sendDevisByEmail()">
-                    <i class="fas fa-paper-plane me-1"></i> Enregistrer et envoyer par mail (PDF)
+                  <button type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="rejectRequestFromDetails()">
+                    <i class="fas fa-times me-1"></i> REFUSER
                   </button>
                 </ng-container>
               </div>
@@ -2139,6 +2244,8 @@ export class GestionnaireComponent implements OnInit {
   currentTraceRequest: any = null;
   currentTraceDevis: any = null;
   currentTraceEvent: any = null;
+  showRequestDetailsModal = false;
+  currentDetailRequest: any = null;
 
   // Devis Modal
   isNewDevis = false;
@@ -2153,6 +2260,7 @@ export class GestionnaireComponent implements OnInit {
     guests: 50,
     location: 'Salle La Diva, Dakar',
     date: new Date().toISOString().split('T')[0],
+    time: '19:00',
     items: [{ desc: 'Prestation Traiteur - Forfait de base', qty: 1, unitPrice: 15000 }],
     tvaRate: 0,
     discount: 0,
@@ -2188,10 +2296,10 @@ export class GestionnaireComponent implements OnInit {
   statusFiltersList = [
     { label: 'Tous', value: 'ALL' },
     { label: 'En attente', value: 'pending' },
-    { label: 'Devis envoyé', value: 'quoted' },
     { label: 'Accepté', value: 'accepted' },
-    { label: 'Refusé', value: 'rejected' },
-    { label: 'Aboutis', value: 'aboutis' }
+    { label: 'Devis envoyé', value: 'sent' },
+    { label: 'Aboutis', value: 'aboutis' },
+    { label: 'Refusé', value: 'rejected' }
   ];
 
   constructor(private dataService: KikiDataService, private router: Router) {}
@@ -2384,27 +2492,41 @@ export class GestionnaireComponent implements OnInit {
     return prices[id] || 15000;
   }
 
+  isPendingStatus(status: string): boolean {
+    return !status || status === 'pending' || status === 'new' || status === 'en_attente' ||
+           (!this.isSentStatus(status) && !this.isAcceptedStatus(status) && !this.isAboutisStatus(status) && !this.isRejectedStatus(status));
+  }
+
+  isAcceptedStatus(status: string): boolean {
+    return status === 'accepted' || status === 'approved';
+  }
+
+  isSentStatus(status: string): boolean {
+    return status === 'sent' || status === 'quoted' || status === 'devis_envoye';
+  }
+
+  isAboutisStatus(status: string): boolean {
+    return status === 'aboutis' || status === 'conclue' || status === 'event_created';
+  }
+
+  isRejectedStatus(status: string): boolean {
+    return status === 'rejected' || status === 'refuse';
+  }
+
   getStatusLabel(status: string): string {
-    switch (status) {
-      case 'quoted': return 'Devis Prêt';
-      case 'accepted': return 'Accepté';
-      case 'rejected': return 'Refusé';
-      default: return 'En attente';
-    }
+    if (this.isSentStatus(status)) return 'Devis envoyé';
+    if (this.isAcceptedStatus(status)) return 'Accepté';
+    if (this.isAboutisStatus(status)) return 'Aboutis';
+    if (this.isRejectedStatus(status)) return 'Refusé';
+    return 'En attente';
   }
 
   getBadgeClass(status: string): string {
-    switch (status) {
-      case 'quoted': return 'badge-quoted';
-      case 'accepted': return 'badge-accepted';
-      case 'rejected': return 'badge-rejected';
-      default: return 'badge-pending';
-    }
-  }
-
-  isPendingStatus(status: string): boolean {
-    return !status || status === 'pending' || status === 'approved' || status === 'new' || status === 'en_attente' ||
-           (status !== 'accepted' && status !== 'sent' && status !== 'quoted' && status !== 'aboutis' && status !== 'rejected');
+    if (this.isSentStatus(status)) return 'badge-quoted';
+    if (this.isAcceptedStatus(status)) return 'badge-accepted';
+    if (this.isAboutisStatus(status)) return 'badge-aboutis';
+    if (this.isRejectedStatus(status)) return 'badge-rejected';
+    return 'badge-pending';
   }
 
   formatDate(d: string): string {
@@ -2633,6 +2755,11 @@ export class GestionnaireComponent implements OnInit {
 
   getRequestCountByStatus(status: string): number {
     if (status === 'ALL') return this.requests.length;
+    if (status === 'pending') return this.requests.filter(r => this.isPendingStatus(r.status)).length;
+    if (status === 'accepted') return this.requests.filter(r => this.isAcceptedStatus(r.status)).length;
+    if (status === 'sent') return this.requests.filter(r => this.isSentStatus(r.status)).length;
+    if (status === 'aboutis') return this.requests.filter(r => this.isAboutisStatus(r.status)).length;
+    if (status === 'rejected') return this.requests.filter(r => this.isRejectedStatus(r.status)).length;
     return this.requests.filter(r => r.status === status).length;
   }
 
@@ -2645,7 +2772,13 @@ export class GestionnaireComponent implements OnInit {
   getFilteredRequests(): any[] {
     let list = [...this.requests];
     if (this.selectedRequestStatusFilter !== 'ALL') {
-      list = list.filter(r => r.status === this.selectedRequestStatusFilter);
+      const sf = this.selectedRequestStatusFilter;
+      if (sf === 'pending') list = list.filter(r => this.isPendingStatus(r.status));
+      else if (sf === 'accepted') list = list.filter(r => this.isAcceptedStatus(r.status));
+      else if (sf === 'sent') list = list.filter(r => this.isSentStatus(r.status));
+      else if (sf === 'aboutis') list = list.filter(r => this.isAboutisStatus(r.status));
+      else if (sf === 'rejected') list = list.filter(r => this.isRejectedStatus(r.status));
+      else list = list.filter(r => r.status === sf);
     }
     if (this.requestPrestationFilter !== 'ALL') {
       list = list.filter(r => r.prestationId === this.requestPrestationFilter);
@@ -2799,6 +2932,7 @@ export class GestionnaireComponent implements OnInit {
       guests: 50,
       location: 'Salle La Diva, Dakar',
       date: new Date().toISOString().split('T')[0],
+      time: '19:00',
       items: [{ desc: 'Prestation Traiteur - Forfait de base', qty: 1, unitPrice: 15000 }],
       tvaRate: 0,
       discount: 0,
@@ -2840,6 +2974,7 @@ export class GestionnaireComponent implements OnInit {
         guests: req.guests || 50,
         location: req.location || 'Salle La Diva, Dakar',
         date: req.date || new Date().toISOString().split('T')[0],
+        time: (d as any).time || req.time || '19:00',
         items: d.items && d.items.length ? [...d.items] : [{ desc: 'Prestation Traiteur - Forfait de base', qty: 1, unitPrice: 15000 }],
         tvaRate: 0,
         discount: d.discount,
@@ -2856,9 +2991,10 @@ export class GestionnaireComponent implements OnInit {
         guests: req.guests || 50,
         location: req.location || 'Salle La Diva, Dakar',
         date: req.date || new Date().toISOString().split('T')[0],
+        time: req.time || '19:00',
         items: [
           { desc: `Service ${this.getPrestationName(req.prestationId)}`, qty: 1, unitPrice: this.getUnitPrice(req.prestationId) },
-          { desc: `Forfait Menu Gastronomique (${req.guests} convives)`, qty: req.guests || 50, unitPrice: 6500 }
+          { desc: `Forfait Menu Gastronomique (${req.guests} convives)`, qty: 1, unitPrice: (req.guests || 50) * 6500 }
         ],
         tvaRate: 0,
         discount: 0,
@@ -2914,6 +3050,7 @@ export class GestionnaireComponent implements OnInit {
         guests: this.devisForm.guests || 50,
         location: this.devisForm.location || 'Salle La Diva, Dakar',
         date: this.devisForm.date || new Date().toISOString().split('T')[0],
+        time: (this.devisForm as any).time || '19:00',
         status: 'sent'
       });
       reqId = newReq.id;
@@ -2959,7 +3096,8 @@ export class GestionnaireComponent implements OnInit {
         guests: this.devisForm.guests || 50,
         location: this.devisForm.location || 'Salle La Diva, Dakar',
         date: this.devisForm.date || new Date().toISOString().split('T')[0],
-        status: 'accepted'
+        time: (this.devisForm as any).time || '19:00',
+        status: 'aboutis'
       });
       reqId = newReq.id;
       this.devisForm.requestId = reqId;
@@ -2973,14 +3111,88 @@ export class GestionnaireComponent implements OnInit {
     } else {
       const existing = this.dataService.getDevisByRequest(reqId);
       if (existing) {
-        this.dataService.updateDevis(existing.id, { status: 'conclue' }, 'Devis conclu et validé avec le client');
+        this.dataService.updateDevis(existing.id, { status: 'conclue' }, 'Devis accepté par le client et conclu');
       }
-      this.dataService.updateRequestStatus(reqId, 'accepted');
+      this.dataService.updateRequestStatus(reqId, 'aboutis');
     }
     this.showDevisModal = false;
     this.loadData();
     const req = this.requests.find(r => r.id === reqId);
+    if (req) {
+      this.openCreateEventModal(req);
+    }
+  }
+
+  acceptDevisAndCreateEvent(req: any): void {
+    this.dataService.updateRequestStatus(req.id, 'aboutis');
+    const dev = this.dataService.getDevisByRequest(req.id);
+    if (dev) {
+      this.dataService.updateDevis(dev.id, { status: 'conclue' }, 'Devis accepté par le client');
+    }
+    this.dataService.showToast("Devis accepté par le client ! Statut passé à 'Aboutis'. Ouverture de la création d'événement...");
+    this.loadData();
     this.openCreateEventModal(req);
+  }
+
+  rejectDevisFromModal(): void {
+    const reqId = this.devisForm.requestId;
+    if (reqId) {
+      const req = this.requests.find(r => r.id === reqId);
+      this.showDevisModal = false;
+      if (req) {
+        this.rejectRequest(req);
+      }
+    }
+  }
+
+  rejectRequest(req: any): void {
+    if (confirm(`Confirmer le refus de la demande #${req.id} pour ${this.getClientName(req.clientId)} ?`)) {
+      this.setStatus(req.id, 'rejected');
+      this.dataService.showToast(`Demande #${req.id} passée au statut 'Refusé'.`);
+    }
+  }
+
+  openRequestDetailsModal(req: any): void {
+    this.currentDetailRequest = req;
+    this.showRequestDetailsModal = true;
+  }
+
+  closeRequestDetailsModal(): void {
+    this.showRequestDetailsModal = false;
+    this.currentDetailRequest = null;
+  }
+
+  acceptRequestFromDetails(): void {
+    if (this.currentDetailRequest) {
+      this.acceptRequest(this.currentDetailRequest);
+      this.closeRequestDetailsModal();
+    }
+  }
+
+  rejectRequestFromDetails(): void {
+    if (this.currentDetailRequest) {
+      this.rejectRequest(this.currentDetailRequest);
+      this.closeRequestDetailsModal();
+    }
+  }
+
+  getClientEmail(clientId: string): string {
+    const c = this.clients.find(item => item.id === clientId);
+    return c ? c.email : 'client@gmail.com';
+  }
+
+  getClientPhone(clientId: string): string {
+    const c = this.clients.find(item => item.id === clientId);
+    return c ? c.phone : '+221 77 000 00 00';
+  }
+
+  getClientInitials(clientId: string): string {
+    const name = this.getClientName(clientId) || 'C';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2 && parts[0] && parts[1]) {
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 
   // --- TRACEABILITY POPUP ---

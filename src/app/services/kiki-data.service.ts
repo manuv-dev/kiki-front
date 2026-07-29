@@ -33,6 +33,7 @@ export interface RequestItem {
   clientPhone?: string;
   prestationTitle?: string;
   location?: string;
+  time?: string;
 }
 
 export interface DevisItem {

@@ -331,7 +331,7 @@ import { KikiDataService } from '../services/kiki-data.service';
           <div style="position: absolute; bottom: 15px; right: 25px; display: flex; gap: 8px; z-index: 5;">
             <span *ngFor="let slide of realisationSlides; let i = index"
               (click)="goToRealisation(i)"
-              [style.background]="currentRealisation === i ? '#FFFFFF' : 'rgba(255,255,255,0.4)'"
+              [style.background]="currentRealisation === i ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.4)'"
               style="width: 32px; height: 4px; border-radius: 2px; cursor: pointer; transition: all 0.3s;">
             </span>
           </div>
@@ -383,8 +383,8 @@ import { KikiDataService } from '../services/kiki-data.service';
     </section>
 
     <!-- DIVA RESERVATION BANNER -->
-    <section class="section-padding"
-      style="background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F4 100%); text-align: center; border-top: 1px solid var(--border-color);">
+    <section class="section-padding section-diva-banner"
+      style="text-align: center; border-top: 1px solid var(--border-color);">
       <div class="container animate-fade">
         <span class="slbl">Salle La Diva</span>
         <h2 style="font-size: 2.5rem; font-weight:900; color:var(--primary-dark); margin-bottom: 1.5rem;">Préparez votre
@@ -425,6 +425,15 @@ import { KikiDataService } from '../services/kiki-data.service';
       border-color: rgba(255, 255, 255, 0.6);
       transform: translateY(-6px);
       box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+    }
+    .section-diva-banner {
+      background: var(--hero-bg, linear-gradient(180deg, #FFFFFF 0%, #FAF8F4 100%));
+    }
+    [data-theme="dark"] .section-diva-banner {
+      background: #000000;
+    }
+    .testimonial-card {
+      color: var(--text-main);
     }
     `
   ]

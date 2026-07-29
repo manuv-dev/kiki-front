@@ -27,16 +27,22 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       </div>
     </div>
 
-    <!-- NAVBAR (Sarab Style) -->
+    <!-- NAVBAR -->
     <header>
       <div class="container nav-container">
         <a routerLink="/" class="logo-link">
-          <img src="assets/images/logo.png" alt="Kiki Traiteur Logo" class="logo-img">
+          <img
+            [src]="isDark ? 'assets/images/KIKI TRAITEUR Logo Picto blanc.png' : 'assets/images/KIKI TRAITEUR Logo Picto Rouge bordeau.png'"
+            alt="Kiki Traiteur Logo"
+            class="logo-img"
+          >
         </a>
         <button class="nav-toggle" aria-label="Ouvrir le menu" [attr.aria-expanded]="isMenuOpen" (click)="toggleMenu()">
           <i class="fas" [ngClass]="isMenuOpen ? 'fa-times' : 'fa-bars'"></i>
         </button>
         <nav [class.active]="isMenuOpen">
+
+          <!-- 1. LIENS DE NAVIGATION (toujours en premier) -->
           <ul class="nav-links">
             <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" (click)="closeMenu()">Accueil</a></li>
             <li><a routerLink="/a-propos" routerLinkActive="active" (click)="closeMenu()">À propos</a></li>
@@ -44,23 +50,31 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
             <li><a routerLink="/realisations" routerLinkActive="active" (click)="closeMenu()">Nos Réalisations</a></li>
             <li><a routerLink="/contact" routerLinkActive="active" (click)="closeMenu()">Contact</a></li>
           </ul>
-          <div class="nav-actions">
-            <!-- THEME SWITCHER -->
-            <div class="theme-switcher" role="group" aria-label="Sélection du thème">
-              <button type="button" (click)="setTheme('light')" [class.active]="currentTheme === 'light'" title="Mode Clair">
-                <i class="fas fa-sun"></i>
-              </button>
-              <button type="button" (click)="setTheme('dark')" [class.active]="currentTheme === 'dark'" title="Mode Sombre">
-                <i class="fas fa-moon"></i>
-              </button>
-              <button type="button" (click)="setTheme('system')" [class.active]="currentTheme === 'system'" title="Mode Système (Auto)">
-                <i class="fas fa-desktop"></i>
-              </button>
-            </div>
 
-            <a routerLink="/login-client" routerLinkActive="active" class="btn-header-mykiki" (click)="closeMenu()"><i class="fa-regular fa-user"></i> MYKIKI</a>
-            <a routerLink="/devis" routerLinkActive="active" class="btn-header-devis" (click)="closeMenu()"><i class="fa-regular fa-calendar-days"></i> DEMANDER UN DEVIS</a>
+          <!-- 2. BOUTONS D'ACTION + TOGGLE THÈME -->
+          <div class="nav-actions">
+            <a routerLink="/login-client" routerLinkActive="active" class="btn-header-mykiki" (click)="closeMenu()">
+              <i class="fa-regular fa-user"></i> MYKIKI
+            </a>
+            <a routerLink="/devis" routerLinkActive="active" class="btn-header-devis" (click)="closeMenu()">
+              <i class="fa-regular fa-calendar-days"></i> DEMANDER UN DEVIS
+            </a>
+
+            <!-- Bouton toggle unique soleil / lune -->
+            <button
+              class="theme-toggle-btn"
+              type="button"
+              (click)="toggleTheme()"
+              [title]="isDark ? 'Passer en Mode Clair' : 'Passer en Mode Sombre'"
+              [attr.aria-label]="isDark ? 'Mode Clair' : 'Mode Sombre'"
+            >
+              <span class="toggle-icon" [class.spinning]="isAnimating">
+                <i class="fas" [ngClass]="isDark ? 'fa-sun' : 'fa-moon'"></i>
+              </span>
+            </button>
           </div>
+
+          <!-- 3. INFO CONTACT MOBILE (tout en bas) -->
           <div class="mobile-menu-topbar-info">
             <div class="m-contact-item"><i class="fas fa-map-marker-alt"></i> Hann Maristes, Dakar, Sénégal</div>
             <div class="m-contact-item"><i class="fas fa-phone-alt"></i> +221 33 832 29 66 / +221 33 832 11 50</div>
@@ -80,12 +94,12 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       <router-outlet></router-outlet>
     </main>
 
-    <!-- FOOTER (Sarab style) -->
+    <!-- FOOTER -->
     <footer>
       <div class="container footer-grid">
         <div class="footer-col">
-          <img src="assets/images/logo.png" alt="Kiki Traiteur Logo"
-            style="height: 60px; margin-bottom: 1.5rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));">
+          <img src="assets/images/KIKI TRAITEUR Logo Picto blanc.png" alt="Kiki Traiteur Logo"
+            style="height: 60px; margin-bottom: 1.5rem;">
           <p class="footer-desc">La poésie des saveurs et l'art culinaire, c'est nous ! Une signature gastronomique
             d'exception au Sénégal depuis 1997.</p>
           <div class="footer-socials">
@@ -115,16 +129,13 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           </ul>
         </div>
         <div class="footer-col">
-          <h4>Horaires & Contact</h4>
+          <h4>Horaires &amp; Contact</h4>
           <ul class="footer-contact-info">
-            <li><i class="fas fa-map-marker-alt" style="color: #FFFFFF; margin-right: 0.5rem;"></i> Hann
-              Maristes, Dakar, Sénégal</li>
-            <li><i class="fas fa-phone-alt" style="color: #FFFFFF; margin-right: 0.5rem;"></i> +221 33 832 29 66</li>
-            <li><i class="fas fa-phone-alt" style="color: #FFFFFF; margin-right: 0.5rem;"></i> +221 33 832 11 50</li>
-            <li><i class="fas fa-envelope" style="color: #FFFFFF; margin-right: 0.5rem;"></i>
-              contact&#64;kikitraiteursenegal.net</li>
-            <li style="margin-top: 1rem; color: #FFFFFF; font-weight: 700;"><i class="fas fa-clock"
-                style="color: #FFFFFF; margin-right: 0.5rem;"></i> Horaires :</li>
+            <li><i class="fas fa-map-marker-alt" style="color:#FFFFFF;margin-right:0.5rem;"></i> Hann Maristes, Dakar, Sénégal</li>
+            <li><i class="fas fa-phone-alt" style="color:#FFFFFF;margin-right:0.5rem;"></i> +221 33 832 29 66</li>
+            <li><i class="fas fa-phone-alt" style="color:#FFFFFF;margin-right:0.5rem;"></i> +221 33 832 11 50</li>
+            <li><i class="fas fa-envelope" style="color:#FFFFFF;margin-right:0.5rem;"></i> contact&#64;kikitraiteursenegal.net</li>
+            <li style="margin-top:1rem;color:#FFFFFF;font-weight:700;"><i class="fas fa-clock" style="color:#FFFFFF;margin-right:0.5rem;"></i> Horaires :</li>
             <li>Lun-Ven: 9h – 23h</li>
             <li>Samedi : 9h – 01h</li>
             <li>Dimanche : Fermé</li>
@@ -140,58 +151,103 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
       </div>
     </footer>
   `,
-  styles: [
-    `
+  styles: [`
     :host { display: block; }
-    .theme-switcher {
+
+    /* ─── Bouton toggle thème : un seul bouton rond ─── */
+    .theme-toggle-btn {
       display: inline-flex;
       align-items: center;
-      background: var(--bg-tertiary);
-      border: 1px solid var(--border-color);
-      border-radius: 50px;
-      padding: 3px;
-      margin-right: 0.75rem;
-    }
-    .theme-switcher button {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      width: 32px;
-      height: 32px;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
+      background: var(--bg-tertiary);
+      border: 1.5px solid var(--border-color);
+      color: var(--text-muted);
+      cursor: pointer;
+      margin-left: 0.6rem;
+      flex-shrink: 0;
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease, transform 0.2s ease;
+      font-size: 0.95rem;
+    }
+    .theme-toggle-btn:hover {
+      background: var(--primary-color);
+      border-color: var(--primary-color);
+      color: #fff;
+      transform: scale(1.1);
+    }
+    .toggle-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      font-size: 0.85rem;
-      transition: all 0.25s ease;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     }
-    .theme-switcher button:hover {
-      color: var(--primary-color);
+    .toggle-icon.spinning {
+      transform: rotate(360deg);
     }
-    .theme-switcher button.active {
-      background: var(--primary-color);
-      color: #FFFFFF;
-      box-shadow: 0 2px 6px rgba(229, 29, 36, 0.3);
+
+    /* ─── Menu mobile : liens → boutons → infos contact ─── */
+    @media (max-width: 920px) {
+      nav {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      /* 1. Liens en premier */
+      .nav-links {
+        order: 1;
+        width: 100%;
+        margin-bottom: 0;
+      }
+      /* 2. Boutons en deuxième */
+      .nav-actions {
+        order: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+        margin-top: 1.2rem;
+        padding-top: 1.2rem;
+        border-top: 1px solid var(--border-color);
+      }
+      .nav-actions a {
+        width: 240px;
+        max-width: 90%;
+        text-align: center;
+        justify-content: center;
+      }
+      .theme-toggle-btn {
+        margin-left: 0;
+      }
+      /* 3. Infos contact en dernier */
+      .mobile-menu-topbar-info {
+        order: 3;
+      }
     }
-    `
-  ]
+  `]
 })
 export class SiteComponent implements OnInit {
   isMenuOpen = false;
-  currentTheme: 'light' | 'dark' | 'system' = 'light';
+  isDark = false;
+  isAnimating = false;
 
   ngOnInit(): void {
-    const saved = localStorage.getItem('kiki-theme') as 'light' | 'dark' | 'system' | null;
-    if (saved && ['light', 'dark', 'system'].includes(saved)) {
-      this.setTheme(saved);
-    } else {
-      this.setTheme('light');
-    }
+    const saved = localStorage.getItem('kiki-theme') as 'light' | 'dark' | null;
+    this.applyTheme(saved === 'dark' ? 'dark' : 'light');
   }
 
-  setTheme(theme: 'light' | 'dark' | 'system'): void {
-    this.currentTheme = theme;
+  toggleTheme(): void {
+    // Déclenche l'animation de rotation
+    this.isAnimating = true;
+    setTimeout(() => { this.isAnimating = false; }, 450);
+    this.applyTheme(this.isDark ? 'light' : 'dark');
+  }
+
+  applyTheme(theme: 'light' | 'dark'): void {
+    this.isDark = theme === 'dark';
     localStorage.setItem('kiki-theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
   }
@@ -211,4 +267,3 @@ export class SiteComponent implements OnInit {
     }
   }
 }
-

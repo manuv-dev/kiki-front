@@ -175,7 +175,7 @@ import { KikiDataService } from '../services/kiki-data.service';
       .contact-form-panel {
         height: fit-content;
         align-self: start;
-        background: #ffffff;
+        background: var(--bg-white);
         padding: 2.2rem;
         border-radius: 20px;
         border: 1px solid rgba(0,0,0,0.06);
@@ -227,7 +227,7 @@ import { KikiDataService } from '../services/kiki-data.service';
         display: flex;
         align-items: center;
         justify-content: space-between;
-        background: #ffffff;
+        background: var(--bg-white);
         border: 1px solid rgba(0,0,0,0.08);
         border-radius: 14px;
         padding: 0.85rem 1rem;
@@ -243,7 +243,7 @@ import { KikiDataService } from '../services/kiki-data.service';
       }
       .portal-card-location {
         border-left: 4px solid var(--primary-color);
-        background: linear-gradient(135deg, #ffffff, #fffdfb);
+        background: linear-gradient(135deg, var(--bg-white), var(--bg-secondary));
       }
       .portal-card-left {
         display: flex;
@@ -324,6 +324,15 @@ import { KikiDataService } from '../services/kiki-data.service';
         .contact-grid, .form-group-row {
           grid-template-columns: 1fr;
         }
+      }
+
+      /* ===== DARK MODE OVERRIDES ===== */
+      [data-theme="dark"] .portal-card {
+        border-color: var(--border-color);
+      }
+      [data-theme="dark"] .portal-subtitle,
+      [data-theme="dark"] .portal-arrow {
+        color: var(--text-muted);
       }
     `
   ]

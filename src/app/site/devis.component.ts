@@ -18,13 +18,22 @@ import { KikiDataService } from '../services/kiki-data.service';
     </section>
 
     <!-- Devis Wizard Section -->
-    <section class="section-padding">
+    <section class="devis-section-padding">
       <div class="container" style="max-width: 1040px;">
         
         <div class="contact-grid">
           <!-- WIZARD FORM PANEL (Left Column) -->
-          <div class="contact-form-panel animate-fade" style="padding: 2.5rem;">
+          <div class="contact-form-panel animate-fade">
             
+            <!-- EN-TÊTE COMPACT EXCLUSIF À LA VUE MOBILE (ICÔNE ET NOM DE L'ÉTAPE) -->
+            <div class="mobile-step-header">
+              <div class="mobile-step-badge">
+                <i class="fas" [ngClass]="getStepIcon(currentStep)"></i>
+                <span>{{ getStepName(currentStep) }}</span>
+              </div>
+              <div class="mobile-step-title">{{ getStepSubtitle(currentStep) }}</div>
+            </div>
+
             <!-- STEPPER PROGRESS BAR (7 STEPS) -->
             <div class="wizard-stepper">
               <!-- Step 1: Profil -->
@@ -88,7 +97,7 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 1 : PROFIL (QUI ÊTES-VOUS ?) -->
             <div [hidden]="currentStep !== 1" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2rem;">
+              <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Qui êtes-vous ?</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Dites-nous si cette demande est personnelle ou professionnelle</p>
               </div>
@@ -124,7 +133,7 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 2 : PRESTATION -->
             <div [hidden]="currentStep !== 2" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2rem;">
+              <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Quelle prestation ?</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Sélectionnez le type d'événement souhaité</p>
               </div>
@@ -153,13 +162,13 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 3 : DATE & CONVIVES -->
             <div [hidden]="currentStep !== 3" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2.2rem;">
+              <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Magnifique projet</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Pour quel jour et combien de convives ?</p>
               </div>
 
               <!-- NOMBRE ESTIMÉ DE CONVIVES -->
-              <div class="form-group" style="margin-bottom: 2.5rem;">
+              <div class="form-group" style="margin-bottom: 1.25rem;">
                 <label style="font-weight: 700; font-size: 0.9rem; color: #7A1C1C; text-transform: uppercase; letter-spacing: 0.5px;">
                   NOMBRE ESTIMÉ DE CONVIVES ({{ form.guests }}) *
                 </label>
@@ -195,7 +204,7 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 4 : LIEU -->
             <div [hidden]="currentStep !== 4" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2rem;">
+              <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Un timing précieux</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Où souhaitez-vous célébrer cet événement ?</p>
               </div>
@@ -239,7 +248,7 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 5 : CUISINE -->
             <div [hidden]="currentStep !== 5" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2rem;">
+              <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Signature gastronomique</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Quel esprit culinaire pour votre événement ?</p>
               </div>
@@ -272,7 +281,7 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 6 : CONTACT -->
             <div [hidden]="currentStep !== 6" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2rem;">
+              <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Vos coordonnées</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Comment pouvons-nous vous joindre pour échanger sur ce projet ?</p>
               </div>
@@ -310,7 +319,7 @@ import { KikiDataService } from '../services/kiki-data.service';
 
             <!-- ÉTAPE 7 : RÉCAPITULATIF (AVEC BOUTONS MODIFIER PAR SECTION) -->
             <div [hidden]="currentStep !== 7" class="animate-fade">
-              <div style="text-align: center; margin-bottom: 2rem;">
+              <div class="wizard-step-header">
                 <span class="slbl" style="display: inline-block; margin-bottom: 0.5rem;"><i class="fas fa-clipboard-check"></i> ÉTAPE FINALE</span>
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Récapitulatif de votre demande</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Vérifiez et modifiez vos informations avant de valider votre projet</p>
@@ -407,7 +416,7 @@ import { KikiDataService } from '../services/kiki-data.service';
           </div>
 
           <!-- ENGAGEMENT & DEVIS SUR MESURE PANEL (Right Column) -->
-          <div class="contact-info-panel animate-fade delay-1" style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--border-radius-lg); padding: 2.5rem; display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="contact-info-panel animate-fade delay-1">
             <div>
               <span class="slbl">Un Service Sur Mesure</span>
               <h3 style="font-size: 1.5rem; color: var(--primary-dark); margin-bottom: 1rem; font-family: var(--font-heading);">Notre Engagement d'Excellence</h3>
@@ -460,6 +469,192 @@ import { KikiDataService } from '../services/kiki-data.service';
   `,
   styles: [`
     :host { display: block; }
+
+    /* LAYOUT PRINCIPAL DE LA PAGE DEVIS - AUCUN DÉBORDEMENT ET COMPACT */
+    .devis-section-padding {
+      padding: 1.5rem 0 3rem;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 340px;
+      gap: 2rem;
+      align-items: start; /* ÉVITE AU FORMULAIRE DE S'ÉTIRE EN HAUTEUR ET DE LAISSER DU VIDE */
+    }
+    .contact-form-panel {
+      background: var(--bg-white, #FFFFFF);
+      border: 1px solid var(--border-color, #E2E8F0);
+      border-radius: 20px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .contact-info-panel {
+      background: var(--bg-secondary, #FDFBF7);
+      border: 1px solid var(--border-color, #EBE4D5);
+      border-radius: 20px;
+      padding: 1.75rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .wizard-step-header {
+      text-align: center;
+      margin-bottom: 1.15rem;
+    }
+    .wizard-step-header h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--primary-dark);
+      margin-bottom: 0.2rem;
+      font-family: var(--font-heading);
+    }
+    .wizard-step-header p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-style: italic;
+      margin: 0;
+    }
+
+    /* EN-TÊTE COMPACT EXCLUSIF À LA VUE MOBILE - CACHÉ SUR DESKTOP */
+    .mobile-step-header {
+      display: none;
+      text-align: center;
+      margin-bottom: 1.25rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color, #E2E8F0);
+    }
+    .mobile-step-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(220, 38, 38, 0.08);
+      color: #DC2626;
+      padding: 0.4rem 1.1rem;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+    .mobile-step-title {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #1E293B;
+      line-height: 1.3;
+    }
+
+    @media (max-width: 991px) {
+      .wizard-stepper {
+        display: none !important; /* On cache complètement le stepper horizontal à boules en vue mobile ! */
+      }
+      .mobile-step-header {
+        display: block !important; /* On affiche uniquement l'icône et le nom de l'étape en cours ! */
+      }
+      .wizard-step-header {
+        display: none !important; /* On masque le sous-titre redondant dans chaque étape pour ne garder que l'en-tête mobile épuré */
+      }
+      .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .contact-info-panel {
+        display: none !important;
+      }
+      .contact-form-panel {
+        padding: 1.15rem 1rem !important;
+        border-radius: 14px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-x: hidden !important;
+      }
+      .cat-tabs-grid,
+      .lieu-grid-3,
+      .cuisine-grid,
+      .form-group-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        margin-bottom: 1rem !important;
+      }
+      .cat-card-item,
+      .lieu-card-item,
+      .cuisine-card {
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+        padding: 0.85rem 1rem !important;
+        gap: 1rem !important;
+        border-radius: 12px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .cat-card-item .icon-circle,
+      .lieu-card-item i,
+      .cuisine-card i {
+        margin: 0 !important;
+        width: 42px !important;
+        height: 42px !important;
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+      }
+      .cat-card-item i,
+      .lieu-card-item i,
+      .cuisine-card i {
+        font-size: 1.25rem !important;
+      }
+      .cat-title,
+      .lieu-title,
+      .cuisine-card .cuisine-name {
+        font-size: 1.05rem !important;
+        margin-bottom: 0.1rem !important;
+      }
+      .cat-sub,
+      .lieu-sub,
+      .cuisine-card .cuisine-sub {
+        font-size: 0.78rem !important;
+      }
+      .prestations-grid-3x2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.65rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .prestation-card-img {
+        padding: 0.75rem 0.5rem !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .wizard-actions {
+        flex-direction: row !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+      }
+      .btn-secondary-kiki, .btn-red-pill {
+        padding: 0.75rem 1.15rem !important;
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+      }
+      .page-hero {
+        padding: 1.25rem 0 !important;
+      }
+      .page-hero h1 {
+        font-size: 1.5rem !important;
+        margin-bottom: 0.2rem !important;
+      }
+    }
 
     .wizard-stepper {
       display: flex;
@@ -530,17 +725,17 @@ import { KikiDataService } from '../services/kiki-data.service';
     .cat-tabs-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-      margin-bottom: 1.5rem;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
     }
     .cat-card-item {
       border: 2px solid #E2E8F0;
       border-radius: 16px;
-      padding: 2rem 1.5rem;
+      padding: 1.5rem 1.25rem;
       text-align: center;
       cursor: pointer;
-      background: #FFF;
-      transition: all 0.3s ease;
+      background: var(--bg-white);
+      transition: all 0.25s ease;
     }
     .cat-card-item:hover {
       border-color: #DC2626;
@@ -553,14 +748,14 @@ import { KikiDataService } from '../services/kiki-data.service';
       box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
     }
     .icon-circle {
-      width: 60px;
-      height: 60px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
       background: #F8FAFC;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 1rem;
+      margin: 0 auto 0.65rem;
       transition: all 0.3s ease;
     }
     .cat-card-item.active .icon-circle {
@@ -570,39 +765,75 @@ import { KikiDataService } from '../services/kiki-data.service';
       color: #FFFFFF;
     }
     .cat-card-item i {
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       color: #475569;
     }
     .cat-title {
       font-family: var(--font-heading);
-      font-size: 1.2rem;
+      font-size: 1.15rem;
       font-weight: 700;
       color: #1E293B;
-      margin-bottom: 0.35rem;
+      margin-bottom: 0.25rem;
     }
     .cat-sub {
-      font-size: 0.82rem;
+      font-size: 0.8rem;
       color: #64748B;
+    }
+
+    @media (max-width: 768px) {
+      .cat-tabs-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+        margin-bottom: 1rem !important;
+      }
+      .cat-card-item {
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+        padding: 0.85rem 1rem !important;
+        gap: 1rem !important;
+        border-radius: 12px !important;
+      }
+      .cat-card-item .icon-circle {
+        margin: 0 !important;
+        width: 42px !important;
+        height: 42px !important;
+        flex-shrink: 0 !important;
+      }
+      .cat-card-item i {
+        font-size: 1.15rem !important;
+      }
+      .cat-title {
+        font-size: 1.05rem !important;
+        margin-bottom: 0.1rem !important;
+      }
+      .cat-sub {
+        font-size: 0.78rem !important;
+      }
     }
 
     /* STEP 2: PRESTATION 3x2 GRID */
     .prestations-grid-3x2 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-      margin-bottom: 2rem;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
     }
     @media (max-width: 768px) {
-      .prestations-grid-3x2 { grid-template-columns: repeat(2, 1fr); }
+      .prestations-grid-3x2 {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.65rem !important;
+        margin-bottom: 1rem !important;
+      }
     }
     .prestation-card-img {
       border: 2px solid #E2E8F0;
-      border-radius: 14px;
-      padding: 1.5rem 1rem;
+      border-radius: 12px;
+      padding: 0.85rem 0.6rem;
       text-align: center;
       cursor: pointer;
-      background: #FFF;
-      transition: all 0.3s ease;
+      background: var(--bg-white);
+      transition: all 0.25s ease;
     }
     .prestation-card-img:hover {
       border-color: #DC2626;
@@ -615,15 +846,15 @@ import { KikiDataService } from '../services/kiki-data.service';
       box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
     }
     .prestation-card-img .icon-box {
-      width: 50px;
-      height: 50px;
-      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
       background: #F1F5F9;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto 0.75rem;
-      font-size: 1.3rem;
+      margin: 0 auto 0.4rem;
+      font-size: 1.15rem;
       color: #475569;
       transition: all 0.3s;
     }
@@ -634,24 +865,38 @@ import { KikiDataService } from '../services/kiki-data.service';
     .prest-name {
       font-weight: 700;
       color: #1E293B;
-      font-size: 0.95rem;
+      font-size: 0.88rem;
+    }
+    @media (max-width: 768px) {
+      .prestation-card-img {
+        padding: 0.7rem 0.4rem !important;
+      }
+      .prestation-card-img .icon-box {
+        width: 36px !important;
+        height: 36px !important;
+        margin-bottom: 0.35rem !important;
+        font-size: 1.1rem !important;
+      }
+      .prest-name {
+        font-size: 0.82rem !important;
+      }
     }
 
     /* STEP 4: LIEU GRID */
     .lieu-grid-3 {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1.25rem;
-      margin-bottom: 1.5rem;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
     }
     .lieu-card-item {
       border: 2px solid #E2E8F0;
       border-radius: 14px;
-      padding: 1.5rem 1rem;
+      padding: 1.15rem 1rem;
       text-align: center;
       cursor: pointer;
-      background: #FFF;
-      transition: all 0.3s ease;
+      background: var(--bg-white);
+      transition: all 0.25s ease;
     }
     .lieu-card-item:hover {
       border-color: #DC2626;
@@ -663,36 +908,60 @@ import { KikiDataService } from '../services/kiki-data.service';
       box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
     }
     .lieu-card-item i {
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       color: #7A1C1C;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
       display: block;
     }
     .lieu-title {
       font-weight: 700;
       color: #1E293B;
-      font-size: 0.98rem;
+      font-size: 0.95rem;
     }
     .lieu-sub {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #64748B;
+    }
+    @media (max-width: 768px) {
+      .lieu-grid-3 {
+        grid-template-columns: 1fr !important;
+        gap: 0.65rem !important;
+        margin-bottom: 1rem !important;
+      }
+      .lieu-card-item {
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+        padding: 0.75rem 1rem !important;
+        gap: 1rem !important;
+        border-radius: 12px !important;
+      }
+      .lieu-card-item i {
+        margin-bottom: 0 !important;
+        font-size: 1.25rem !important;
+        flex-shrink: 0 !important;
+      }
+      .lieu-title {
+        font-size: 0.98rem !important;
+        margin-bottom: 0.1rem !important;
+      }
     }
 
     /* STEP 5: CUISINE GRID */
     .cuisine-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 1.25rem;
-      margin-bottom: 2rem;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
     }
     .cuisine-card {
       border: 2px solid #E2E8F0;
       border-radius: 14px;
-      padding: 1.5rem;
+      padding: 1.15rem 1rem;
       text-align: center;
       cursor: pointer;
-      background: #FFF;
-      transition: all 0.3s ease;
+      background: var(--bg-white);
+      transition: all 0.25s ease;
     }
     .cuisine-card:hover {
       border-color: #DC2626;
@@ -704,56 +973,80 @@ import { KikiDataService } from '../services/kiki-data.service';
       box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
     }
     .cuisine-card i {
-      font-size: 1.5rem;
+      font-size: 1.35rem;
       color: #7A1C1C;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.35rem;
       display: block;
     }
     .cuisine-card .cuisine-name {
       font-weight: 700;
       color: #1E293B;
-      font-size: 1rem;
-      margin-bottom: 0.2rem;
+      font-size: 0.95rem;
+      margin-bottom: 0.15rem;
     }
     .cuisine-card .cuisine-sub {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #64748B;
+    }
+    @media (max-width: 768px) {
+      .cuisine-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.65rem !important;
+        margin-bottom: 1rem !important;
+      }
+      .cuisine-card {
+        display: flex !important;
+        align-items: center !important;
+        text-align: left !important;
+        padding: 0.75rem 1rem !important;
+        gap: 1rem !important;
+        border-radius: 12px !important;
+      }
+      .cuisine-card i {
+        margin-bottom: 0 !important;
+        font-size: 1.25rem !important;
+        flex-shrink: 0 !important;
+      }
+      .cuisine-card .cuisine-name {
+        font-size: 0.98rem !important;
+        margin-bottom: 0.1rem !important;
+      }
     }
 
     /* STEP 7: RECAPITULATIF CARDS */
     .recap-box {
       border: 1px solid #E2E8F0;
-      border-radius: 16px;
-      padding: 1.5rem;
-      background: #FFFFFF;
+      border-radius: 14px;
+      padding: 1.15rem 1.25rem;
+      background: var(--bg-white);
       box-shadow: 0 4px 20px -2px rgba(0,0,0,0.05);
     }
     .recap-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 1rem 0;
+      padding: 0.75rem 0;
       border-bottom: 1px solid #F1F5F9;
     }
     .recap-label {
       color: #64748B;
       font-weight: 600;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       display: block;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.15rem;
     }
     .recap-value {
       color: #1E293B;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.92rem;
     }
     .btn-edit-recap {
       background: #F1F5F9;
       color: #475569;
       border: 1px solid #E2E8F0;
       border-radius: 20px;
-      padding: 0.4rem 0.9rem;
-      font-size: 0.8rem;
+      padding: 0.35rem 0.8rem;
+      font-size: 0.78rem;
       font-weight: 700;
       cursor: pointer;
       transition: all 0.2s;
@@ -764,14 +1057,42 @@ import { KikiDataService } from '../services/kiki-data.service';
       border-color: #CBD5E1;
     }
 
-    /* BUTTONS */
+    /* BUTTONS & FORM GROUPS RESPONSIVE */
+    .form-group-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    @media (max-width: 600px) {
+      .form-group-row {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem !important;
+      }
+      .form-group {
+        margin-bottom: 0.85rem !important;
+      }
+    }
     .wizard-actions {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 2.5rem;
-      padding-top: 1.5rem;
+      margin-top: 1.25rem;
+      padding-top: 1rem;
       border-top: 1px solid var(--border-color);
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    @media (max-width: 480px) {
+      .wizard-actions {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+      }
+      .btn-secondary-kiki, .btn-red-pill {
+        padding: 0.7rem 1.15rem !important;
+        font-size: 0.82rem !important;
+        white-space: nowrap !important;
+      }
     }
     .btn-secondary-kiki {
       background: #F8FAFC;
@@ -825,6 +1146,92 @@ import { KikiDataService } from '../services/kiki-data.service';
     .form-control:focus {
       border-color: #DC2626;
       outline: none;
+    }
+
+    /* ===== DARK MODE OVERRIDES (BULLETPROOF ANGULAR ENCAPSULATION) ===== */
+    :host-context([data-theme="dark"]) .contact-form-panel {
+      background: #0A0A0A !important;
+      border-color: #262626 !important;
+      color: #FFFFFF !important;
+    }
+    :host-context([data-theme="dark"]) .contact-info-panel {
+      background: #0D0D0D !important;
+      border-color: #262626 !important;
+    }
+    :host-context([data-theme="dark"]) .cat-card-item,
+    :host-context([data-theme="dark"]) .prestation-card-img,
+    :host-context([data-theme="dark"]) .lieu-card-item,
+    :host-context([data-theme="dark"]) .cuisine-card,
+    :host-context([data-theme="dark"]) .recap-box {
+      background: #141414 !important;
+      border-color: #262626 !important;
+      color: #FFFFFF !important;
+    }
+    :host-context([data-theme="dark"]) .cat-card-item.active,
+    :host-context([data-theme="dark"]) .prestation-card-img.active,
+    :host-context([data-theme="dark"]) .lieu-card-item.active,
+    :host-context([data-theme="dark"]) .cuisine-card.active {
+      background: rgba(229, 29, 36, 0.15) !important;
+      border-color: #E51D24 !important;
+      box-shadow: 0 0 0 3px rgba(229, 29, 36, 0.25) !important;
+    }
+    :host-context([data-theme="dark"]) .wizard-step-header h2,
+    :host-context([data-theme="dark"]) .cat-title,
+    :host-context([data-theme="dark"]) .prest-name,
+    :host-context([data-theme="dark"]) .lieu-title,
+    :host-context([data-theme="dark"]) .cuisine-card .cuisine-name,
+    :host-context([data-theme="dark"]) .recap-value,
+    :host-context([data-theme="dark"]) .mobile-step-title,
+    :host-context([data-theme="dark"]) label {
+      color: #FFFFFF !important;
+    }
+    :host-context([data-theme="dark"]) .wizard-step-header p,
+    :host-context([data-theme="dark"]) .cat-sub,
+    :host-context([data-theme="dark"]) .lieu-sub,
+    :host-context([data-theme="dark"]) .cuisine-card .cuisine-sub,
+    :host-context([data-theme="dark"]) .recap-label {
+      color: #A3A3A3 !important;
+    }
+    :host-context([data-theme="dark"]) .cat-card-item i,
+    :host-context([data-theme="dark"]) .prestation-card-img .icon-box,
+    :host-context([data-theme="dark"]) .lieu-card-item i,
+    :host-context([data-theme="dark"]) .cuisine-card i {
+      color: #FFFFFF !important;
+      background: #262626 !important;
+    }
+    :host-context([data-theme="dark"]) .icon-circle {
+      background: #262626 !important;
+    }
+    :host-context([data-theme="dark"]) .step-circle {
+      background: #141414 !important;
+      color: #A3A3A3 !important;
+    }
+    :host-context([data-theme="dark"]) .step-label {
+      color: #A3A3A3 !important;
+    }
+    :host-context([data-theme="dark"]) .step-line {
+      background: #262626 !important;
+    }
+    :host-context([data-theme="dark"]) .recap-row {
+      border-color: #262626 !important;
+    }
+    :host-context([data-theme="dark"]) .btn-edit-recap,
+    :host-context([data-theme="dark"]) .btn-secondary-kiki {
+      background: #1C1C1C !important;
+      color: #FFFFFF !important;
+      border-color: #333333 !important;
+    }
+    :host-context([data-theme="dark"]) .form-control {
+      background: #141414 !important;
+      color: #FFFFFF !important;
+      border-color: #2D2D2D !important;
+    }
+    :host-context([data-theme="dark"]) .mobile-step-header {
+      border-color: #262626 !important;
+    }
+    :host-context([data-theme="dark"]) .mobile-step-badge {
+      background: rgba(229, 29, 36, 0.2) !important;
+      color: #F03C42 !important;
     }
   `]
 })
@@ -980,6 +1387,58 @@ export class DevisComponent implements OnInit {
     if (this.currentStep > 1) {
       this.currentStep--;
       window.scrollTo({ top: 120, behavior: 'smooth' });
+    }
+  }
+
+  getStepIcon(step: number): string {
+    switch(step) {
+      case 1: return 'fa-user';
+      case 2: return 'fa-concierge-bell';
+      case 3: return 'fa-calendar-alt';
+      case 4: return 'fa-map-marker-alt';
+      case 5: return 'fa-utensils';
+      case 6: return 'fa-phone-alt';
+      case 7: return 'fa-clipboard-check';
+      default: return 'fa-check';
+    }
+  }
+
+  getStepName(step: number): string {
+    switch(step) {
+      case 1: return 'PROFIL';
+      case 2: return 'PRESTATION';
+      case 3: return 'DATE & CONVIVES';
+      case 4: return 'LIEU';
+      case 5: return 'CUISINE';
+      case 6: return 'CONTACT';
+      case 7: return 'RÉCAPITULATIF';
+      default: return 'DEVIS';
+    }
+  }
+
+  getStepSubtitle(step: number): string {
+    switch(step) {
+      case 1: return 'Qui êtes-vous ?';
+      case 2: return 'Quelle prestation ?';
+      case 3: return 'Date & Convives';
+      case 4: return 'Lieu de l\'événement';
+      case 5: return 'Signature gastronomique';
+      case 6: return 'Vos coordonnées';
+      case 7: return 'Vérification finale';
+      default: return 'Demande de devis';
+    }
+  }
+
+  getStepTitle(step: number): string {
+    switch(step) {
+      case 1: return 'Profil (Qui êtes-vous ?)';
+      case 2: return 'Prestation souhaitée';
+      case 3: return 'Date & Convives';
+      case 4: return 'Lieu de l\'événement';
+      case 5: return 'Signature gastronomique';
+      case 6: return 'Vos coordonnées';
+      case 7: return 'Récapitulatif de votre demande';
+      default: return 'Demande de devis';
     }
   }
 
