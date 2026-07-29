@@ -34,6 +34,7 @@ export interface RequestItem {
   prestationTitle?: string;
   location?: string;
   time?: string;
+  signatureGastronomique?: string;
 }
 
 export interface DevisItem {
@@ -44,6 +45,7 @@ export interface DevisItem {
   tvaRate: number;
   discount: number;
   status: string;
+  signatureGastronomique?: string;
   history?: Array<{ date: string; action: string }>;
 }
 
@@ -68,6 +70,7 @@ export interface EventItem {
   location: string;
   staffIds: string[];
   requestId?: string;
+  signatureGastronomique?: string;
   status: 'confirmé' | 'en cours' | 'terminé' | string;
   createdDate: string;
 }
@@ -85,6 +88,15 @@ export interface FaqItem {
   question: string;
   answer: string;
   category?: string;
+}
+
+export interface TestimonialItem {
+  id: string;
+  text: string;
+  clientName: string;
+  clientTitle: string;
+  stars: number;
+  createdAt: string;
 }
 
 export interface MediaItem {
@@ -118,7 +130,8 @@ export class KikiDataService {
     STAFF: 'kiki_staff',
     FAQS: 'kiki_faqs',
     MEDIA: 'kiki_media',
-    MANAGERS: 'kiki_managers'
+    MANAGERS: 'kiki_managers',
+    TESTIMONIALS: 'kiki_testimonials'
   };
 
   constructor() {
@@ -352,6 +365,7 @@ export class KikiDataService {
           location: 'Salle La Diva, Hann Maristes',
           staffIds: ['st_1', 'st_2', 'st_4'],
           requestId: 'req_101',
+          signatureGastronomique: 'Cuisine Royale Sénégalaise & Fusion',
           status: 'confirmé',
           createdDate: this.getRelativeDate(-2)
         },
@@ -366,6 +380,7 @@ export class KikiDataService {
           location: 'Villa Almadies, Dakar',
           staffIds: ['st_3', 'st_4'],
           requestId: 'req_104',
+          signatureGastronomique: 'Cocktail Dînatoire Prestige La Diva',
           status: 'terminé',
           createdDate: this.getRelativeDate(-10)
         }
@@ -547,6 +562,7 @@ export class KikiDataService {
       location: event.location || 'Dakar',
       staffIds: event.staffIds || [],
       requestId: event.requestId || '',
+      signatureGastronomique: event.signatureGastronomique || 'Menu Signature Kiki Traiteur',
       status: 'confirmé',
       createdDate: new Date().toISOString().split('T')[0]
     };
@@ -636,6 +652,64 @@ export class KikiDataService {
     this.saveFaqs(faqs);
   }
 
+  // --- TESTIMONIALS ---
+  getTestimonials(): TestimonialItem[] {
+    const data = localStorage.getItem(this.STORAGE_KEYS.TESTIMONIALS);
+    if (data) return JSON.parse(data);
+    // default seed
+    const defaults: TestimonialItem[] = [
+      {
+        id: 'tst_1',
+        text: 'Un service d\'exception pour notre mariage. La salle La Diva était magnifique et le traiteur a régalé tous nos convives.',
+        clientName: 'Sophie Laurent',
+        clientTitle: 'Cliente particulière',
+        stars: 5,
+        createdAt: '2026-06-15'
+      },
+      {
+        id: 'tst_2',
+        text: 'Nous faisons appel à Kiki Traiteur pour tous nos dîners de gala. Professionnalisme et raffinement au rendez-vous.',
+        clientName: 'Jean-Marc Dubois',
+        clientTitle: 'Directeur LVMH Group',
+        stars: 5,
+        createdAt: '2026-05-20'
+      }
+    ];
+    localStorage.setItem(this.STORAGE_KEYS.TESTIMONIALS, JSON.stringify(defaults));
+    return defaults;
+  }
+
+  saveTestimonials(list: TestimonialItem[]): void {
+    localStorage.setItem(this.STORAGE_KEYS.TESTIMONIALS, JSON.stringify(list));
+  }
+
+  addTestimonial(t: Partial<TestimonialItem>): TestimonialItem {
+    const list = this.getTestimonials();
+    const newT: TestimonialItem = {
+      id: 'tst_' + (Math.floor(Math.random() * 8999) + 1000),
+      text: t.text || '',
+      clientName: t.clientName || '',
+      clientTitle: t.clientTitle || '',
+      stars: t.stars !== undefined ? t.stars : 5,
+      createdAt: new Date().toISOString().split('T')[0]
+    };
+    list.unshift(newT);
+    this.saveTestimonials(list);
+    return newT;
+  }
+
+  updateTestimonial(id: string, updated: Partial<TestimonialItem>): void {
+    let list = this.getTestimonials();
+    list = list.map(t => t.id === id ? { ...t, ...updated } : t);
+    this.saveTestimonials(list);
+  }
+
+  deleteTestimonial(id: string): void {
+    let list = this.getTestimonials();
+    list = list.filter(t => t.id !== id);
+    this.saveTestimonials(list);
+  }
+
   getMedia(): MediaItem[] {
     const data = localStorage.getItem(this.STORAGE_KEYS.MEDIA);
     return data ? JSON.parse(data) : [];
@@ -722,6 +796,7 @@ export class KikiDataService {
       tvaRate: devis.tvaRate !== undefined ? devis.tvaRate : 18,
       discount: devis.discount || 0,
       status: devis.status || 'sent',
+      signatureGastronomique: devis.signatureGastronomique || 'Menu Signature Kiki Traiteur',
       history: [
         { date: new Date().toISOString().split('T')[0], action: 'Devis créé et envoyé par mail au client' }
       ]

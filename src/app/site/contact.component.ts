@@ -193,6 +193,19 @@ import { KikiDataService } from '../services/kiki-data.service';
         box-sizing: border-box;
         width: 100%;
         max-width: 100%;
+        padding: 0.45rem 0.75rem;
+        border: 1.5px solid #CBD5E1;
+        border-radius: 5px;
+        font-size: 0.875rem;
+        font-family: 'Poppins', sans-serif;
+        color: #1E293B;
+        background: #fff;
+        transition: border-color 0.2s, box-shadow 0.2s;
+      }
+      .form-control:focus {
+        outline: none;
+        border-color: #7A1C1C;
+        box-shadow: 0 0 0 3px rgba(122, 28, 28, 0.1);
       }
       .btn-submit-kiki {
         width: 100%;

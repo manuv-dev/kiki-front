@@ -25,3 +25,36 @@ body {
   flex-direction: column;
   gap: 0.5rem;
 }
+
+/* =============================================
+   GLOBAL INPUT / SELECT / TEXTAREA RESET
+   Applies across ALL components (site + gestionnaire)
+   ============================================= */
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
+select,
+textarea {
+  border-radius: 5px !important;
+  border: 1.5px solid #CBD5E1 !important;
+  padding: 0.4rem 0.7rem !important;
+  font-size: 0.875rem !important;
+  line-height: 1.4 !important;
+  background: #fff !important;
+  color: #1E293B !important;
+  font-family: 'Poppins', sans-serif !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+  box-sizing: border-box !important;
+  height: auto !important;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]):focus,
+select:focus,
+textarea:focus {
+  outline: none !important;
+  border-color: #7A1C1C !important;
+  box-shadow: 0 0 0 3px rgba(122, 28, 28, 0.1) !important;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 90px;
+}

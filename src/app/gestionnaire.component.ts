@@ -368,7 +368,7 @@ import { KikiDataService } from './services/kiki-data.service';
                     <th>DATE</th>
                     <th>CONVIVES</th>
                     <th>STATUT</th>
-                    <th style="min-width: 190px;">ACTIONS</th>
+                    <th style="min-width: 120px; width: 120px;">ACTIONS</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -390,24 +390,24 @@ import { KikiDataService } from './services/kiki-data.service';
                       </span>
                     </td>
                     <td>
-                      <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center;">
-                        <!-- 1. En attente (pending) : Voir détails demande client (popup), Accepter, Refuser -->
+                      <div style="display: flex; gap: 0.3rem; flex-wrap: nowrap; align-items: center;">
+                        <!-- 1. En attente (pending) : Voir détails, Accepter, Refuser -->
                         <ng-container *ngIf="isPendingStatus(req.status)">
-                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande envoyée par le client">
-                            <i class="fas fa-eye me-1"></i> Détails
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande">
+                            <i class="fas fa-eye"></i>
                           </button>
-                          <button class="btn btn-sm" style="background: #059669; color: white; font-weight: 600;" (click)="acceptRequest(req)" title="Accepter la demande">
-                            <i class="fas fa-check"></i> Accepter
+                          <button class="btn btn-sm" style="background: #059669; color: white;" (click)="acceptRequest(req)" title="Accepter la demande">
+                            <i class="fas fa-check"></i>
                           </button>
                           <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser la demande">
                             <i class="fas fa-times"></i>
                           </button>
                         </ng-container>
 
-                        <!-- 2. Accepté (accepted) : Éditer le devis, Refuser, Voir détails -->
+                        <!-- 2. Accepté : Éditer devis, Refuser, Voir détails -->
                         <ng-container *ngIf="isAcceptedStatus(req.status)">
-                          <button class="btn btn-sm" style="background: #7A1C1C; color: white; font-weight: 600;" (click)="openDevisModal(req, false)" title="Éditer et envoyer le devis PDF au client">
-                            <i class="fas fa-file-invoice-dollar me-1"></i> Éditer le devis
+                          <button class="btn btn-sm" style="background: #7A1C1C; color: white;" (click)="openDevisModal(req, false)" title="Éditer et envoyer le devis PDF au client">
+                            <i class="fas fa-file-invoice-dollar"></i>
                           </button>
                           <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser">
                             <i class="fas fa-times"></i>
@@ -417,38 +417,38 @@ import { KikiDataService } from './services/kiki-data.service';
                           </button>
                         </ng-container>
 
-                        <!-- 3. Devis envoyé (sent/quoted) : Modifier devis, Créer événement, Refuser, Voir détails -->
+                        <!-- 3. Devis envoyé : Modifier, Créer événement, Refuser, Voir -->
                         <ng-container *ngIf="isSentStatus(req.status)">
-                          <button class="btn btn-sm" style="background: #2563EB; color: white;" (click)="openDevisModal(req, false)" title="Modifier et renvoyer le devis PDF au client">
-                            <i class="fas fa-edit me-1"></i> Modifier devis
+                          <button class="btn btn-sm" style="background: #2563EB; color: white;" (click)="openDevisModal(req, false)" title="Modifier et renvoyer le devis PDF">
+                            <i class="fas fa-edit"></i>
                           </button>
-                          <button class="btn btn-sm" style="background: #059669; color: white; font-weight: 600;" (click)="acceptDevisAndCreateEvent(req)" title="Le client a accepté : créer l'événement">
-                            <i class="fas fa-calendar-plus me-1"></i> Créer événement
+                          <button class="btn btn-sm" style="background: #059669; color: white;" (click)="acceptDevisAndCreateEvent(req)" title="Créer l'événement">
+                            <i class="fas fa-calendar-plus"></i>
                           </button>
-                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Le client a refusé le devis">
-                            <i class="fas fa-times me-1"></i> Refuser
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser le devis">
+                            <i class="fas fa-times"></i>
                           </button>
                           <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les infos du client">
                             <i class="fas fa-eye"></i>
                           </button>
                         </ng-container>
 
-                        <!-- 4. Aboutis (aboutis) : Voir devis, Voir détails -->
+                        <!-- 4. Aboutis : Voir devis, Voir détails -->
                         <ng-container *ngIf="isAboutisStatus(req.status)">
-                          <button class="btn btn-sm" style="background: #5B21B6; color: white; font-weight: 600;" (click)="openDevisModal(req, true)" title="Voir le devis conclu">
-                            <i class="fas fa-file-invoice me-1"></i> Voir devis
+                          <button class="btn btn-sm" style="background: #5B21B6; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis conclu">
+                            <i class="fas fa-file-invoice"></i>
                           </button>
-                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande">
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails">
                             <i class="fas fa-eye"></i>
                           </button>
                         </ng-container>
 
-                        <!-- 5. Refusé (rejected) : Voir détails (et Voir devis si existant) -->
+                        <!-- 5. Refusé : Voir détails, Voir devis -->
                         <ng-container *ngIf="isRejectedStatus(req.status)">
-                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande">
-                            <i class="fas fa-eye me-1"></i> Détails
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails">
+                            <i class="fas fa-eye"></i>
                           </button>
-                          <button class="btn btn-sm" style="background: #64748B; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis (si émis)">
+                          <button class="btn btn-sm" style="background: #64748B; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis">
                             <i class="fas fa-file-invoice"></i>
                           </button>
                         </ng-container>
@@ -510,7 +510,7 @@ import { KikiDataService } from './services/kiki-data.service';
               <!-- MONTH PILL NAVIGATION (Image 5) -->
               <div style="display: flex; align-items: center; background: white; border: 1px solid #E2E8F0; border-radius: 50px; padding: 0.35rem 0.85rem; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
                 <button type="button" (click)="prevCalendarMonth()" style="background: transparent; border: none; color: #7A1C1C; cursor: pointer; font-size: 0.95rem; padding: 0 0.5rem;"><i class="fas fa-chevron-left"></i></button>
-                <span style="color: #7A1C1C; font-weight: 700; font-size: 1.05rem; margin: 0 0.75rem;">{{ currentCalendarMonth }}</span>
+                <span style="color: #7A1C1C; font-weight: 700; font-size: 1.05rem; margin: 0 0.75rem;">{{ getCalendarHeaderLabel() }}</span>
                 <button type="button" (click)="nextCalendarMonth()" style="background: transparent; border: none; color: #7A1C1C; cursor: pointer; font-size: 0.95rem; padding: 0 0.5rem;"><i class="fas fa-chevron-right"></i></button>
               </div>
             </div>
@@ -525,8 +525,8 @@ import { KikiDataService } from './services/kiki-data.service';
               <button type="button" class="btn btn-sm" [style.background]="calendarView === 'Événements' ? '#DC2626' : 'white'" [style.color]="calendarView === 'Événements' ? 'white' : '#1E293B'" [style.border]="calendarView === 'Événements' ? 'none' : '1px solid #E2E8F0'" style="border-radius: 20px; padding: 0.35rem 1rem; font-weight: 600;" (click)="calendarView = 'Événements'">Événements</button>
             </div>
 
-            <!-- GRILLE CALENDRIER (Mois / Semaine / Jour) -->
-            <div *ngIf="calendarView !== 'Événements'" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: white;">
+            <!-- GRILLE CALENDRIER - VUE MOIS (Image 5) -->
+            <div *ngIf="calendarView === 'Mois'" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: white;">
               <!-- EN-TÊTE JOURS DE LA SEMAINE -->
               <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #F8FAFC; border-bottom: 1px solid #E2E8F0; text-align: center; font-weight: 600; color: #475569; font-size: 0.8rem; padding: 0.65rem 0;">
                 <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
@@ -537,7 +537,7 @@ import { KikiDataService } from './services/kiki-data.service';
                   <span style="font-size: 0.82rem; font-weight: 600; margin-bottom: 0.35rem;">{{ day.dayNumber }}</span>
                   <!-- EVENTS -->
                   <div style="display: flex; flex-direction: column; gap: 0.35rem;">
-                    <div *ngFor="let ev of day.events" (click)="openEventDetailsModal(ev)" [style.background]="getEventBlockBg(ev)" [style.color]="getEventBlockColor(ev)" style="border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.72rem; font-weight: 600; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.08);">
+                    <div *ngFor="let ev of day.events" (click)="openEventDetailsModal(ev); $event.stopPropagation()" [style.background]="getEventBlockBg(ev)" [style.color]="getEventBlockColor(ev)" style="border-radius: 4px; padding: 0.3rem 0.5rem; font-size: 0.72rem; font-weight: 600; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.08);">
                       <span>{{ ev.title }}</span> <span style="font-weight: 400; opacity: 0.95;">{{ ev.time }} - {{ getEndTime(ev.time) }}</span>
                     </div>
                   </div>
@@ -545,62 +545,93 @@ import { KikiDataService } from './services/kiki-data.service';
               </div>
             </div>
 
-            <!-- VUE EN LISTE (Événements) -->
-            <div *ngIf="calendarView === 'Événements'" class="table-responsive">
-              <table class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Date & Heure</th>
-                    <th>Titre Événement</th>
-                    <th>Client</th>
-                    <th>Lieu & Invités</th>
-                    <th>Personnel Assigné</th>
-                    <th>Statut</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let ev of getEventsForPage()">
-                    <td>
-                      <strong>{{ formatDate(ev.date) }}</strong><br>
-                      <small style="color:#64748B;">{{ ev.time }} - {{ getEndTime(ev.time) }}</small>
-                    </td>
-                    <td>
-                      <strong style="color:#7A1C1C;">{{ ev.title }}</strong><br>
-                      <small style="color:#64748B;">{{ getPrestationName(ev.type) }}</small>
-                    </td>
-                    <td>
-                      <strong>{{ ev.clientName || getClientName(ev.clientId) }}</strong><br>
-                      <small style="color:#64748B;">{{ ev.clientPhone || '' }}</small>
-                    </td>
-                    <td>
-                      <span>{{ ev.location }}</span><br>
-                      <small style="color:#64748B;">{{ ev.guests }} convives</small>
-                    </td>
-                    <td>
-                      <div style="display: flex; flex-wrap: wrap; gap: 0.3rem;">
-                        <span *ngFor="let stId of ev.staffIds" class="badge" style="background:#E2E8F0; color:#1E293B; font-size:0.68rem;">
-                          <i class="fas fa-user me-1"></i> {{ getStaffName(stId) }}
-                        </span>
-                        <span *ngIf="!ev.staffIds || ev.staffIds.length === 0" style="color:#94A3B8; font-size:0.75rem;">Aucun staff assigné</span>
+            <!-- GRILLE CALENDRIER - VUE SEMAINE (Image 2) -->
+            <div *ngIf="calendarView === 'Semaine'" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: white;">
+              <!-- EN-TÊTE JOURS DE LA SEMAINE -->
+              <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #F8FAFC; border-bottom: 1px solid #E2E8F0; text-align: center; font-weight: 600; color: #475569; font-size: 0.8rem; padding: 0.65rem 0;">
+                <div>Lun</div><div>Mar</div><div>Mer</div><div>Jeu</div><div>Ven</div><div>Sam</div><div>Dim</div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(7, 1fr); background: #E2E8F0; gap: 1px;">
+                <div *ngFor="let day of getCalendarWeekDays()" style="min-height: 300px; background: white; padding: 0.75rem 0.5rem; display: flex; flex-direction: column;">
+                  <span style="font-size: 1rem; font-weight: 800; color: #1E293B; margin-bottom: 0.75rem;">{{ day.dayNumber }}</span>
+                  <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <div *ngFor="let ev of day.events" (click)="openEventDetailsModal(ev); $event.stopPropagation()" [style.background]="getEventBlockBg(ev)" [style.color]="getEventBlockColor(ev)" style="border-radius: 6px; padding: 0.5rem 0.6rem; font-size: 0.75rem; font-weight: 600; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                      <div style="font-weight: 700; margin-bottom: 0.2rem;">{{ ev.title }}</div>
+                      <div style="font-size: 0.7rem; opacity: 0.9;">{{ ev.time }} - {{ getEndTime(ev.time) }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- GRILLE CALENDRIER - VUE JOUR (Image 3) -->
+            <div *ngIf="calendarView === 'Jour'" style="border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden; background: white; min-height: 250px;">
+              <div style="background: #F8FAFC; border-bottom: 1px solid #E2E8F0; text-align: center; font-weight: 600; color: #475569; font-size: 0.85rem; padding: 0.65rem 0;">
+                Jour
+              </div>
+              <div style="padding: 1.25rem 1.5rem;">
+                <div style="font-size: 2rem; font-weight: 800; color: #DC2626; margin-bottom: 1.25rem; line-height: 1;">
+                  {{ getCalendarDayView().dayNumber }}
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                  <div *ngFor="let ev of getCalendarDayView().events" (click)="openEventDetailsModal(ev); $event.stopPropagation()"
+                    [style.background]="getEventBlockBg(ev)" [style.color]="getEventBlockColor(ev)"
+                    style="border-radius: 8px; padding: 0.85rem 1.25rem; font-size: 0.88rem; font-weight: 700; cursor: pointer; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.06);">
+                    <span>{{ ev.title }}</span>
+                    <span style="font-weight: 600; font-size: 0.85rem;">{{ ev.time }} - {{ getEndTime(ev.time) }}</span>
+                  </div>
+                  <div *ngIf="getCalendarDayView().events.length === 0" style="text-align: center; padding: 2.5rem; color: #94A3B8;">
+                    Aucun événement pour cette journée.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- VUE EN LISTE (Événements sous forme de card + pagination) -->
+            <div *ngIf="calendarView === 'Événements'">
+              <div *ngIf="getEventsForPage().length === 0" style="text-align: center; padding: 3rem; color: #94A3B8; background: white; border: 1px solid #E2E8F0; border-radius: 12px;">
+                <i class="fas fa-calendar-times" style="font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6;"></i>
+                <p style="margin: 0; font-weight: 600;">Aucun événement programmé avec ces critères.</p>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                <div *ngFor="let ev of getEventsForPage()" (click)="openEventDetailsModal(ev)"
+                  style="background: white; border: 1px solid #E2E8F0; border-radius: 14px; padding: 1.15rem 1.5rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.03); cursor: pointer; transition: all 0.2s ease; flex-wrap: wrap; gap: 1rem;">
+                  
+                  <div style="display: flex; align-items: center; gap: 1.5rem; flex: 1; min-width: 280px;">
+                    <!-- Date Block (Photo 4 style: JUIL. / 19 in Bordeaux) -->
+                    <div style="text-align: center; min-width: 50px;">
+                      <div style="font-size: 0.72rem; font-weight: 800; color: #7A1C1C; text-transform: uppercase; letter-spacing: 0.5px;">{{ getEventCardMonth(ev.date) }}</div>
+                      <div style="font-size: 1.75rem; font-weight: 800; color: #7A1C1C; line-height: 1.1;">{{ getEventCardDay(ev.date) }}</div>
+                    </div>
+
+                    <!-- Details Block -->
+                    <div>
+                      <h4 style="margin: 0 0 0.35rem 0; font-size: 1.05rem; font-weight: 700; color: #1E293B; font-family: 'Playfair Display', serif;">{{ ev.title }}</h4>
+                      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; font-size: 0.8rem; color: #64748B;">
+                        <span style="display: flex; align-items: center;"><i class="fas fa-map-marker-alt me-1" style="color: #DC2626;"></i> {{ ev.location }}</span>
+                        <span style="display: flex; align-items: center;"><i class="far fa-clock me-1" style="color: #DC2626;"></i> {{ ev.time }} - {{ getEndTime(ev.time) }}</span>
+                        <span style="display: flex; align-items: center;" *ngIf="ev.staffIds && ev.staffIds.length > 0"><i class="fas fa-user me-1" style="color: #DC2626;"></i> Resp: {{ getStaffName(ev.staffIds[0]) }}</span>
                       </div>
-                    </td>
-                    <td><span class="badge badge-accepted">{{ ev.status || 'Confirmé' }}</span></td>
-                  </tr>
-                  <tr *ngIf="getFilteredEventsForCalendar().length === 0">
-                    <td colspan="6" style="text-align: center; padding: 2.5rem; color: #94A3B8;">
-                      Aucun événement programmé avec ces critères.
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+                    </div>
+                  </div>
+
+                  <!-- Status Badge (Photo 4 style: VALIDÉ in green pill) -->
+                  <div>
+                    <span style="background: #D1FAE5; color: #059669; font-weight: 700; padding: 0.35rem 1rem; border-radius: 50px; font-size: 0.75rem; letter-spacing: 0.5px; text-transform: uppercase;">
+                      VALIDÉ
+                    </span>
+                  </div>
+                </div>
+              </div>
 
               <!-- PAGINATION ÉVÉNEMENTS -->
-              <div *ngIf="getEventTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
+              <div *ngIf="getEventTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
                 <button *ngFor="let p of getEventPageArray()" type="button" class="btn btn-sm"
                   [style.background]="eventListPage === p ? '#7A1C1C' : 'white'"
                   [style.color]="eventListPage === p ? 'white' : '#64748B'"
                   [style.border]="eventListPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
-                  style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                  style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
                   (click)="eventListPage = p">
                   {{ p }}
                 </button>
@@ -667,31 +698,68 @@ import { KikiDataService } from './services/kiki-data.service';
 
         <!-- TAB 5: CMS & CONTENUS -->
         <section *ngIf="activeTab === 'cms'" class="dashboard-section active">
-          <div class="panel">
+
+          <!-- FILTRES DE CONTENU CMS -->
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-right: 0.5rem;"><i class="fas fa-filter me-1"></i> Filtrer la rubrique :</span>
+            <button type="button" class="btn"
+              [style.background]="cmsFilterTab === 'FAQS' ? '#7A1C1C' : '#F8FAFC'"
+              [style.color]="cmsFilterTab === 'FAQS' ? 'white' : '#475569'"
+              [style.border]="cmsFilterTab === 'FAQS' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
+              (click)="cmsFilterTab = 'FAQS'">
+              <i class="fas fa-question-circle me-1"></i> FAQs (Questions Fréquentes)
+            </button>
+            <button type="button" class="btn"
+              [style.background]="cmsFilterTab === 'TESTIMONIALS' ? '#7A1C1C' : '#F8FAFC'"
+              [style.color]="cmsFilterTab === 'TESTIMONIALS' ? 'white' : '#475569'"
+              [style.border]="cmsFilterTab === 'TESTIMONIALS' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
+              (click)="cmsFilterTab = 'TESTIMONIALS'">
+              <i class="fas fa-star me-1"></i> Témoignages &amp; Commentaires
+            </button>
+            <button type="button" class="btn"
+              [style.background]="cmsFilterTab === 'ALL' ? '#7A1C1C' : '#F8FAFC'"
+              [style.color]="cmsFilterTab === 'ALL' ? 'white' : '#475569'"
+              [style.border]="cmsFilterTab === 'ALL' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
+              (click)="cmsFilterTab = 'ALL'">
+              <i class="fas fa-layer-group me-1"></i> Tous les contenus
+            </button>
+          </div>
+
+          <!-- FAQ PANEL -->
+          <div *ngIf="cmsFilterTab === 'ALL' || cmsFilterTab === 'FAQS'" class="panel" style="margin-bottom: 1.25rem;">
             <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
-              <h2 class="panel-title">Gestion de Contenu (CMS) - Questions Fréquentes (FAQs)</h2>
+              <h2 class="panel-title"><i class="fas fa-question-circle me-2" style="color:#7A1C1C;"></i>Questions Fréquentes (FAQs)</h2>
               <button class="btn btn-accent" (click)="openAddFaqModal()"><i class="fas fa-plus me-1"></i> Créer une FAQ</button>
             </div>
-            <p style="color: #64748B; font-size: 0.82rem; margin-bottom: 1.25rem;">
-              Gérez ici les questions et réponses fréquemment posées sur votre site internet (création, modification et suppression).
+            <p style="color: #64748B; font-size: 0.78rem; margin-bottom: 1rem;">
+              Gérez ici les questions et réponses affichées sur votre site internet.
             </p>
             <div class="table-responsive">
-              <table class="admin-table">
+              <table class="admin-table" style="table-layout: fixed; width: 100%;">
+                <colgroup>
+                  <col style="width: 30%;">
+                  <col style="width: 42%;">
+                  <col style="width: 14%;">
+                  <col style="width: 14%;">
+                </colgroup>
                 <thead>
                   <tr>
                     <th>Question</th>
                     <th>Réponse</th>
                     <th>Catégorie</th>
-                    <th style="width: 120px;">Actions</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let f of getFaqsForPage()">
-                    <td><strong style="color: #1E293B;">{{ f.question }}</strong></td>
-                    <td style="color: #475569; max-width: 350px;">{{ f.answer }}</td>
+                    <td style="white-space: normal; word-break: break-word;"><strong style="color: #1E293B; font-size: 0.70rem;">{{ f.question }}</strong></td>
+                    <td style="white-space: normal; word-break: break-word; color: #475569; font-size: 0.68rem;">{{ f.answer }}</td>
                     <td><span class="badge" style="background:#E2E8F0; color:#334155;">{{ f.category || 'Général' }}</span></td>
                     <td>
-                      <div style="display: flex; gap: 0.35rem;">
+                      <div style="display: flex; gap: 0.3rem;">
                         <button class="btn btn-sm btn-outline" (click)="openEditFaqModal(f)" title="Modifier">
                           <i class="fas fa-edit"></i>
                         </button>
@@ -702,14 +770,11 @@ import { KikiDataService } from './services/kiki-data.service';
                     </td>
                   </tr>
                   <tr *ngIf="faqs.length === 0">
-                    <td colspan="4" style="text-align: center; padding: 2rem; color: #94A3B8;">
-                      Aucune FAQ configurée.
-                    </td>
+                    <td colspan="4" style="text-align: center; padding: 2rem; color: #94A3B8;">Aucune FAQ configurée.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-
             <!-- PAGINATION FAQS -->
             <div *ngIf="getFaqTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
               <button *ngFor="let p of getFaqPageArray()" type="button" class="btn btn-sm"
@@ -722,6 +787,63 @@ import { KikiDataService } from './services/kiki-data.service';
               </button>
             </div>
           </div>
+
+          <!-- TESTIMONIALS PANEL -->
+          <div *ngIf="cmsFilterTab === 'ALL' || cmsFilterTab === 'TESTIMONIALS'" class="panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
+              <h2 class="panel-title"><i class="fas fa-star me-2" style="color:#D97706;"></i>Témoignages Clients</h2>
+              <button class="btn btn-accent" (click)="openAddTestimonialModal()"><i class="fas fa-plus me-1"></i> Ajouter un témoignage</button>
+            </div>
+            <p style="color: #64748B; font-size: 0.78rem; margin-bottom: 1rem;">
+              Gérez les avis clients affichés sur votre site (texte, nom, titre et étoiles).
+            </p>
+            <div class="table-responsive">
+              <table class="admin-table" style="table-layout: fixed; width: 100%;">
+                <colgroup>
+                  <col style="width: 38%;">
+                  <col style="width: 20%;">
+                  <col style="width: 20%;">
+                  <col style="width: 10%;">
+                  <col style="width: 12%;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Témoignage</th>
+                    <th>Nom du client</th>
+                    <th>Titre / Fonction</th>
+                    <th>Étoiles</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of testimonials">
+                    <td style="white-space: normal; word-break: break-word; font-style: italic; color: #475569; font-size: 0.68rem;">"{{ t.text }}"</td>
+                    <td style="white-space: normal; font-size: 0.70rem;"><strong>{{ t.clientName }}</strong></td>
+                    <td style="white-space: normal; font-size: 0.68rem; color: #64748B;">{{ t.clientTitle }}</td>
+                    <td>
+                      <span style="color: #D97706; font-size: 0.75rem; letter-spacing: 1px;">
+                        <ng-container *ngFor="let s of getStarsArray(t.stars)">&#9733;</ng-container>
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.3rem;">
+                        <button class="btn btn-sm btn-outline" (click)="openEditTestimonialModal(t)" title="Modifier">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm" style="background:#DC2626; color:white;" (click)="deleteTestimonial(t.id)" title="Supprimer">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="testimonials.length === 0">
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #94A3B8;">Aucun témoignage configuré.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </section>
 
         <!-- TAB 6: CLIENTS -->
@@ -743,7 +865,7 @@ import { KikiDataService } from './services/kiki-data.service';
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let c of getClientsForPage()">
+                  <tr *ngFor="let c of getClientsForPage()" style="font-size: 0.8rem;">
                     <td><strong>{{ c.id }}</strong></td>
                     <td>{{ c.name }}</td>
                     <td>{{ c.organization || '-' }}</td>
@@ -751,7 +873,7 @@ import { KikiDataService } from './services/kiki-data.service';
                     <td><span class="badge" style="background:#E2E8F0; color:#334155;">{{ c.organization ? 'Entreprise' : 'Particulier' }}</span></td>
                     <td>
                       <button class="btn btn-sm btn-outline" (click)="openEditClientModal(c)" title="Modifier Client">
-                        <i class="fas fa-edit"></i> Modifier
+                        <i class="fas fa-edit"></i>
                       </button>
                     </td>
                   </tr>
@@ -855,7 +977,7 @@ import { KikiDataService } from './services/kiki-data.service';
                     <strong style="color: #7A1C1C;">{{ selectedClientForEvent.name }}</strong>
                     <span style="color: #64748B; font-size: 0.8rem; margin-left: 0.5rem;">({{ selectedClientForEvent.email }} - {{ selectedClientForEvent.phone }})</span>
                   </div>
-                  <button type="button" class="btn btn-sm" style="background: #DC2626; color: white;" (click)="removeSelectedClient()">
+                  <button *ngIf="!isEventFromDevis" type="button" class="btn btn-sm" style="background: #DC2626; color: white;" (click)="removeSelectedClient()">
                     <i class="fas fa-times"></i> Changer
                   </button>
                 </div>
@@ -877,11 +999,11 @@ import { KikiDataService } from './services/kiki-data.service';
               <div class="form-group-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group">
                   <label>Titre de l'événement</label>
-                  <input type="text" class="form-control" [(ngModel)]="eventForm.title" placeholder="Ex: Mariage VIP - La Diva">
+                  <input type="text" class="form-control" [disabled]="isEventFromDevis" [(ngModel)]="eventForm.title" placeholder="Ex: Mariage VIP - La Diva">
                 </div>
                 <div class="form-group">
                   <label>Type de prestation</label>
-                  <select class="form-control" [(ngModel)]="eventForm.type">
+                  <select class="form-control" [disabled]="isEventFromDevis" [(ngModel)]="eventForm.type">
                     <option value="salle-diva">Salle La Diva</option>
                     <option value="traiteur">Service Traiteur Prestige</option>
                     <option value="evenements">Organisation Événements</option>
@@ -902,13 +1024,13 @@ import { KikiDataService } from './services/kiki-data.service';
                 </div>
                 <div class="form-group">
                   <label>Convives</label>
-                  <input type="number" class="form-control" [(ngModel)]="eventForm.guests">
+                  <input type="number" class="form-control" [disabled]="isEventFromDevis" [(ngModel)]="eventForm.guests">
                 </div>
               </div>
 
               <div class="form-group" style="margin-bottom: 1rem;">
                 <label>Lieu de réception</label>
-                <input type="text" class="form-control" [(ngModel)]="eventForm.location" placeholder="Ex: Salle La Diva, Dakar ou Villa Almadies">
+                <input type="text" class="form-control" [disabled]="isEventFromDevis" [(ngModel)]="eventForm.location" placeholder="Ex: Salle La Diva, Dakar ou Villa Almadies">
               </div>
 
               <!-- SIGNATURE GASTRONOMIQUE -->
@@ -916,7 +1038,7 @@ import { KikiDataService } from './services/kiki-data.service';
                 <label style="font-weight: 600; color: #1E293B; display: block; margin-bottom: 0.35rem;">
                   <i class="fas fa-utensils me-1" style="color: #7A1C1C;"></i> Signature Gastronomique Kiki Traiteur <span style="color: #DC2626;">*</span>
                 </label>
-                <select class="form-control" [(ngModel)]="eventForm.signatureGastronomique">
+                <select class="form-control" [disabled]="isEventFromDevis" [(ngModel)]="eventForm.signatureGastronomique">
                   <option value="Cuisine Royale Sénégalaise & Fusion">Cuisine Royale Sénégalaise & Fusion</option>
                   <option value="Buffet Gastronomique International">Buffet Gastronomique International</option>
                   <option value="Cocktail Dînatoire Prestige La Diva">Cocktail Dînatoire Prestige La Diva</option>
@@ -959,6 +1081,102 @@ import { KikiDataService } from './services/kiki-data.service';
           </div>
         </div>
 
+        <!-- MODAL DÉTAILS DE L'ÉVÉNEMENT (POPUP CALENDRIER) -->
+        <div *ngIf="showEventDetailsModal && selectedDetailEvent" class="custom-modal-backdrop" (click)="closeEventDetailsModal()">
+          <div class="custom-modal-box" style="max-width: 550px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);" (click)="$event.stopPropagation()">
+            <!-- En-tête bordeaux -->
+            <div class="modal-header" style="background: #7A1C1C; color: white; padding: 1.25rem 1.5rem; border-bottom: none;">
+              <h3 style="margin: 0; color: white; font-family: 'Playfair Display', serif; font-size: 1.25rem;">
+                <i class="fas fa-calendar-alt me-2"></i>Détails de l'événement #{{ selectedDetailEvent.id }}
+              </h3>
+              <button class="btn-close" style="filter: brightness(0) invert(1);" (click)="closeEventDetailsModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <!-- Corps de la modale -->
+            <div class="modal-body" style="padding: 1.5rem;">
+              <div style="margin-bottom: 1.25rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 1rem;">
+                <h2 style="margin: 0 0 0.4rem 0; font-family: 'Playfair Display', serif; color: #1E293B; font-size: 1.35rem;">
+                  {{ selectedDetailEvent.title }}
+                </h2>
+                <span class="badge" style="background: #FEF2F2; color: #991B1B; font-weight: 700; padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem;">
+                  {{ getPrestationName(selectedDetailEvent.type) }}
+                </span>
+              </div>
+
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+                <div style="background: #F8FAFC; padding: 0.85rem; border-radius: 8px; border: 1px solid #E2E8F0;">
+                  <span style="font-size: 0.72rem; color: #64748B; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.25rem;">Date & Heure</span>
+                  <strong style="color: #1E293B; font-size: 0.9rem; display: block;">{{ formatDate(selectedDetailEvent.date) }}</strong>
+                  <span style="color: #7A1C1C; font-weight: 600; font-size: 0.85rem;">{{ selectedDetailEvent.time }} - {{ getEndTime(selectedDetailEvent.time) }}</span>
+                </div>
+                <div style="background: #F8FAFC; padding: 0.85rem; border-radius: 8px; border: 1px solid #E2E8F0;">
+                  <span style="font-size: 0.72rem; color: #64748B; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.25rem;">Lieu & Convives</span>
+                  <strong style="color: #1E293B; font-size: 0.9rem; display: block;">{{ selectedDetailEvent.location }}</strong>
+                  <span style="color: #64748B; font-size: 0.85rem;">{{ selectedDetailEvent.guests }} personnes</span>
+                </div>
+              </div>
+
+              <!-- SIGNATURE GASTRONOMIQUE -->
+              <div style="background: #FEF2F2; border: 1px solid #FECACA; padding: 0.85rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.85rem;">
+                <div style="background: #7A1C1C; color: white; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05rem; flex-shrink: 0; box-shadow: 0 2px 4px rgba(122,28,28,0.2);">
+                  <i class="fas fa-utensils"></i>
+                </div>
+                <div>
+                  <span style="font-size: 0.72rem; color: #991B1B; text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 0.15rem;">Signature Gastronomique</span>
+                  <strong style="color: #7A1C1C; font-size: 0.95rem; font-family: 'Playfair Display', serif;">{{ selectedDetailEvent.signatureGastronomique || getEventSignature(selectedDetailEvent) }}</strong>
+                </div>
+              </div>
+
+              <!-- CLIENT (PARTICULIER OU ENTREPRISE) -->
+              <div style="background: #F8FAFC; padding: 0.85rem 1rem; border-radius: 8px; border: 1px solid #E2E8F0; margin-bottom: 1.25rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; text-transform: uppercase; font-weight: 700;">Client commanditaire</span>
+                  <!-- Badge Particulier / Entreprise -->
+                  <span *ngIf="getClientType(selectedDetailEvent.clientId) === 'Entreprise'"
+                    style="background: #DBEAFE; color: #1E40AF; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; border: 1px solid #BFDBFE; display: inline-flex; align-items: center;">
+                    <i class="fas fa-building me-1"></i> Entreprise
+                  </span>
+                  <span *ngIf="getClientType(selectedDetailEvent.clientId) !== 'Entreprise'"
+                    style="background: #F3E8FF; color: #6B21A8; font-weight: 700; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.75rem; border: 1px solid #E9D5FF; display: inline-flex; align-items: center;">
+                    <i class="fas fa-user me-1"></i> Particulier
+                  </span>
+                </div>
+                <strong style="color: #1E293B; font-size: 1rem; display: block;">{{ selectedDetailEvent.clientName || getClientName(selectedDetailEvent.clientId) }}</strong>
+                <span style="color: #64748B; font-size: 0.82rem; display: block; margin-top: 0.15rem;" *ngIf="selectedDetailEvent.clientPhone || getClientEmail(selectedDetailEvent.clientId)">{{ selectedDetailEvent.clientPhone || getClientPhone(selectedDetailEvent.clientId) }} • {{ selectedDetailEvent.clientEmail || getClientEmail(selectedDetailEvent.clientId) }}</span>
+                <span style="color: #7A1C1C; font-size: 0.8rem; font-weight: 600; display: block; margin-top: 0.35rem;" *ngIf="getClientType(selectedDetailEvent.clientId) === 'Entreprise' && getClientOrg(selectedDetailEvent.clientId)">
+                  <i class="fas fa-briefcase me-1"></i> {{ getClientOrg(selectedDetailEvent.clientId) }}
+                </span>
+              </div>
+
+              <!-- PERSONNEL ASSIGNÉ (MÊME SI 20 PERSONNELS) -->
+              <div style="margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                  <span style="font-size: 0.78rem; color: #475569; font-weight: 700;">
+                    <i class="fas fa-users me-1" style="color: #7A1C1C;"></i> Brigade Traiteur Assignée :
+                  </span>
+                  <span *ngIf="selectedDetailEvent.staffIds && selectedDetailEvent.staffIds.length > 0"
+                    style="background: #E2E8F0; color: #1E293B; font-weight: 700; font-size: 0.72rem; padding: 0.15rem 0.55rem; border-radius: 20px;">
+                    {{ selectedDetailEvent.staffIds.length }} personnel{{ selectedDetailEvent.staffIds.length > 1 ? 's' : '' }}
+                  </span>
+                </div>
+                <div style="max-height: 180px; overflow-y: auto; padding: 0.65rem; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                  <div *ngFor="let stId of selectedDetailEvent.staffIds"
+                    style="background: #EEF2FF; color: #3730A3; font-weight: 600; padding: 0.4rem 0.75rem; border-radius: 6px; font-size: 0.78rem; border: 1px solid #E0E7FF; display: flex; align-items: center; gap: 0.35rem;">
+                    <i class="fas fa-user-check" style="color: #4F46E5;"></i>
+                    <span>{{ getStaffName(stId) }} <small style="color: #6366F1; font-weight: 500;">({{ getStaffRole(stId) }})</small></span>
+                  </div>
+                  <div *ngIf="!selectedDetailEvent.staffIds || selectedDetailEvent.staffIds.length === 0" style="color: #94A3B8; font-size: 0.82rem; font-style: italic; width: 100%; text-align: center; padding: 1rem 0;">
+                    Aucun personnel n'a encore été assigné à cet événement.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Footer -->
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #E2E8F0; padding: 1rem 1.5rem; background: #F8FAFC;">
+              <button type="button" class="btn btn-outline" (click)="closeEventDetailsModal()">Fermer</button>
+            </div>
+          </div>
+        </div>
+
         <!-- MODAL 2: DEVIS & TRANSMISSION PAR E-MAIL -->
         <div *ngIf="showDevisModal" class="custom-modal-backdrop" (click)="closeDevisModal()">
           <div class="custom-modal-box" style="max-width: 680px;" (click)="$event.stopPropagation()">
@@ -991,10 +1209,10 @@ import { KikiDataService } from './services/kiki-data.service';
                   </div>
                 </div>
 
-                <!-- INFOS DU DEVIS (Prestation, convives, lieu, date) -->
+                <!-- INFOS DU DEVIS (Prestation, signature gastronomique, convives, lieu, date, heure) -->
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 0.75rem;">
                   <div>
-                    <label style="font-size: 0.75rem; color: #475569;">Type de prestation</label>
+                    <label style="font-size: 0.75rem; color: #475569; font-weight: 600;">Type de prestation</label>
                     <select class="form-control" [(ngModel)]="devisForm.prestationId" style="font-size: 0.8rem;">
                       <option value="salle-diva">Salle La Diva</option>
                       <option value="traiteur">Service Traiteur Prestige</option>
@@ -1004,22 +1222,33 @@ import { KikiDataService } from './services/kiki-data.service';
                     </select>
                   </div>
                   <div>
-                    <label style="font-size: 0.75rem; color: #475569;">Convives</label>
-                    <input type="number" class="form-control" [(ngModel)]="devisForm.guests" style="font-size: 0.8rem;">
+                    <label style="font-size: 0.75rem; color: #475569; font-weight: 600;">Signature gastronomique <span style="color: #DC2626;">*</span></label>
+                    <select class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.signatureGastronomique" style="font-size: 0.8rem;">
+                      <option value="Menu Signature Kiki Traiteur">Menu Signature Kiki Traiteur</option>
+                      <option value="Cuisine Royale Sénégalaise & Fusion">Cuisine Royale Sénégalaise & Fusion</option>
+                      <option value="Buffet Gastronomique International">Buffet Gastronomique International</option>
+                      <option value="Cocktail Dînatoire Prestige La Diva">Cocktail Dînatoire Prestige La Diva</option>
+                      <option value="Service à la Table VIP & Voiturier">Service à la Table VIP & Voiturier</option>
+                      <option value="Sur-mesure / À la carte">Sur-mesure / À la carte</option>
+                    </select>
                   </div>
                 </div>
-                <div style="display: grid; grid-template-columns: 1.2fr 1fr 0.8fr; gap: 0.75rem;">
+                <div style="display: grid; grid-template-columns: 0.8fr 1.3fr 1fr 0.8fr; gap: 0.75rem;">
                   <div>
-                    <label style="font-size: 0.75rem; color: #475569;">Lieu de réception</label>
-                    <input type="text" class="form-control" [(ngModel)]="devisForm.location" style="font-size: 0.8rem;">
+                    <label style="font-size: 0.75rem; color: #475569; font-weight: 600;">Convives</label>
+                    <input type="number" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.guests" style="font-size: 0.8rem;">
                   </div>
                   <div>
-                    <label style="font-size: 0.75rem; color: #475569;">Date prévue</label>
-                    <input type="date" class="form-control" [(ngModel)]="devisForm.date" style="font-size: 0.8rem;">
+                    <label style="font-size: 0.75rem; color: #475569; font-weight: 600;">Lieu de réception</label>
+                    <input type="text" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.location" style="font-size: 0.8rem;">
                   </div>
                   <div>
-                    <label style="font-size: 0.75rem; color: #475569;">Heure</label>
-                    <input type="time" class="form-control" [(ngModel)]="devisForm.time" style="font-size: 0.8rem;">
+                    <label style="font-size: 0.75rem; color: #475569; font-weight: 600;">Date prévue</label>
+                    <input type="date" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.date" style="font-size: 0.8rem;">
+                  </div>
+                  <div>
+                    <label style="font-size: 0.75rem; color: #475569; font-weight: 600;">Heure</label>
+                    <input type="time" class="form-control" [disabled]="isDevisReadonly" [(ngModel)]="devisForm.time" style="font-size: 0.8rem;">
                   </div>
                 </div>
               </div>
@@ -1083,7 +1312,7 @@ import { KikiDataService } from './services/kiki-data.service';
                   <i class="fas fa-file-pdf me-1"></i> ENREGISTRER ET ENVOYER PAR MAIL (PDF)
                 </button>
                 <!-- Si le devis est en cours/émis ou nouveau, actions complémentaires -->
-                <button *ngIf="isNewDevis || isSentStatus(devisForm.status)" type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="concludeDevisAndCreateEvent()">
+                <button *ngIf="isNewDevis || isSentStatus(devisForm.status)" type="button" class="btn" style="background: #2563EB; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="concludeDevisAndCreateEvent()">
                   <i class="fas fa-calendar-plus me-1"></i> Créer un événement
                 </button>
                 <button *ngIf="!isNewDevis && isSentStatus(devisForm.status)" type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="rejectDevisFromModal()">
@@ -1264,9 +1493,9 @@ import { KikiDataService } from './services/kiki-data.service';
           </div>
         </div>
 
-        <!-- MODAL 5: CRÉATION / MODIFICATION DE FAQ -->
+        <!-- MODAL 5: FAQ -->
         <div *ngIf="showFaqModal" class="custom-modal-backdrop" (click)="closeFaqModal()">
-          <div class="custom-modal-box" style="max-width: 520px;" (click)="$event.stopPropagation()">
+          <div class="custom-modal-box" style="max-width: 540px;" (click)="$event.stopPropagation()">
             <div class="modal-header">
               <h3 style="margin: 0; color: #7A1C1C;"><i class="fas fa-question-circle me-2"></i>{{ isEditingFaq ? 'Modifier' : 'Ajouter' }} une FAQ</h3>
               <button class="btn-close" (click)="closeFaqModal()"><i class="fas fa-times"></i></button>
@@ -1284,15 +1513,58 @@ import { KikiDataService } from './services/kiki-data.service';
                 <label>Catégorie</label>
                 <select class="form-control" [(ngModel)]="faqForm.category">
                   <option value="Général">Général</option>
-                  <option value="Réservation">Réservation & Devis</option>
+                  <option value="Réservation">Réservation &amp; Devis</option>
                   <option value="Salle La Diva">Salle La Diva</option>
-                  <option value="Traiteur & Buffets">Traiteur & Buffets</option>
+                  <option value="Traiteur &amp; Buffets">Traiteur &amp; Buffets</option>
                 </select>
               </div>
             </div>
             <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
               <button type="button" class="btn btn-outline" (click)="closeFaqModal()">Annuler</button>
               <button type="button" class="btn" style="background: #7A1C1C; color: white;" (click)="saveFaq()">
+                <i class="fas fa-save me-1"></i> Enregistrer
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODAL: TÉMOIGNAGE -->
+        <div *ngIf="showTestimonialModal" class="custom-modal-backdrop" (click)="closeTestimonialModal()">
+          <div class="custom-modal-box" style="max-width: 540px;" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+              <h3 style="margin: 0; color: #7A1C1C;"><i class="fas fa-star me-2" style="color:#D97706;"></i>{{ isEditingTestimonial ? 'Modifier' : 'Ajouter' }} un témoignage</h3>
+              <button class="btn-close" (click)="closeTestimonialModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group" style="margin-bottom: 1rem;">
+                <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Témoignage *</label>
+                <textarea class="form-control" rows="4" [(ngModel)]="testimonialForm.text" placeholder="Ex: Un service d’exception pour notre mariage..."></textarea>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Nom du client *</label>
+                  <input type="text" class="form-control" [(ngModel)]="testimonialForm.clientName" placeholder="Ex: Sophie Laurent">
+                </div>
+                <div class="form-group">
+                  <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Titre / Fonction</label>
+                  <input type="text" class="form-control" [(ngModel)]="testimonialForm.clientTitle" placeholder="Ex: Directrice Orange Sénégal">
+                </div>
+              </div>
+              <div class="form-group" style="margin-bottom: 0.5rem;">
+                <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Évaluation (nombre d'étoiles)</label>
+                <div style="display: flex; gap: 0.4rem; align-items: center;">
+                  <button *ngFor="let n of [1,2,3,4,5]" type="button"
+                    (click)="testimonialForm.stars = n"
+                    style="background: none; border: none; cursor: pointer; font-size: 1.6rem; padding: 0; transition: transform 0.1s;"
+                    [style.color]="n <= testimonialForm.stars ? '#D97706' : '#CBD5E1'"
+                    title="{{ n }} étoile(s)">&#9733;</button>
+                  <span style="font-size: 0.8rem; color: #64748B; margin-left: 0.5rem;">{{ testimonialForm.stars }} / 5</span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 0.75rem; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
+              <button type="button" class="btn btn-outline" (click)="closeTestimonialModal()">Annuler</button>
+              <button type="button" class="btn" style="background: #7A1C1C; color: white;" (click)="saveTestimonial()">
                 <i class="fas fa-save me-1"></i> Enregistrer
               </button>
             </div>
@@ -1353,10 +1625,12 @@ import { KikiDataService } from './services/kiki-data.service';
       display: flex;
       min-height: 100vh;
       background-color: #F8FAFC;
+      overflow: hidden;
     }
     /* Sidebar - plus fine et plus compacte */
     .sidebar {
       width: 220px;
+      min-width: 220px;
       background-color: #7A1C1C;
       color: #FFFFFF;
       padding: 1rem 0.75rem;
@@ -1366,7 +1640,10 @@ import { KikiDataService } from './services/kiki-data.service';
       position: sticky;
       top: 0;
       height: 100vh;
+      max-height: 100vh;
+      overflow-y: auto;
       border-right: 1px solid rgba(197, 168, 128, 0.15);
+      box-sizing: border-box;
     }
     .sidebar-logo {
       display: flex;
@@ -1491,9 +1768,12 @@ import { KikiDataService } from './services/kiki-data.service';
 
     /* Main content - padding réduit pour une vue plus ramassée */
     .main-content {
-      flex-grow: 1;
+      flex: 1 1 0;
+      min-width: 0;
       padding: 1.35rem 1.75rem;
       overflow-y: auto;
+      height: 100vh;
+      box-sizing: border-box;
     }
     .dashboard-header {
       display: flex;
@@ -1957,8 +2237,8 @@ import { KikiDataService } from './services/kiki-data.service';
     }
     .admin-table th {
       text-align: left;
-      padding: 0.55rem 0.75rem;
-      font-size: 0.69rem;
+      padding: 0.4rem 0.6rem;
+      font-size: 0.62rem;
       font-weight: 700;
       color: #64748B;
       text-transform: uppercase;
@@ -1968,11 +2248,12 @@ import { KikiDataService } from './services/kiki-data.service';
       white-space: nowrap;
     }
     .admin-table td {
-      padding: 0.6rem 0.75rem;
+      padding: 0.45rem 0.6rem;
       border-bottom: 1px solid #F1F5F9;
-      font-size: 0.78rem;
+      font-size: 0.70rem;
       color: #1E293B;
       vertical-align: middle;
+      white-space: nowrap;
     }
     .admin-table tr:hover td {
       background: #F8FAFC;
@@ -1993,18 +2274,38 @@ import { KikiDataService } from './services/kiki-data.service';
     .badge-rejected { background-color: #FEE2E2; color: #DC2626; }
     .badge-aboutis { background-color: #EDE9FE; color: #5B21B6; }
 
+    .form-control {
+      width: 100%;
+      padding: 0.38rem 0.65rem;
+      border: 1.5px solid #CBD5E1;
+      border-radius: 5px;
+      font-size: 0.78rem;
+      font-family: 'Poppins', sans-serif;
+      color: #1E293B;
+      background: #FFFFFF;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .form-control:focus {
+      outline: none;
+      border-color: #7A1C1C;
+      box-shadow: 0 0 0 3px rgba(122, 28, 28, 0.1);
+    }
+
     .btn {
-      padding: 0.35rem 0.8rem;
+      padding: 0.3rem 0.7rem;
       border-radius: 6px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 600;
       cursor: pointer;
       border: 1px solid transparent;
       transition: all 0.2s;
     }
     .btn-sm {
-      padding: 0.22rem 0.55rem;
-      font-size: 0.70rem;
+      padding: 0.18rem 0.45rem;
+      font-size: 0.65rem;
     }
     .btn-primary {
       background-color: #7A1C1C;
@@ -2088,6 +2389,7 @@ import { KikiDataService } from './services/kiki-data.service';
 })
 export class GestionnaireComponent implements OnInit {
   activeTab: 'dashboard' | 'requests' | 'agenda' | 'mediatheque' | 'cms' | 'clients' | 'staff' | 'sync' = 'dashboard';
+  cmsFilterTab: 'FAQS' | 'TESTIMONIALS' | 'ALL' = 'FAQS';
   requests: any[] = [];
   clients: any[] = [];
   totalRevenue = 0;
@@ -2217,6 +2519,7 @@ export class GestionnaireComponent implements OnInit {
   showFaqModal = false;
   showMediaModal = false;
   showTraceabilityModal = false;
+  showTestimonialModal = false;
 
   // Search & Filter
   clientSearchQuery = '';
@@ -2247,6 +2550,11 @@ export class GestionnaireComponent implements OnInit {
   showRequestDetailsModal = false;
   currentDetailRequest: any = null;
 
+  // Testimonials
+  testimonials: any[] = [];
+  testimonialForm = { id: '', text: '', clientName: '', clientTitle: '', stars: 5 };
+  isEditingTestimonial = false;
+
   // Devis Modal
   isNewDevis = false;
   selectedClientForDevis: any = null;
@@ -2257,6 +2565,7 @@ export class GestionnaireComponent implements OnInit {
     clientName: '',
     clientId: '',
     prestationId: 'salle-diva',
+    signatureGastronomique: 'Menu Signature Kiki Traiteur',
     guests: 50,
     location: 'Salle La Diva, Dakar',
     date: new Date().toISOString().split('T')[0],
@@ -2270,7 +2579,11 @@ export class GestionnaireComponent implements OnInit {
 
   // Calendar filters & view (Image 5)
   calendarView = 'Mois';
+  currentCalendarDate: Date = new Date(2026, 6, 28);
   currentCalendarMonth = 'Juillet 2026';
+  isEventFromDevis = false;
+  showEventDetailsModal = false;
+  selectedDetailEvent: any = null;
   calendarPrestationFilter = 'ALL';
   calendarClientFilter = '';
   calendarResourceFilter = 'ALL';
@@ -2316,6 +2629,7 @@ export class GestionnaireComponent implements OnInit {
     this.faqs = this.dataService.getFaqs();
     this.mediaList = this.dataService.getMedia();
     this.devisList = this.dataService.getDevis();
+    this.testimonials = this.dataService.getTestimonials();
 
     this.totalRevenue = this.requests
       .filter(r => r.status === 'accepted')
@@ -2575,11 +2889,12 @@ export class GestionnaireComponent implements OnInit {
   }
 
   // --- CREATE EVENT MODAL & HELPERS ---
-  openCreateEventModal(req?: any): void {
+  openCreateEventModal(req?: any, fromDevis: boolean = false): void {
     if (req && req.status === 'pending') {
       this.dataService.showToast('Attention : Vous devez d\'abord envoyer un devis avant de créer un événement !', true);
       return;
     }
+    this.isEventFromDevis = fromDevis || (!!req);
     this.selectedClientForEvent = null;
     this.selectedStaffIdsForEvent = [];
     this.selectedStaffListForEvent = [];
@@ -2679,13 +2994,76 @@ export class GestionnaireComponent implements OnInit {
     return s ? s.name : staffId;
   }
 
+  getStaffRole(staffId: string): string {
+    const s = this.staffList.find(item => item.id === staffId);
+    return s ? s.role : 'Staff';
+  }
+
+  getEventSignature(ev: any): string {
+    if (ev.signatureGastronomique) return ev.signatureGastronomique;
+    if (ev.requestId) {
+      const dev = this.dataService.getDevisByRequest(ev.requestId);
+      if (dev && dev.signatureGastronomique) return dev.signatureGastronomique;
+      const req = this.requests.find(r => r.id === ev.requestId);
+      if (req && req.signatureGastronomique) return req.signatureGastronomique;
+    }
+    return 'Menu Signature Kiki Traiteur';
+  }
+
   // --- INTERNAL CALENDAR AGENDA HELPERS (IMAGE 5) ---
+  getMonthNameFr(m: number): string {
+    const names = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
+    return names[m] || 'Juillet';
+  }
+
+  getCalendarHeaderLabel(): string {
+    const y = this.currentCalendarDate.getFullYear();
+    const m = this.currentCalendarDate.getMonth();
+    const mName = this.getMonthNameFr(m);
+    if (this.calendarView === 'Mois' || this.calendarView === 'Événements') {
+      return `${mName} ${y}`;
+    }
+    if (this.calendarView === 'Semaine') {
+      const d = new Date(this.currentCalendarDate);
+      const dayOfWeek = (d.getDay() + 6) % 7; // Monday = 0
+      const start = new Date(d);
+      start.setDate(d.getDate() - dayOfWeek);
+      const end = new Date(start);
+      end.setDate(start.getDate() + 6);
+      const sMonth = this.getMonthNameFr(start.getMonth()).toLowerCase();
+      const eMonth = this.getMonthNameFr(end.getMonth()).toLowerCase();
+      if (start.getMonth() === end.getMonth()) {
+        return `${start.getDate()} - ${end.getDate()} ${sMonth} ${end.getFullYear()}`;
+      }
+      return `${start.getDate()} ${sMonth} - ${end.getDate()} ${eMonth} ${end.getFullYear()}`;
+    }
+    if (this.calendarView === 'Jour') {
+      const day = this.currentCalendarDate.getDate();
+      return `${day} ${mName.toLowerCase()} ${y}`;
+    }
+    return `${mName} ${y}`;
+  }
+
   prevCalendarMonth(): void {
-    this.currentCalendarMonth = 'Juin 2026';
+    if (this.calendarView === 'Mois' || this.calendarView === 'Événements') {
+      this.currentCalendarDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth() - 1, 1);
+    } else if (this.calendarView === 'Semaine') {
+      this.currentCalendarDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), this.currentCalendarDate.getDate() - 7);
+    } else if (this.calendarView === 'Jour') {
+      this.currentCalendarDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), this.currentCalendarDate.getDate() - 1);
+    }
+    this.currentCalendarMonth = this.getCalendarHeaderLabel();
   }
 
   nextCalendarMonth(): void {
-    this.currentCalendarMonth = 'Août 2026';
+    if (this.calendarView === 'Mois' || this.calendarView === 'Événements') {
+      this.currentCalendarDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth() + 1, 1);
+    } else if (this.calendarView === 'Semaine') {
+      this.currentCalendarDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), this.currentCalendarDate.getDate() + 7);
+    } else if (this.calendarView === 'Jour') {
+      this.currentCalendarDate = new Date(this.currentCalendarDate.getFullYear(), this.currentCalendarDate.getMonth(), this.currentCalendarDate.getDate() + 1);
+    }
+    this.currentCalendarMonth = this.getCalendarHeaderLabel();
   }
 
   getEndTime(time: string): string {
@@ -2711,13 +3089,36 @@ export class GestionnaireComponent implements OnInit {
   }
 
   openEventDetailsModal(ev: any): void {
-    this.dataService.showToast(`Événement: ${ev.title} - Le ${this.formatDate(ev.date)} (${ev.time})`);
+    this.selectedDetailEvent = ev;
+    this.showEventDetailsModal = true;
+  }
+
+  closeEventDetailsModal(): void {
+    this.showEventDetailsModal = false;
+    this.selectedDetailEvent = null;
   }
 
   getCalendarGridDays(): any[] {
+    const year = this.currentCalendarDate.getFullYear();
+    const month = this.currentCalendarDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let startDayOfWeek = (firstDay.getDay() + 6) % 7; // Lun = 0 ... Dim = 6
+
     const days: any[] = [];
-    for (let i = 1; i <= 31; i++) {
-      const dayStr = `2026-07-${i < 10 ? '0' + i : i}`;
+    const prevMonthDays = new Date(year, month, 0).getDate();
+    for (let i = startDayOfWeek - 1; i >= 0; i--) {
+      days.push({
+        dayNumber: prevMonthDays - i,
+        isCurrentMonth: false,
+        events: []
+      });
+    }
+
+    for (let i = 1; i <= daysInMonth; i++) {
+      const mm = (month + 1) < 10 ? '0' + (month + 1) : '' + (month + 1);
+      const dd = i < 10 ? '0' + i : '' + i;
+      const dayStr = `${year}-${mm}-${dd}`;
       const dayEvs = this.getFilteredEventsForCalendar().filter(e => e.date === dayStr);
       days.push({
         dayNumber: i,
@@ -2725,7 +3126,70 @@ export class GestionnaireComponent implements OnInit {
         events: dayEvs
       });
     }
+
+    const totalCells = Math.ceil(days.length / 7) * 7;
+    let nextNum = 1;
+    while (days.length < totalCells) {
+      days.push({
+        dayNumber: nextNum++,
+        isCurrentMonth: false,
+        events: []
+      });
+    }
+
     return days;
+  }
+
+  getCalendarWeekDays(): any[] {
+    const d = new Date(this.currentCalendarDate);
+    const dayOfWeek = (d.getDay() + 6) % 7; // Lun = 0
+    const start = new Date(d);
+    start.setDate(d.getDate() - dayOfWeek);
+
+    const days: any[] = [];
+    const names = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+    for (let i = 0; i < 7; i++) {
+      const cur = new Date(start);
+      cur.setDate(start.getDate() + i);
+      const yy = cur.getFullYear();
+      const mm = (cur.getMonth() + 1) < 10 ? '0' + (cur.getMonth() + 1) : '' + (cur.getMonth() + 1);
+      const dd = cur.getDate() < 10 ? '0' + cur.getDate() : '' + cur.getDate();
+      const dayStr = `${yy}-${mm}-${dd}`;
+      const dayEvs = this.getFilteredEventsForCalendar().filter(e => e.date === dayStr);
+      days.push({
+        dayName: names[i],
+        dayNumber: cur.getDate(),
+        events: dayEvs
+      });
+    }
+    return days;
+  }
+
+  getCalendarDayView(): any {
+    const cur = this.currentCalendarDate;
+    const yy = cur.getFullYear();
+    const mm = (cur.getMonth() + 1) < 10 ? '0' + (cur.getMonth() + 1) : '' + (cur.getMonth() + 1);
+    const dd = cur.getDate() < 10 ? '0' + cur.getDate() : '' + cur.getDate();
+    const dayStr = `${yy}-${mm}-${dd}`;
+    const dayEvs = this.getFilteredEventsForCalendar().filter(e => e.date === dayStr);
+    return {
+      dayNumber: cur.getDate(),
+      events: dayEvs
+    };
+  }
+
+  getEventCardMonth(dateStr: string): string {
+    if (!dateStr) return 'JUIL.';
+    const parts = dateStr.split('-');
+    const m = parseInt(parts[1], 10) - 1;
+    const abbrevs = ['JANV.', 'FÉVR.', 'MARS.', 'AVR.', 'MAI.', 'JUIN.', 'JUIL.', 'AOÛT.', 'SEPT.', 'OCT.', 'NOV.', 'DÉC.'];
+    return abbrevs[m] || 'JUIL.';
+  }
+
+  getEventCardDay(dateStr: string): string {
+    if (!dateStr) return '19';
+    const parts = dateStr.split('-');
+    return '' + parseInt(parts[2], 10);
   }
 
   getFilteredEventsForCalendar(): any[] {
@@ -2900,6 +3364,7 @@ export class GestionnaireComponent implements OnInit {
       clientPhone: this.selectedClientForEvent.phone,
       location: this.eventForm.location,
       staffIds: this.selectedStaffIdsForEvent,
+      signatureGastronomique: this.eventForm.signatureGastronomique || 'Menu Signature Kiki Traiteur',
       requestId: this.eventForm.requestId
     });
 
@@ -2929,6 +3394,7 @@ export class GestionnaireComponent implements OnInit {
       clientName: '',
       clientId: '',
       prestationId: 'salle-diva',
+      signatureGastronomique: 'Menu Signature Kiki Traiteur',
       guests: 50,
       location: 'Salle La Diva, Dakar',
       date: new Date().toISOString().split('T')[0],
@@ -2971,6 +3437,7 @@ export class GestionnaireComponent implements OnInit {
         clientName: client ? client.name : 'Client',
         clientId: client ? client.id : '',
         prestationId: req.prestationId || 'salle-diva',
+        signatureGastronomique: (d as any).signatureGastronomique || req.signatureGastronomique || 'Menu Signature Kiki Traiteur',
         guests: req.guests || 50,
         location: req.location || 'Salle La Diva, Dakar',
         date: req.date || new Date().toISOString().split('T')[0],
@@ -2988,6 +3455,7 @@ export class GestionnaireComponent implements OnInit {
         clientName: client ? client.name : 'Client',
         clientId: client ? client.id : '',
         prestationId: req.prestationId || 'salle-diva',
+        signatureGastronomique: req.signatureGastronomique || 'Menu Signature Kiki Traiteur',
         guests: req.guests || 50,
         location: req.location || 'Salle La Diva, Dakar',
         date: req.date || new Date().toISOString().split('T')[0],
@@ -3064,6 +3532,7 @@ export class GestionnaireComponent implements OnInit {
         items: this.devisForm.items,
         tvaRate: 0,
         discount: this.devisForm.discount,
+        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
         status: 'sent'
       }, actionMsg);
     } else {
@@ -3072,6 +3541,7 @@ export class GestionnaireComponent implements OnInit {
         items: this.devisForm.items,
         tvaRate: 0,
         discount: this.devisForm.discount,
+        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
         status: 'sent'
       });
     }
@@ -3079,6 +3549,57 @@ export class GestionnaireComponent implements OnInit {
       this.dataService.updateRequestStatus(reqId, 'sent');
     }
     this.dataService.showToast(`Devis transmis par e-mail à ${this.devisForm.clientEmail} avec succès.`);
+    this.showDevisModal = false;
+    this.loadData();
+  }
+
+  createDevisDirectly(): void {
+    let reqId = this.devisForm.requestId;
+    if (this.isNewDevis || !reqId) {
+      if (!this.selectedClientForDevis && !this.devisForm.clientId) {
+        this.dataService.showToast('Veuillez sélectionner un client pour ce devis.', true);
+        return;
+      }
+      const clientId = this.selectedClientForDevis ? this.selectedClientForDevis.id : this.devisForm.clientId;
+      const newReq = this.dataService.addRequest({
+        clientId: clientId,
+        prestationId: this.devisForm.prestationId || 'salle-diva',
+        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
+        guests: this.devisForm.guests || 50,
+        location: this.devisForm.location || 'Salle La Diva, Dakar',
+        date: this.devisForm.date || new Date().toISOString().split('T')[0],
+        time: (this.devisForm as any).time || '19:00',
+        message: 'Devis avec ' + ((this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur'),
+        status: 'sent'
+      });
+      reqId = newReq.id;
+      this.devisForm.requestId = reqId;
+    }
+
+    const existing = this.dataService.getDevisByRequest(reqId);
+    const actionMsg = `Devis créé (${(this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur'})`;
+    if (existing) {
+      this.dataService.updateDevis(existing.id, {
+        items: this.devisForm.items,
+        tvaRate: 0,
+        discount: this.devisForm.discount,
+        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
+        status: 'sent'
+      }, actionMsg);
+    } else {
+      this.dataService.addDevis({
+        requestId: reqId,
+        items: this.devisForm.items,
+        tvaRate: 0,
+        discount: this.devisForm.discount,
+        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
+        status: 'sent'
+      });
+    }
+    if (reqId) {
+      this.dataService.updateRequestStatus(reqId, 'sent');
+    }
+    this.dataService.showToast('Devis créé et enregistré avec succès.');
     this.showDevisModal = false;
     this.loadData();
   }
@@ -3119,7 +3640,7 @@ export class GestionnaireComponent implements OnInit {
     this.loadData();
     const req = this.requests.find(r => r.id === reqId);
     if (req) {
-      this.openCreateEventModal(req);
+      this.openCreateEventModal(req, true);
     }
   }
 
@@ -3284,6 +3805,61 @@ export class GestionnaireComponent implements OnInit {
       this.dataService.showToast('FAQ supprimée.');
       this.loadData();
     }
+  }
+
+  // --- TESTIMONIALS CRUD ---
+  openAddTestimonialModal(): void {
+    this.testimonialForm = { id: '', text: '', clientName: '', clientTitle: '', stars: 5 };
+    this.isEditingTestimonial = false;
+    this.showTestimonialModal = true;
+  }
+
+  openEditTestimonialModal(t: any): void {
+    this.testimonialForm = { id: t.id, text: t.text, clientName: t.clientName, clientTitle: t.clientTitle, stars: t.stars };
+    this.isEditingTestimonial = true;
+    this.showTestimonialModal = true;
+  }
+
+  closeTestimonialModal(): void {
+    this.showTestimonialModal = false;
+  }
+
+  saveTestimonial(): void {
+    if (!this.testimonialForm.text.trim() || !this.testimonialForm.clientName.trim()) {
+      this.dataService.showToast('Le témoignage et le nom du client sont requis.', true);
+      return;
+    }
+    if (this.isEditingTestimonial && this.testimonialForm.id) {
+      this.dataService.updateTestimonial(this.testimonialForm.id, {
+        text: this.testimonialForm.text,
+        clientName: this.testimonialForm.clientName,
+        clientTitle: this.testimonialForm.clientTitle,
+        stars: this.testimonialForm.stars
+      });
+      this.dataService.showToast('Témoignage modifié avec succès.');
+    } else {
+      this.dataService.addTestimonial({
+        text: this.testimonialForm.text,
+        clientName: this.testimonialForm.clientName,
+        clientTitle: this.testimonialForm.clientTitle,
+        stars: this.testimonialForm.stars
+      });
+      this.dataService.showToast('Témoignage ajouté au CMS.');
+    }
+    this.showTestimonialModal = false;
+    this.loadData();
+  }
+
+  deleteTestimonial(id: string): void {
+    if (confirm('Supprimer ce témoignage du site ?')) {
+      this.dataService.deleteTestimonial(id);
+      this.dataService.showToast('Témoignage supprimé.');
+      this.loadData();
+    }
+  }
+
+  getStarsArray(n: number): number[] {
+    return Array(Math.max(0, Math.min(5, n || 0))).fill(0);
   }
 
   // --- MEDIATHEQUE GROUPED BY EVENT ---

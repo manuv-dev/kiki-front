@@ -154,14 +154,15 @@ import { Router } from '@angular/router';
 
     .form-control {
       width: 100%;
-      padding: 0.9rem 1rem 0.9rem 3rem;
-      font-size: 0.98rem;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
+      padding: 0.42rem 0.75rem 0.42rem 3rem;
+      font-size: 0.875rem;
+      border: 1.5px solid var(--border-color);
+      border-radius: 5px;
       background: var(--bg-white);
       color: var(--text-main);
       transition: all 0.25s ease;
       font-family: var(--font-body);
+      box-sizing: border-box;
     }
 
     .form-control:focus {

@@ -184,11 +184,11 @@ import { KikiDataService } from '../services/kiki-data.service';
               <div class="form-group-row">
                 <div class="form-group">
                   <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase;">DATE DE L'ÉVÉNEMENT *</label>
-                  <input type="date" [(ngModel)]="form.date" name="date" class="form-control" style="border-radius: 25px; padding: 0.75rem 1.25rem;" required>
+                  <input type="date" [(ngModel)]="form.date" name="date" class="form-control" required>
                 </div>
                 <div class="form-group">
                   <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase;">HEURE SOUHAITÉE *</label>
-                  <input type="time" [(ngModel)]="form.time" name="time" class="form-control" style="border-radius: 25px; padding: 0.75rem 1.25rem;" required>
+                  <input type="time" [(ngModel)]="form.time" name="time" class="form-control" required>
                 </div>
               </div>
 
@@ -1137,15 +1137,17 @@ import { KikiDataService } from '../services/kiki-data.service';
     }
     .form-control {
       width: 100%;
-      padding: 0.75rem 1rem;
+      padding: 0.45rem 0.75rem;
       border: 1.5px solid #CBD5E1;
-      border-radius: 10px;
-      font-size: 0.95rem;
+      border-radius: 5px;
+      font-size: 0.875rem;
       transition: border-color 0.2s;
+      box-sizing: border-box;
     }
     .form-control:focus {
-      border-color: #DC2626;
+      border-color: #7A1C1C;
       outline: none;
+      box-shadow: 0 0 0 3px rgba(122, 28, 28, 0.1);
     }
 
     /* ===== DARK MODE OVERRIDES (BULLETPROOF ANGULAR ENCAPSULATION) ===== */
