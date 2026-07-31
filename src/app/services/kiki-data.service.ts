@@ -200,192 +200,26 @@ export class KikiDataService {
       localStorage.setItem(this.STORAGE_KEYS.PRESTATIONS, JSON.stringify(initialPrestations));
     }
 
+    // Nettoyage complet de toutes les fausses données (clients, demandes, devis, événements, médias, gestionnaires, témoignages)
+    localStorage.removeItem(this.STORAGE_KEYS.CLIENTS);
+    localStorage.removeItem(this.STORAGE_KEYS.REQUESTS);
+    localStorage.removeItem(this.STORAGE_KEYS.DEVIS);
+    localStorage.removeItem(this.STORAGE_KEYS.EVENTS);
+    localStorage.removeItem(this.STORAGE_KEYS.MEDIA);
+    localStorage.removeItem(this.STORAGE_KEYS.TESTIMONIALS);
+    localStorage.removeItem(this.STORAGE_KEYS.MANAGERS);
+
     if (!localStorage.getItem(this.STORAGE_KEYS.CLIENTS)) {
-      const initialClients: ClientItem[] = [
-        { id: 'cli_1', name: 'Sophie Laurent', email: 'sophie.l@gmail.com', phone: '06 12 34 56 78', type: 'particular', organization: '' },
-        { id: 'cli_2', name: 'Jean-Marc Dubois', email: 'j.dubois@lvmh.com', phone: '01 45 67 89 10', type: 'institution', organization: 'LVMH Group' },
-        { id: 'cli_3', name: 'Hélène Rocher', email: 'contact@fondation-rocher.fr', phone: '07 89 01 23 45', type: 'institution', organization: 'Fondation Rocher' },
-        { id: 'cli_4', name: 'Antoine Morel', email: 'antoine.morel@yahoo.fr', phone: '06 98 76 54 32', type: 'particular', organization: '' }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.CLIENTS, JSON.stringify(initialClients));
+      localStorage.setItem(this.STORAGE_KEYS.CLIENTS, JSON.stringify([]));
     }
-
     if (!localStorage.getItem(this.STORAGE_KEYS.REQUESTS)) {
-      const initialRequests: RequestItem[] = [
-        {
-          id: 'req_101',
-          clientId: 'cli_1',
-          prestationId: 'salle-diva',
-          date: this.getRelativeDate(1),
-          guests: 120,
-          isInstitution: false,
-          organization: '',
-          status: 'pending',
-          dateSubmitted: this.getRelativeDate(-3),
-          message: 'Demande pour le mariage de ma fille. Nous souhaitons la salle La Diva et le service traiteur associé.'
-        },
-        {
-          id: 'req_102',
-          clientId: 'cli_2',
-          prestationId: 'traiteur',
-          date: this.getRelativeDate(4),
-          guests: 80,
-          isInstitution: true,
-          organization: 'LVMH Group',
-          status: 'pending',
-          dateSubmitted: this.getRelativeDate(-1),
-          message: 'Dîner de gala annuel de l’entreprise. Menu gastronomique 5 services avec accords mets-vins.'
-        },
-        {
-          id: 'req_103',
-          clientId: 'cli_3',
-          prestationId: 'salle-diva',
-          date: this.getRelativeDate(10),
-          guests: 200,
-          isInstitution: true,
-          organization: 'Fondation Rocher',
-          status: 'accepted',
-          dateSubmitted: this.getRelativeDate(0),
-          message: 'Conférence de presse et cocktail dinatoire caritatif dans votre salle La Diva.'
-        },
-        {
-          id: 'req_104',
-          clientId: 'cli_4',
-          prestationId: 'decoration',
-          date: this.getRelativeDate(-2),
-          guests: 50,
-          isInstitution: false,
-          organization: '',
-          status: 'accepted',
-          dateSubmitted: this.getRelativeDate(-10),
-          message: 'Anniversaire privé. Thème bohème chic avec décoration florale suspendue.'
-        },
-        {
-          id: 'req_105',
-          clientId: 'cli_1',
-          prestationId: 'evenements',
-          date: this.getRelativeDate(15),
-          guests: 150,
-          isInstitution: false,
-          organization: '',
-          status: 'sent',
-          dateSubmitted: this.getRelativeDate(-5),
-          message: 'Organisation complète d’une soirée de gala avec traiteur et décoration lumineuse.'
-        },
-        {
-          id: 'req_106',
-          clientId: 'cli_2',
-          prestationId: 'traiteur',
-          date: this.getRelativeDate(20),
-          guests: 300,
-          isInstitution: true,
-          organization: 'Banque BOA Sénégal',
-          status: 'quoted',
-          dateSubmitted: this.getRelativeDate(-7),
-          message: 'Buffet gastronomique annuel pour la direction et les partenaires.'
-        },
-        {
-          id: 'req_107',
-          clientId: 'cli_3',
-          prestationId: 'location',
-          date: this.getRelativeDate(25),
-          guests: 40,
-          isInstitution: false,
-          organization: '',
-          status: 'rejected',
-          dateSubmitted: this.getRelativeDate(-12),
-          message: 'Location de matériel et vaisselle dorée pour dîner privé.'
-        },
-        {
-          id: 'req_108',
-          clientId: 'cli_4',
-          prestationId: 'salle-diva',
-          date: this.getRelativeDate(30),
-          guests: 180,
-          isInstitution: true,
-          organization: 'Sonatel Orange',
-          status: 'aboutis',
-          dateSubmitted: this.getRelativeDate(-15),
-          message: 'Séminaire de direction couronné par un cocktail dînatoire dans la salle La Diva.'
-        }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.REQUESTS, JSON.stringify(initialRequests));
+      localStorage.setItem(this.STORAGE_KEYS.REQUESTS, JSON.stringify([]));
     }
-
     if (!localStorage.getItem(this.STORAGE_KEYS.DEVIS)) {
-      const initialDevis: DevisItem[] = [
-        {
-          id: 'dev_501',
-          requestId: 'req_105',
-          dateCreated: this.getRelativeDate(-2),
-          items: [
-            { desc: 'Organisation complète soirée de gala', qty: 1, unitPrice: 350000 },
-            { desc: 'Menu Gastronomique 3 services (par pers.)', qty: 150, unitPrice: 18000 },
-            { desc: 'Forfait Boissons fines (par pers.)', qty: 150, unitPrice: 5000 },
-            { desc: 'Service en salle & Maître d’hôtel', qty: 8, unitPrice: 25000 }
-          ],
-          tvaRate: 0,
-          discount: 5,
-          status: 'sent',
-          history: [
-            { date: this.getRelativeDate(-2), action: 'Devis initial généré #dev_501' },
-            { date: this.getRelativeDate(-1), action: 'Devis envoyé au client par email' }
-          ]
-        },
-        {
-          id: 'dev_502',
-          requestId: 'req_106',
-          dateCreated: this.getRelativeDate(-4),
-          items: [
-            { desc: 'Buffet Gastronomique VIP (par pers.)', qty: 300, unitPrice: 22000 },
-            { desc: 'Ateliers culinaires animés par les Chefs', qty: 4, unitPrice: 75000 }
-          ],
-          tvaRate: 0,
-          discount: 10,
-          status: 'sent',
-          history: [
-            { date: this.getRelativeDate(-4), action: 'Devis initial généré #dev_502' },
-            { date: this.getRelativeDate(-3), action: 'Devis envoyé au client par email' }
-          ]
-        }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.DEVIS, JSON.stringify(initialDevis));
+      localStorage.setItem(this.STORAGE_KEYS.DEVIS, JSON.stringify([]));
     }
-
     if (!localStorage.getItem(this.STORAGE_KEYS.EVENTS)) {
-      const initialEvents: EventItem[] = [
-        {
-          id: 'ev_1',
-          title: 'Mariage de la fille de Sophie Laurent',
-          type: 'salle-diva',
-          date: this.getRelativeDate(1),
-          time: '19:00',
-          guests: 120,
-          clientId: 'cli_1',
-          location: 'Salle La Diva, Hann Maristes',
-          staffIds: ['st_1', 'st_2', 'st_4'],
-          requestId: 'req_101',
-          signatureGastronomique: 'Cuisine Royale Sénégalaise & Fusion',
-          status: 'confirmé',
-          createdDate: this.getRelativeDate(-2)
-        },
-        {
-          id: 'ev_2',
-          title: 'Cocktail Anniversaire Chic',
-          type: 'decoration',
-          date: this.getRelativeDate(-2),
-          time: '20:00',
-          guests: 50,
-          clientId: 'cli_4',
-          location: 'Villa Almadies, Dakar',
-          staffIds: ['st_3', 'st_4'],
-          requestId: 'req_104',
-          signatureGastronomique: 'Cocktail Dînatoire Prestige La Diva',
-          status: 'terminé',
-          createdDate: this.getRelativeDate(-10)
-        }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.EVENTS, JSON.stringify(initialEvents));
+      localStorage.setItem(this.STORAGE_KEYS.EVENTS, JSON.stringify([]));
     }
 
     if (!localStorage.getItem(this.STORAGE_KEYS.STAFF)) {
@@ -408,24 +242,11 @@ export class KikiDataService {
     }
 
     if (!localStorage.getItem(this.STORAGE_KEYS.MEDIA)) {
-      const initialMedia: MediaItem[] = [
-        { id: 'med_1', title: 'Mariage de la fille de Sophie Laurent - Salle VIP', url: 'https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800', type: 'image', eventId: 'ev_1', eventTitle: 'Mariage de la fille de Sophie Laurent' },
-        { id: 'med_2', title: 'Mariage de la fille de Sophie Laurent - Buffet Traiteur', url: 'https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=800', type: 'image', eventId: 'ev_1', eventTitle: 'Mariage de la fille de Sophie Laurent' },
-        { id: 'med_3', title: 'Cocktail Anniversaire Chic - Décoration florale', url: 'https://images.unsplash.com/photo-1527529482837-4698179dc6ce?q=80&w=800', type: 'image', eventId: 'ev_2', eventTitle: 'Cocktail Anniversaire Chic' },
-        { id: 'med_4', title: 'Cocktail Anniversaire Chic - Mise en table', url: 'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=800', type: 'image', eventId: 'ev_2', eventTitle: 'Cocktail Anniversaire Chic' },
-        { id: 'med_5', title: 'Gala LVMH - Prestige Service', url: 'https://images.unsplash.com/photo-1511578314322-379afb476865?q=80&w=800', type: 'image', eventId: 'ev_gala', eventTitle: 'Gala LVMH (Événement Institutionnel)' },
-        { id: 'med_6', title: 'Gala LVMH - Vue d\'ensemble', url: 'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?q=80&w=800', type: 'image', eventId: 'ev_gala', eventTitle: 'Gala LVMH (Événement Institutionnel)' }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.MEDIA, JSON.stringify(initialMedia));
+      localStorage.setItem(this.STORAGE_KEYS.MEDIA, JSON.stringify([]));
     }
 
     if (!localStorage.getItem(this.STORAGE_KEYS.MANAGERS)) {
-      const initialManagers: ManagerItem[] = [
-        { id: 'mng_1', name: 'Marie V.', email: 'marie.v@kikitraiteur.sn', role: 'Gestionnaire Senior', blocked: false },
-        { id: 'mng_2', name: 'Cheikh Diop', email: 'c.diop@kikitraiteur.sn', role: 'Gestionnaire Logistique', blocked: false },
-        { id: 'mng_3', name: 'Amina Fall', email: 'a.fall@kikitraiteur.sn', role: 'Gestionnaire Relations Client', blocked: true }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.MANAGERS, JSON.stringify(initialManagers));
+      localStorage.setItem(this.STORAGE_KEYS.MANAGERS, JSON.stringify([]));
     }
   }
 
@@ -655,28 +476,7 @@ export class KikiDataService {
   // --- TESTIMONIALS ---
   getTestimonials(): TestimonialItem[] {
     const data = localStorage.getItem(this.STORAGE_KEYS.TESTIMONIALS);
-    if (data) return JSON.parse(data);
-    // default seed
-    const defaults: TestimonialItem[] = [
-      {
-        id: 'tst_1',
-        text: 'Un service d\'exception pour notre mariage. La salle La Diva était magnifique et le traiteur a régalé tous nos convives.',
-        clientName: 'Sophie Laurent',
-        clientTitle: 'Cliente particulière',
-        stars: 5,
-        createdAt: '2026-06-15'
-      },
-      {
-        id: 'tst_2',
-        text: 'Nous faisons appel à Kiki Traiteur pour tous nos dîners de gala. Professionnalisme et raffinement au rendez-vous.',
-        clientName: 'Jean-Marc Dubois',
-        clientTitle: 'Directeur LVMH Group',
-        stars: 5,
-        createdAt: '2026-05-20'
-      }
-    ];
-    localStorage.setItem(this.STORAGE_KEYS.TESTIMONIALS, JSON.stringify(defaults));
-    return defaults;
+    return data ? JSON.parse(data) : [];
   }
 
   saveTestimonials(list: TestimonialItem[]): void {

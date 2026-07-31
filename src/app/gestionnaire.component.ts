@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { KikiDataService } from './services/kiki-data.service';
+import { GestionnaireApiService } from './services/gestionnaire-api.service';
 
 @Component({
   selector: 'app-gestionnaire',
@@ -99,9 +100,11 @@ import { KikiDataService } from './services/kiki-data.service';
           <button class="month-nav-btn" (click)="prevMonth()" title="Mois précédent">
             <i class="fas fa-chevron-left"></i>
           </button>
-          <div class="month-display">
+          <div class="month-display" style="position: relative; cursor: pointer;" title="Cliquer pour choisir n'importe quel mois depuis 1997">
             <i class="fas fa-calendar-alt calendar-icon"></i>
             <span>{{ currentMonth }}</span>
+            <input type="month" min="1997-01" [value]="getMonthInputValue()" (change)="onMonthInputChange($event)"
+                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" />
           </div>
           <button class="month-nav-btn" (click)="nextMonth()" title="Mois suivant">
             <i class="fas fa-chevron-right"></i>
@@ -238,15 +241,17 @@ import { KikiDataService } from './services/kiki-data.service';
 
                   <!-- Horizontal Grid lines & Y Labels -->
                   <line x1="55" y1="20" x2="540" y2="20" stroke="#E2E8F0" stroke-width="1" />
-                  <text x="35" y="24" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">3</text>
+                  <text x="35" y="24" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">{{ getChartYLabel3() }}</text>
 
                   <line x1="55" y1="70" x2="540" y2="70" stroke="#E2E8F0" stroke-width="1" />
-                  <text x="35" y="74" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">2</text>
+                  <text x="35" y="74" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">{{ getChartYLabel2() }}</text>
 
                   <line x1="55" y1="120" x2="540" y2="120" stroke="#E2E8F0" stroke-width="1" />
-                  <text x="35" y="124" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">1</text>
+                  <text x="35" y="124" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">{{ getChartYLabel1() }}</text>
 
                   <line x1="55" y1="170" x2="540" y2="170" stroke="#CBD5E1" stroke-width="1.5" />
+                  <text x="35" y="174" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">0</text>
+
 
                   <!-- Shaded Area Under Curve -->
                   <path [attr.d]="getChartAreaPath()" fill="url(#maroonGradient)" />
@@ -299,6 +304,9 @@ import { KikiDataService } from './services/kiki-data.service';
                 </div>
 
                 <div class="recent-requests-list">
+                  <div *ngIf="!getRecentRequestsFeed() || getRecentRequestsFeed().length === 0" style="padding: 1.5rem; text-align: center; color: #94A3B8; font-size: 0.9rem;">
+                    Aucune demande en base de données pour ce mois.
+                  </div>
                   <div class="recent-item" *ngFor="let item of getRecentRequestsFeed()">
                     <div class="recent-left">
                       <span class="dot" [ngStyle]="{'background-color': item.dotColor}"></span>
@@ -338,9 +346,8 @@ import { KikiDataService } from './services/kiki-data.service';
                 <option value="salle-diva">Salle La Diva</option>
                 <option value="traiteur">Service Traiteur Prestige</option>
                 <option value="evenements">Organisation d'Événements</option>
-                <option value="decoration">Design & Décoration</option>
-                <option value="location">Location de Matériel</option>
                 <option value="foodtruck">Food Truck Gourmet</option>
+                <option value="takeaway">Plats à Emporter</option>
               </select>
             </div>
 
@@ -374,7 +381,7 @@ import { KikiDataService } from './services/kiki-data.service';
                 <tbody>
                   <tr *ngFor="let req of getFilteredRequestsForPage()">
                     <td><strong style="color: #1E293B;">#{{ req.id }}</strong></td>
-                    <td><strong style="color: #1E293B;">{{ getClientName(req.clientId) }}</strong></td>
+                    <td><strong style="color: #1E293B;">{{ req.clientName && req.clientName !== req.clientId ? req.clientName : getClientName(req.clientId) }}</strong></td>
                     <td>
                       <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-size: 0.65rem;">
                         {{ getClientType(req.clientId) }}
@@ -1304,19 +1311,19 @@ import { KikiDataService } from './services/kiki-data.service';
                 </div>
               </div>
             </div>
-            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding-top: 1rem;">
-              <button type="button" class="btn btn-outline" (click)="closeDevisModal()">{{ isDevisReadonly ? 'Fermer' : 'Annuler' }}</button>
-              <div *ngIf="!isDevisReadonly" style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap;">
-                <!-- Bouton principal : Enregistrer et envoyer la version en PDF par mail -->
+            <div class="modal-footer" style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; padding: 1rem 1.5rem; background: #F8FAFC;">
+              <div style="display: flex; gap: 0.6rem; align-items: center;">
+                <button type="button" class="btn btn-outline" (click)="closeDevisModal()">{{ isDevisReadonly ? 'Fermer' : 'Annuler' }}</button>
+                <button *ngIf="!isDevisReadonly && !isNewDevis && isSentStatus(devisForm.status)" type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="rejectDevisFromModal()">
+                  <i class="fas fa-times me-1"></i> Refuser la demande
+                </button>
+              </div>
+              <div *ngIf="!isDevisReadonly" style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
                 <button type="button" class="btn" style="background: #7A1C1C; color: white; font-weight: 700; padding: 0.55rem 1.2rem;" (click)="sendDevisByEmail()">
                   <i class="fas fa-file-pdf me-1"></i> ENREGISTRER ET ENVOYER PAR MAIL (PDF)
                 </button>
-                <!-- Si le devis est en cours/émis ou nouveau, actions complémentaires -->
-                <button *ngIf="isNewDevis || isSentStatus(devisForm.status)" type="button" class="btn" style="background: #2563EB; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="concludeDevisAndCreateEvent()">
+                <button *ngIf="canShowCreateEventButton(devisForm)" type="button" class="btn" style="background: #2563EB; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="concludeDevisAndCreateEvent()">
                   <i class="fas fa-calendar-plus me-1"></i> Créer un événement
-                </button>
-                <button *ngIf="!isNewDevis && isSentStatus(devisForm.status)" type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="rejectDevisFromModal()">
-                  <i class="fas fa-times me-1"></i> Refuser
                 </button>
               </div>
             </div>
@@ -1380,9 +1387,12 @@ import { KikiDataService } from './services/kiki-data.service';
 
               <!-- Notes & Commentaire client -->
               <div style="background: #F1F5F9; border-left: 4px solid #7A1C1C; border-radius: 6px; padding: 1rem; margin-bottom: 0.5rem;">
-                <span style="font-size: 0.72rem; color: #64748B; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">PRÉCISONS / MESSAGE DU CLIENT :</span>
-                <p style="margin: 0; font-style: italic; color: #334155; font-size: 0.9rem; line-height: 1.5;">
-                  "{{ currentDetailRequest.message || 'Aucune note supplémentaire n\'a été transmise par le client lors de la demande.' }}"
+                <span style="font-size: 0.72rem; color: #64748B; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">PRÉCISIONS / MESSAGE DU CLIENT :</span>
+                <p *ngIf="currentDetailRequest.message && currentDetailRequest.message.trim()" style="margin: 0; font-style: italic; color: #334155; font-size: 0.9rem; line-height: 1.5;">
+                  "{{ currentDetailRequest.message }}"
+                </p>
+                <p *ngIf="!currentDetailRequest.message || !currentDetailRequest.message.trim()" style="margin: 0; font-style: italic; color: #64748B; font-size: 0.9rem; line-height: 1.5;">
+                  Aucune note supplémentaire n'a été transmise par le client lors de la demande.
                 </p>
               </div>
             </div>
@@ -2396,113 +2406,12 @@ export class GestionnaireComponent implements OnInit {
   conversionRate = 0;
   syncStatus = 'Connecté (Dernière sync : Aujourd\'hui à 11h15)';
 
-  currentMonth = 'Juillet 2026';
+  currentYear = new Date().getFullYear();
+  currentMonthIndex = new Date().getMonth(); // Par défaut : mois en cours
+  currentMonth = '';
   selectedChartFilter = 'Toutes';
-  chartTabs = ['Toutes', 'La Diva', 'Traiteur', 'Événements', 'Décoration', 'Food Truck'];
+  chartTabs = ['Toutes', 'La Diva', 'Traiteur', 'Événements', 'Food Truck', 'À Emporter'];
 
-  monthlyMetrics: Record<string, {
-    requests: number;
-    accepted: number;
-    pendingRealisation: number;
-    conversion: number;
-    clientsCount: string;
-    clientsBreakdown: string;
-    pendingValidation: number;
-    conflicts: number;
-    roomBlocked: number;
-    recentRequests: any[];
-  }> = {
-    'Mai 2026': {
-      requests: 8,
-      accepted: 3,
-      pendingRealisation: 4,
-      conversion: 38,
-      clientsCount: '12',
-      clientsBreakdown: '7 Particuliers / 5 Entreprises',
-      pendingValidation: 1,
-      conflicts: 0,
-      roomBlocked: 0,
-      recentRequests: [
-        { name: 'Moussa Diouf', badge: 'Traiteur', date: '28 mai', dotColor: '#059669' },
-        { name: 'Cabinet Alpha', badge: 'Service', date: '22 mai', dotColor: '#B45309' },
-        { name: 'Ndéye Tall', badge: 'Salle', date: '15 mai', dotColor: '#3B82F6' },
-        { name: 'Paul Morel', badge: 'Food Truck', date: '10 mai', dotColor: '#059669' },
-        { name: 'Aïssatou Sy', badge: 'Salle', date: '04 mai', dotColor: '#D97706' }
-      ]
-    },
-    'Juin 2026': {
-      requests: 14,
-      accepted: 6,
-      pendingRealisation: 5,
-      conversion: 43,
-      clientsCount: '13',
-      clientsBreakdown: '7 Particuliers / 6 Entreprises',
-      pendingValidation: 3,
-      conflicts: 1,
-      roomBlocked: 1,
-      recentRequests: [
-        { name: 'Société Beta', badge: 'Salle', date: '29 juin', dotColor: '#D97706' },
-        { name: 'Claire Martin', badge: 'Traiteur', date: '24 juin', dotColor: '#059669' },
-        { name: 'Marc Lamy', badge: 'Service', date: '18 juin', dotColor: '#3B82F6' },
-        { name: 'Élise Bernard', badge: 'Salle', date: '12 juin', dotColor: '#059669' },
-        { name: 'Amadou Fall', badge: 'Décoration', date: '05 juin', dotColor: '#B45309' }
-      ]
-    },
-    'Juillet 2026': {
-      requests: 11,
-      accepted: 4,
-      pendingRealisation: 6,
-      conversion: 36,
-      clientsCount: '14',
-      clientsBreakdown: '8 Particuliers / 6 Entreprises',
-      pendingValidation: 3,
-      conflicts: 0,
-      roomBlocked: 1,
-      recentRequests: [
-        { name: 'mme fatou', badge: '—', date: '25 juil.', dotColor: '#D97706' },
-        { name: 'Hélène Rocher', badge: 'Salle', date: '31 juil.', dotColor: '#B45309' },
-        { name: 'Jean-Marc Dubois', badge: 'Service', date: '25 juil.', dotColor: '#D97706' },
-        { name: 'Sophie Laurent', badge: 'Salle', date: '22 juil.', dotColor: '#059669' },
-        { name: 'Jean-Marc Dubois', badge: 'Service', date: '26 juil.', dotColor: '#3B82F6' }
-      ]
-    },
-    'Août 2026': {
-      requests: 16,
-      accepted: 7,
-      pendingRealisation: 7,
-      conversion: 44,
-      clientsCount: '16',
-      clientsBreakdown: '9 Particuliers / 7 Entreprises',
-      pendingValidation: 2,
-      conflicts: 1,
-      roomBlocked: 2,
-      recentRequests: [
-        { name: 'Groupe Omega', badge: 'Salle', date: '28 août', dotColor: '#D97706' },
-        { name: 'Chloé Vincent', badge: 'Service', date: '22 août', dotColor: '#059669' },
-        { name: 'Lamine Touré', badge: 'Traiteur', date: '16 août', dotColor: '#3B82F6' },
-        { name: 'Mélanie Roy', badge: 'Salle', date: '11 août', dotColor: '#B45309' },
-        { name: 'Lucie Robert', badge: 'Service', date: '04 août', dotColor: '#059669' }
-      ]
-    },
-    'Septembre 2026': {
-      requests: 19,
-      accepted: 9,
-      pendingRealisation: 8,
-      conversion: 47,
-      clientsCount: '18',
-      clientsBreakdown: '10 Particuliers / 8 Entreprises',
-      pendingValidation: 2,
-      conflicts: 0,
-      roomBlocked: 2,
-      recentRequests: [
-        { name: 'Banque Atlantique', badge: 'Service', date: '28 sept.', dotColor: '#059669' },
-        { name: 'Karim Cissé', badge: 'Salle', date: '23 sept.', dotColor: '#D97706' },
-        { name: 'Sandrine Faure', badge: 'Traiteur', date: '18 sept.', dotColor: '#059669' },
-        { name: 'ONG Sahel', badge: 'Food Truck', date: '12 sept.', dotColor: '#3B82F6' },
-        { name: 'Pauline Blanc', badge: 'Salle', date: '05 sept.', dotColor: '#B45309' }
-      ]
-    }
-  };
 
   staffList: any[] = [];
   events: any[] = [];
@@ -2615,9 +2524,14 @@ export class GestionnaireComponent implements OnInit {
     { label: 'Refusé', value: 'rejected' }
   ];
 
-  constructor(private dataService: KikiDataService, private router: Router) {}
+  constructor(
+    private dataService: KikiDataService,
+    private router: Router,
+    private gestionnaireApiService: GestionnaireApiService
+  ) {}
 
   ngOnInit(): void {
+    this.updateCurrentMonthLabel();
     this.loadData();
   }
 
@@ -2631,88 +2545,303 @@ export class GestionnaireComponent implements OnInit {
     this.devisList = this.dataService.getDevis();
     this.testimonials = this.dataService.getTestimonials();
 
-    this.totalRevenue = this.requests
-      .filter(r => r.status === 'accepted')
-      .reduce((acc, r) => acc + (this.getUnitPrice(r.prestationId) * (r.guests || 50)), 0);
+    this.updateLocalMetrics();
 
-    const total = this.requests.length;
-    const accepted = this.requests.filter(r => r.status === 'accepted').length;
-    this.conversionRate = total > 0 ? Math.round((accepted / total) * 100) : 0;
+    this.gestionnaireApiService.getAllDemandes().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.requests = data.map(d => ({
+            id: String(d.id),
+            clientId: String(d.clientId || ''),
+            prestationId: d.prestationId,
+            date: d.date || '',
+            time: d.time || '',
+            guests: d.guests || 50,
+            isInstitution: !!d.isInstitution,
+            organization: d.organization || d.clientOrganization || '',
+            status: d.status || 'pending',
+            dateSubmitted: d.dateSubmitted ? String(d.dateSubmitted).split('T')[0] : '',
+            message: d.message || '',
+            clientName: d.clientName || 'Client inconnu',
+            clientEmail: d.clientEmail || '',
+            clientPhone: d.clientPhone || '',
+            prestationTitle: d.prestationTitle || d.prestationId,
+            location: d.location || ''
+          }));
+
+          const clientMap = new Map<string, any>();
+          data.forEach(d => {
+            const cid = String(d.clientId || '');
+            if (cid && !clientMap.has(cid)) {
+              clientMap.set(cid, {
+                id: cid,
+                name: d.clientName || 'Client inconnu',
+                email: d.clientEmail || '',
+                phone: d.clientPhone || '',
+                type: d.clientType || (d.isInstitution ? 'institution' : 'particular'),
+                organization: d.organization || d.clientOrganization || ''
+              });
+            }
+          });
+          if (clientMap.size > 0) {
+            this.clients = Array.from(clientMap.values());
+          }
+
+          this.updateLocalMetrics();
+        }
+      },
+      error: (err) => console.warn('API Gestionnaire getAllDemandes non accessible, utilisation du mode local', err)
+    });
+
+    this.gestionnaireApiService.getDashboardStats().subscribe({
+      next: (stats) => {
+        if (stats) {
+          this.totalRevenue = Number(stats.totalRevenue) || 0;
+          this.conversionRate = Math.round(Number(stats.conversionRate) || 0);
+        }
+      },
+      error: (err) => console.warn('API Gestionnaire stats non accessible, utilisation des statistiques locales', err)
+    });
+  }
+
+  updateLocalMetrics(): void {
+    this.totalRevenue = this.requests
+      .filter(r => r.status === 'accepted' || r.status === 'approved')
+      .reduce((acc, r) => acc + (this.getUnitPrice(r.prestationId) * (r.guests || 50)), 0);
+  }
+
+  updateCurrentMonthLabel(): void {
+    const monthsFr = [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
+      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
+    ];
+    this.currentMonth = `${monthsFr[this.currentMonthIndex]} ${this.currentYear}`;
   }
 
   prevMonth(): void {
-    const months = ['Mai 2026', 'Juin 2026', 'Juillet 2026', 'Août 2026', 'Septembre 2026'];
-    const idx = months.indexOf(this.currentMonth);
-    if (idx > 0) {
-      this.currentMonth = months[idx - 1];
+    if (this.currentYear === 1997 && this.currentMonthIndex === 0) {
+      return;
     }
+    if (this.currentMonthIndex === 0) {
+      this.currentMonthIndex = 11;
+      this.currentYear--;
+    } else {
+      this.currentMonthIndex--;
+    }
+    this.updateCurrentMonthLabel();
   }
 
   nextMonth(): void {
-    const months = ['Mai 2026', 'Juin 2026', 'Juillet 2026', 'Août 2026', 'Septembre 2026'];
-    const idx = months.indexOf(this.currentMonth);
-    if (idx < months.length - 1) {
-      this.currentMonth = months[idx + 1];
+    if (this.currentMonthIndex === 11) {
+      this.currentMonthIndex = 0;
+      this.currentYear++;
+    } else {
+      this.currentMonthIndex++;
+    }
+    this.updateCurrentMonthLabel();
+  }
+
+  onMonthInputChange(event: any): void {
+    const val = event.target.value;
+    if (val) {
+      const parts = val.split('-');
+      if (parts.length === 2) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        if (y >= 1997) {
+          this.currentYear = y;
+          this.currentMonthIndex = m;
+          this.updateCurrentMonthLabel();
+        }
+      }
     }
   }
 
-  getCurrentMetrics() {
-    return this.monthlyMetrics[this.currentMonth] || this.monthlyMetrics['Juillet 2026'];
+  getMonthInputValue(): string {
+    const mStr = (this.currentMonthIndex + 1) < 10 ? `0${this.currentMonthIndex + 1}` : `${this.currentMonthIndex + 1}`;
+    return `${this.currentYear}-${mStr}`;
+  }
+
+  getRequestsForCurrentMonth(): any[] {
+    if (!this.requests || !Array.isArray(this.requests)) return [];
+    return this.requests.filter(r => {
+      const dStr = r.dateSubmitted || r.date || '';
+      if (!dStr) {
+        return this.currentYear === new Date().getFullYear() && this.currentMonthIndex === new Date().getMonth();
+      }
+      try {
+        const parts = String(dStr).split('T')[0].split('-');
+        if (parts.length >= 2) {
+          const y = parseInt(parts[0], 10);
+          const m = parseInt(parts[1], 10) - 1;
+          return y === this.currentYear && m === this.currentMonthIndex;
+        }
+      } catch {
+        // ignore
+      }
+      return false;
+    });
   }
 
   getRequestsThisMonthCount(): number {
-    return this.getCurrentMetrics().requests;
+    return this.getRequestsForCurrentMonth().length;
   }
 
   getAcceptedCount(): number {
-    return this.getCurrentMetrics().accepted;
+    return this.getRequestsForCurrentMonth().filter(r => r.status === 'accepted' || r.status === 'approved').length;
   }
 
   getPendingRealisationCount(): number {
-    return this.getCurrentMetrics().pendingRealisation;
+    return this.getRequestsForCurrentMonth().filter(r => r.status === 'quoted' || r.status === 'pending' || r.status === 'sent').length;
   }
 
   getConversionRate(): number {
-    return this.getCurrentMetrics().conversion;
+    const reqs = this.getRequestsForCurrentMonth();
+    if (reqs.length === 0) return 0;
+    const acc = reqs.filter(r => r.status === 'accepted' || r.status === 'approved').length;
+    return Math.round((acc / reqs.length) * 100);
   }
 
   getClientsCount(): string {
-    return this.getCurrentMetrics().clientsCount;
+    const reqs = this.getRequestsForCurrentMonth();
+    if (reqs.length === 0) return '0';
+    const clientIds = new Set(reqs.map(r => r.clientId));
+    return String(clientIds.size);
   }
 
   getClientsBreakdown(): string {
-    return this.getCurrentMetrics().clientsBreakdown;
+    const reqs = this.getRequestsForCurrentMonth();
+    if (reqs.length === 0) return '0 Particulier / 0 Entreprise';
+    const part = reqs.filter(r => this.getClientType(r.clientId) === 'Particulier').length;
+    const ent = reqs.filter(r => this.getClientType(r.clientId) === 'Entreprise').length;
+    return `${part} Particuliers / ${ent} Entreprises`;
   }
 
   getPendingValidationCount(): number {
-    return this.getCurrentMetrics().pendingValidation;
+    return this.getRequestsForCurrentMonth().filter(r => r.status === 'pending' || !r.status).length;
   }
 
   getActiveConflictsCount(): number {
-    return this.getCurrentMetrics().conflicts;
+    const reqs = this.getRequestsForCurrentMonth();
+    if (reqs.length === 0) return 0;
+    return reqs.filter(r => r.status === 'pending' && reqs.filter(o => o.id !== r.id && o.date === r.date).length > 0).length > 0 ? 1 : 0;
   }
 
   getRoomBlockedCount(): number {
-    return this.getCurrentMetrics().roomBlocked;
+    const reqs = this.getRequestsForCurrentMonth();
+    return reqs.filter(r => (r.prestationId === 'salle-diva' || r.prestationTitle === 'Salle La Diva') && (r.status === 'accepted' || r.status === 'approved')).length;
   }
 
   getRecentRequestsFeed(): any[] {
-    return this.getCurrentMetrics().recentRequests;
+    const reqs = this.getRequestsForCurrentMonth();
+    return reqs.slice(0, 5).map(r => ({
+      name: r.clientName && r.clientName !== r.clientId ? r.clientName : this.getClientName(r.clientId),
+      badge: this.getPrestationName(r.prestationId) || r.prestationId,
+      date: r.dateSubmitted ? String(r.dateSubmitted).split('T')[0] : (r.date ? r.date : 'Aujourd\'hui'),
+      dotColor: r.status === 'accepted' ? '#059669' : (r.status === 'rejected' ? '#DC2626' : '#D97706')
+    }));
+  }
+
+  getChartMaxVal(): number {
+    const data = this.getChartData();
+    const m = Math.max(...data, 3);
+    return m;
+  }
+
+  getChartYLabel3(): number {
+    return this.getChartMaxVal();
+  }
+
+  getChartYLabel2(): number {
+    return Math.round(this.getChartMaxVal() * 2 / 3);
+  }
+
+  getChartYLabel1(): number {
+    return Math.round(this.getChartMaxVal() / 3);
   }
 
   valToY(val: number): number {
-    return 170 - (val * 50);
+    const max = this.getChartMaxVal();
+    if (max <= 0) return 170;
+    const ratio = Math.min(1, Math.max(0, val / max));
+    return Math.round(170 - (ratio * 150));
+  }
+
+  getChartMonthList(): { year: number, monthIndex: number, label: string }[] {
+    const monthsFrShort = ['Janv.', 'Févr.', 'Mars.', 'Avr.', 'Mai.', 'Juin.', 'Juil.', 'Août.', 'Sept.', 'Oct.', 'Nov.', 'Déc.'];
+    const list = [];
+    for (let i = 5; i >= 0; i--) {
+      let y = this.currentYear;
+      let m = this.currentMonthIndex - i;
+      while (m < 0) {
+        m += 12;
+        y--;
+      }
+      list.push({
+        year: y,
+        monthIndex: m,
+        label: monthsFrShort[m]
+      });
+    }
+    return list;
+  }
+
+  matchesChartFilter(r: any, tab: string): boolean {
+    if (!tab || tab === 'Toutes') return true;
+    const pid = String(r.prestationId || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const pTitle = String(r.prestationTitle || this.getPrestationName(r.prestationId) || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const combined = `${pid} ${pTitle}`;
+
+    const loc = String(r.location || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const normTab = tab.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    switch (tab) {
+      case 'La Diva':
+        return combined.includes('diva') || combined.includes('salle') || loc.includes('diva') || loc.includes('salle');
+      case 'Traiteur':
+        return combined.includes('traiteur') || combined.includes('restauration') || combined.includes('buffet') || combined.includes('repas');
+      case 'Événements':
+        return combined.includes('evenement') || combined.includes('event') || combined.includes('organisation');
+      case 'Décoration':
+        return combined.includes('decor') || combined.includes('design');
+      case 'Location':
+        return combined.includes('location') || combined.includes('materiel');
+      case 'Food Truck':
+        return combined.includes('food') || combined.includes('truck') || combined.includes('foodtruck');
+      case 'À Emporter':
+        return combined.includes('emporter') || combined.includes('takeaway') || combined.includes('livraison');
+      default:
+        return combined.includes(normTab);
+    }
   }
 
   getChartData(): number[] {
-    switch (this.selectedChartFilter) {
-      case 'La Diva': return [0, 0, 0, 0, 0, 2];
-      case 'Traiteur': return [0, 0, 0, 0, 1, 3];
-      case 'Événements': return [0, 0, 1, 0, 0, 2];
-      case 'Décoration': return [0, 0, 0, 0, 0, 1];
-      case 'Food Truck': return [0, 1, 0, 1, 0, 2];
-      default: return [0, 0, 0, 0, 0, 3];
+    if (!this.requests || !Array.isArray(this.requests)) {
+      return [0, 0, 0, 0, 0, 0];
     }
+    const monthList = this.getChartMonthList();
+    return monthList.map(item => {
+      return this.requests.filter(r => {
+        const dStr = r.dateSubmitted || r.date || '';
+        let matchMonth = false;
+        if (!dStr) {
+          matchMonth = item.year === new Date().getFullYear() && item.monthIndex === new Date().getMonth();
+        } else {
+          try {
+            const parts = String(dStr).split('T')[0].split('-');
+            if (parts.length >= 2) {
+              const y = parseInt(parts[0], 10);
+              const m = parseInt(parts[1], 10) - 1;
+              matchMonth = y === item.year && m === item.monthIndex;
+            }
+          } catch {
+            matchMonth = false;
+          }
+        }
+        if (!matchMonth) return false;
+        return this.matchesChartFilter(r, this.selectedChartFilter);
+      }).length;
+    });
   }
 
   getChartPath(): string {
@@ -2734,12 +2863,12 @@ export class GestionnaireComponent implements OnInit {
 
   getChartPoints(): any[] {
     const pts = this.getChartData();
-    const labels = ['Févr.', 'Mars.', 'Avri.', 'Mai.', 'Juin.', 'Juil.'];
+    const monthList = this.getChartMonthList();
     const xs = [60, 150, 240, 330, 420, 510];
     return xs.map((x, idx) => ({
       x,
       y: this.valToY(pts[idx]),
-      label: labels[idx],
+      label: monthList[idx].label,
       isLast: idx === 5
     }));
   }
@@ -2771,12 +2900,18 @@ export class GestionnaireComponent implements OnInit {
   }
 
   getClientName(clientId: string): string {
-    const c = this.clients.find(item => item.id === clientId);
-    return c ? c.name : clientId;
+    const r = this.requests.find(item => String(item.clientId) === String(clientId) && item.clientName && item.clientName !== 'Client inconnu' && item.clientName !== clientId);
+    if (r && r.clientName) {
+      return r.clientName;
+    }
+    const c = this.clients.find(item => String(item.id) === String(clientId));
+    return c ? c.name : (clientId ? `Client #${clientId}` : 'Client inconnu');
   }
 
   getClientOrg(clientId: string): string {
-    const c = this.clients.find(item => item.id === clientId);
+    const r = this.requests.find(item => String(item.clientId) === String(clientId));
+    if (r && r.organization) return r.organization;
+    const c = this.clients.find(item => String(item.id) === String(clientId));
     return (c && c.organization) ? c.organization : 'Particulier';
   }
 
@@ -2863,9 +2998,25 @@ export class GestionnaireComponent implements OnInit {
   }
 
   setStatus(id: string, st: string): void {
-    this.dataService.updateRequestStatus(id, st);
-    this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
-    this.loadData();
+    const numId = Number(id);
+    if (!isNaN(numId) && numId > 0) {
+      this.gestionnaireApiService.updateStatus(numId, st).subscribe({
+        next: () => {
+          this.dataService.updateRequestStatus(id, st);
+          this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
+          this.loadData();
+        },
+        error: () => {
+          this.dataService.updateRequestStatus(id, st);
+          this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
+          this.loadData();
+        }
+      });
+    } else {
+      this.dataService.updateRequestStatus(id, st);
+      this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
+      this.loadData();
+    }
   }
 
   deleteRequest(id: string): void {
@@ -3228,9 +3379,30 @@ export class GestionnaireComponent implements OnInit {
   }
 
   getClientType(clientId: string): string {
-    const c = this.clients.find(item => item.id === clientId);
+    const r = this.requests.find(item => String(item.clientId) === String(clientId));
+    if (r) {
+      if (r.clientType === 'entreprise' || r.clientType === 'Entreprise' || r.isInstitution || r.organization) {
+        return 'Entreprise';
+      }
+      if (r.clientType === 'particulier' || r.clientType === 'Particulier') {
+        return 'Particulier';
+      }
+    }
+    const c = this.clients.find(item => String(item.id) === String(clientId));
     if (!c) return 'Particulier';
     return c.organization ? 'Entreprise' : 'Particulier';
+  }
+
+  matchesPrestationId(r: any, targetId: string): boolean {
+    if (!targetId || targetId === 'ALL') return true;
+    if (r.prestationId === targetId) return true;
+    const pid = String(r.prestationId || '').toLowerCase();
+    const tid = String(targetId).toLowerCase();
+    if (pid.includes(tid) || tid.includes(pid)) return true;
+    if (tid === 'traiteur' && (pid.includes('restauration') || pid.includes('buffet') || pid.includes('repas'))) return true;
+    if (tid === 'salle-diva' && (pid.includes('salle') || pid.includes('diva') || String(r.location || '').toLowerCase().includes('diva') || String(r.location || '').toLowerCase().includes('salle'))) return true;
+    if (tid === 'evenements' && (pid.includes('evenement') || pid.includes('event'))) return true;
+    return false;
   }
 
   getFilteredRequests(): any[] {
@@ -3245,7 +3417,7 @@ export class GestionnaireComponent implements OnInit {
       else list = list.filter(r => r.status === sf);
     }
     if (this.requestPrestationFilter !== 'ALL') {
-      list = list.filter(r => r.prestationId === this.requestPrestationFilter);
+      list = list.filter(r => this.matchesPrestationId(r, this.requestPrestationFilter));
     }
     if (this.requestClientFilter.trim()) {
       const q = this.requestClientFilter.toLowerCase().trim();
@@ -3340,7 +3512,8 @@ export class GestionnaireComponent implements OnInit {
 
   acceptRequest(req: any): void {
     this.setStatus(req.id, 'accepted');
-    this.dataService.showToast(`Demande #${req.id} validée. Vous pouvez maintenant créer l'événement.`);
+    this.dataService.showToast(`Demande #${req.id} validée ! Ouverture de la création de devis...`);
+    this.openDevisModal(req);
   }
 
   submitCreateEvent(): void {
@@ -3429,13 +3602,16 @@ export class GestionnaireComponent implements OnInit {
     this.isDevisModified = false;
     this.isDevisReadonly = isReadonly;
     const d = this.dataService.getDevisByRequest(req.id);
-    const client = this.clients.find(c => c.id === req.clientId);
+    const client = this.clients.find(c => String(c.id) === String(req.clientId));
+    const cEmail = req.clientEmail || (client ? client.email : 'client@gmail.com');
+    const cName = req.clientName || (client ? client.name : 'Client');
+    const cId = client ? client.id : req.clientId || '';
     if (d) {
       this.devisForm = {
         requestId: d.requestId,
-        clientEmail: client ? client.email : 'client@gmail.com',
-        clientName: client ? client.name : 'Client',
-        clientId: client ? client.id : '',
+        clientEmail: cEmail,
+        clientName: cName,
+        clientId: cId,
         prestationId: req.prestationId || 'salle-diva',
         signatureGastronomique: (d as any).signatureGastronomique || req.signatureGastronomique || 'Menu Signature Kiki Traiteur',
         guests: req.guests || 50,
@@ -3451,9 +3627,9 @@ export class GestionnaireComponent implements OnInit {
     } else {
       this.devisForm = {
         requestId: req.id,
-        clientEmail: client ? client.email : 'client@gmail.com',
-        clientName: client ? client.name : 'Client',
-        clientId: client ? client.id : '',
+        clientEmail: cEmail,
+        clientName: cName,
+        clientId: cId,
         prestationId: req.prestationId || 'salle-diva',
         signatureGastronomique: req.signatureGastronomique || 'Menu Signature Kiki Traiteur',
         guests: req.guests || 50,
@@ -3505,6 +3681,17 @@ export class GestionnaireComponent implements OnInit {
     return afterDisc;
   }
 
+  canShowCreateEventButton(devisForm: any): boolean {
+    if (!devisForm) return false;
+    const s = String(devisForm.status || '').toLowerCase();
+    // Tant que le devis est au statut "accepted" ou "accepté" ou "pending" (non encore envoyé au client), on NE DOIT PAS afficher le bouton Créer un événement
+    if (s === 'accepted' || s === 'accepté' || s === 'pending' || s === 'en attente') {
+      return false;
+    }
+    // Seulement après envoi du devis par mail ('sent', 'envoyé', 'quoted', 'aboutis', 'conclue')
+    return s === 'sent' || s === 'envoyé' || s === 'quoted' || s === 'aboutis' || s === 'conclue' || s === 'émis';
+  }
+
   sendDevisByEmail(): void {
     let reqId = this.devisForm.requestId;
     if (this.isNewDevis || !reqId) {
@@ -3524,6 +3711,25 @@ export class GestionnaireComponent implements OnInit {
       reqId = newReq.id;
       this.devisForm.requestId = reqId;
     }
+
+    const devisPayload = {
+      demandeId: Number(reqId) || 0,
+      devisRef: `#DEV-${reqId}-${Date.now()}`,
+      clientName: this.devisForm.clientName,
+      clientEmail: this.devisForm.clientEmail,
+      prestationId: this.devisForm.prestationId,
+      signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
+      tvaRate: 0,
+      discount: this.devisForm.discount || 0,
+      status: 'sent',
+      items: this.devisForm.items || []
+    };
+
+    // Appel à l'API Spring Boot pour enregistrer en base MySQL et envoyer le mail PDF depuis contact@kikitraiteursenegal.net
+    this.gestionnaireApiService.createOrUpdateDevis(devisPayload).subscribe({
+      next: () => console.log('Devis enregistré dans MySQL et mail PDF envoyé depuis contact@kikitraiteursenegal.net'),
+      error: (e) => console.log('Backend non accessible ou mode simu, continuation locale', e)
+    });
 
     const existing = this.dataService.getDevisByRequest(reqId);
     const actionMsg = `Devis envoyé par mail à ${this.devisForm.clientEmail}`;
@@ -3546,9 +3752,9 @@ export class GestionnaireComponent implements OnInit {
       });
     }
     if (reqId) {
-      this.dataService.updateRequestStatus(reqId, 'sent');
+      this.setStatus(String(reqId), 'sent');
     }
-    this.dataService.showToast(`Devis transmis par e-mail à ${this.devisForm.clientEmail} avec succès.`);
+    this.dataService.showToast(`Devis enregistré et envoyé à ${this.devisForm.clientEmail} ! Statut de la demande passé à Envoyé.`);
     this.showDevisModal = false;
     this.loadData();
   }

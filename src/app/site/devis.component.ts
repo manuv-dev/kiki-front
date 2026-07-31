@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { KikiDataService } from '../services/kiki-data.service';
+import { ClientApiService } from '../services/client-api.service';
 
 @Component({
   selector: 'app-devis',
@@ -1273,7 +1274,12 @@ export class DevisComponent implements OnInit {
     { id: 'autre', label: 'Autre', sub: 'À préciser', icon: 'fa-pen' }
   ];
 
-  constructor(private route: ActivatedRoute, private dataService: KikiDataService) {}
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private dataService: KikiDataService,
+    private clientApi: ClientApiService
+  ) {}
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
@@ -1336,7 +1342,14 @@ export class DevisComponent implements OnInit {
   }
 
   isStep3Valid(): boolean {
-    return !!(this.form.date && this.form.time && this.form.guests >= 10);
+    if (!this.form.date || !this.form.time || this.form.guests < 10) {
+      return false;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    if (this.form.date < today) {
+      return false;
+    }
+    return true;
   }
 
   isStep4Valid(): boolean {
@@ -1354,11 +1367,18 @@ export class DevisComponent implements OnInit {
   }
 
   isStep6Valid(): boolean {
-    return !!(
-      this.form.name.trim() &&
-      this.form.phone.trim() &&
-      this.form.email.trim()
-    );
+    if (!this.form.name.trim() || !this.form.phone.trim() || !this.form.email.trim()) {
+      return false;
+    }
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    const phoneRegex = /^(\+221|00221)?\s*(7[05678]|33)\s*(\d\s*){7}$/;
+    if (!emailRegex.test(this.form.email.trim())) {
+      return false;
+    }
+    if (!phoneRegex.test(this.form.phone.trim())) {
+      return false;
+    }
+    return true;
   }
 
   goToStep(step: number): void {
@@ -1373,14 +1393,33 @@ export class DevisComponent implements OnInit {
       this.currentStep = 2;
     } else if (this.currentStep === 2 && this.isStep2Valid()) {
       this.currentStep = 3;
-    } else if (this.currentStep === 3 && this.isStep3Valid()) {
-      this.currentStep = 4;
+    } else if (this.currentStep === 3) {
+      const today = new Date().toISOString().split('T')[0];
+      if (this.form.date && this.form.date < today) {
+        this.dataService.showToast("Erreur : La date de l'événement ne peut pas être antérieure à la date du jour.");
+        return;
+      }
+      if (this.isStep3Valid()) {
+        this.currentStep = 4;
+      }
     } else if (this.currentStep === 4 && this.isStep4Valid()) {
       this.currentStep = 5;
     } else if (this.currentStep === 5 && this.isStep5Valid()) {
       this.currentStep = 6;
-    } else if (this.currentStep === 6 && this.isStep6Valid()) {
-      this.currentStep = 7;
+    } else if (this.currentStep === 6) {
+      const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      const phoneRegex = /^(\+221|00221)?\s*(7[05678]|33)\s*(\d\s*){7}$/;
+      if (this.form.email.trim() && !emailRegex.test(this.form.email.trim())) {
+        this.dataService.showToast("Erreur : Format de l'adresse email invalide.");
+        return;
+      }
+      if (this.form.phone.trim() && !phoneRegex.test(this.form.phone.trim())) {
+        this.dataService.showToast("Erreur : Le téléphone doit être un numéro sénégalais valide (ex: +221 77 777 77 77).");
+        return;
+      }
+      if (this.isStep6Valid()) {
+        this.currentStep = 7;
+      }
     }
     window.scrollTo({ top: 120, behavior: 'smooth' });
   }
@@ -1445,17 +1484,75 @@ export class DevisComponent implements OnInit {
   }
 
   onSubmit(): void {
-    this.dataService.addRequest({
-      clientId: this.form.clientType === 'entreprise' ? 'cli_2' : 'cli_1',
-      prestationId: this.form.prestationId,
-      date: `${this.form.date} à ${this.form.time}`,
-      guests: Number(this.form.guests),
+    const payload = {
+      clientName: (this.form.name && this.form.name.trim()) ? this.form.name : 'Client Kiki Traiteur',
+      clientEmail: (this.form.email && this.form.email.trim()) ? this.form.email : 'client@kikitraiteur.com',
+      clientPhone: this.form.phone || '+221 77 000 00 00',
+      clientType: this.form.clientType || 'particulier',
+      organization: this.form.organization || '',
+      prestationId: this.form.prestationId || 'restauration-entreprise',
+      prestationTitle: this.getPrestationTitle(this.form.prestationId || 'restauration-entreprise'),
+      date: this.form.date || new Date().toISOString().split('T')[0],
+      time: this.form.time || '19:00',
+      guests: Number(this.form.guests) || 50,
       isInstitution: this.form.clientType === 'entreprise',
-      organization: this.form.organization,
-      message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message}`
-    });
+      location: this.getLocationDisplay() || 'Dakar',
+      cuisine: this.getCuisineLabel(this.form.cuisine) || 'Classique Gourmet',
+      message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message || 'RAS'}`
+    };
 
-    this.dataService.showToast('Votre demande de devis a été envoyée avec succès ! Notre équipe commerciale va vous recontacter.');
+    this.clientApi.creerDemandeDevis(payload).subscribe({
+      next: (res) => {
+        console.log('Réponse API Neon DB (devis créé):', res);
+        this.dataService.addRequest({
+          clientId: this.form.clientType === 'entreprise' ? 'cli_2' : 'cli_1',
+          prestationId: this.form.prestationId,
+          date: `${this.form.date} à ${this.form.time}`,
+          guests: Number(this.form.guests),
+          isInstitution: this.form.clientType === 'entreprise',
+          organization: this.form.organization,
+          message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message}`
+        });
+        this.dataService.showToast('Votre demande de devis a été envoyée et enregistrée dans la base de données avec succès !');
+        this.resetForm();
+        this.router.navigate(['/']);
+      },
+      error: (err) => {
+        if (err.status === 400 && err.error) {
+          const errorMsg = err.error.message || (err.error.messages ? Object.values(err.error.messages).join(' | ') : 'Erreur de validation des données.');
+          this.dataService.showToast('Erreur : ' + errorMsg);
+          return;
+        }
+        console.error('Erreur appel API (fallback local active):', err);
+        this.dataService.addRequest({
+          clientId: this.form.clientType === 'entreprise' ? 'cli_2' : 'cli_1',
+          prestationId: this.form.prestationId,
+          date: `${this.form.date} à ${this.form.time}`,
+          guests: Number(this.form.guests),
+          isInstitution: this.form.clientType === 'entreprise',
+          organization: this.form.organization,
+          message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message}`
+        });
+        this.dataService.showToast('Votre demande de devis a été envoyée avec succès ! Notre équipe commerciale va vous recontacter.');
+        this.resetForm();
+        this.router.navigate(['/']);
+      }
+    });
+  }
+
+  private getPrestationTitle(id: string): string {
+    const prestas: { [key: string]: string } = {
+      'mariage-royal': 'Mariage Royal & Célébrations de Prestige',
+      'cocktail-dinatoire': 'Cocktail Dînatoire & Gala d\'Entreprise',
+      'chef-domicile': 'Dîner Privé & Chef à Domicile',
+      'buffet-gastronomique': 'Buffet Gastronomique & Live Cooking',
+      'brunch-chic': 'Brunch Chic & Garden Party',
+      'restauration-entreprise': 'Restauration Institutionnelle & Séminaires'
+    };
+    return prestas[id] || id;
+  }
+
+  private resetForm(): void {
     this.currentStep = 1;
     this.form = {
       clientType: 'particulier',

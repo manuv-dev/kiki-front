@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { KikiDataService } from './services/kiki-data.service';
+import { GestionnaireApiService } from './services/gestionnaire-api.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -137,7 +138,7 @@ import { KikiDataService } from './services/kiki-data.service';
                 <tbody>
                   <tr *ngFor="let req of requests | slice:0:5">
                     <td><strong>#{{ req.id }}</strong></td>
-                    <td>{{ getClientName(req.clientId) }}</td>
+                    <td>{{ req.clientName && req.clientName !== req.clientId ? req.clientName : getClientName(req.clientId) }}</td>
                     <td>{{ getPrestationName(req.prestationId) }}</td>
                     <td>{{ formatDate(req.date) }}</td>
                     <td>{{ req.guests }} pers.</td>
@@ -177,7 +178,7 @@ import { KikiDataService } from './services/kiki-data.service';
                   <tr *ngFor="let req of requests">
                     <td><strong>#{{ req.id }}</strong></td>
                     <td>
-                      <strong>{{ getClientName(req.clientId) }}</strong><br>
+                      <strong>{{ req.clientName && req.clientName !== req.clientId ? req.clientName : getClientName(req.clientId) }}</strong><br>
                       <small style="color:#666;">{{ getClientOrg(req.clientId) }}</small>
                     </td>
                     <td>{{ getPrestationName(req.prestationId) }}</td>
@@ -233,7 +234,7 @@ import { KikiDataService } from './services/kiki-data.service';
                   <tr *ngFor="let req of getAcceptedRequests()">
                     <td><strong>{{ formatDate(req.date) }}</strong></td>
                     <td>{{ getPrestationName(req.prestationId) }}</td>
-                    <td>{{ getClientName(req.clientId) }}</td>
+                    <td>{{ req.clientName && req.clientName !== req.clientId ? req.clientName : getClientName(req.clientId) }}</td>
                     <td>{{ req.guests }} pers.</td>
                     <td><span class="badge badge-accepted">Confirmé</span></td>
                   </tr>
@@ -366,7 +367,11 @@ export class AdminDashboardComponent implements OnInit {
     phone: '+221 33 832 29 66'
   };
 
-  constructor(private dataService: KikiDataService, private router: Router) {}
+  constructor(
+    private dataService: KikiDataService,
+    private router: Router,
+    private gestionnaireApiService: GestionnaireApiService
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -375,16 +380,54 @@ export class AdminDashboardComponent implements OnInit {
   loadData(): void {
     this.requests = this.dataService.getRequests();
     this.clients = this.dataService.getClients();
+    this.updateLocalMetrics();
 
-    // Calculate revenue (accepted quotes)
+    this.gestionnaireApiService.getAllDemandes().subscribe({
+      next: (data) => {
+        if (data && data.length > 0) {
+          this.requests = data.map(d => ({
+            id: String(d.id),
+            clientId: String(d.clientId || ''),
+            prestationId: d.prestationId,
+            date: d.date || '',
+            time: d.time || '',
+            guests: d.guests || 50,
+            isInstitution: !!d.isInstitution,
+            organization: d.organization || d.clientOrganization || '',
+            status: d.status || 'pending',
+            dateSubmitted: d.dateSubmitted ? String(d.dateSubmitted).split('T')[0] : '',
+            message: d.message || '',
+            clientName: d.clientName || 'Client inconnu',
+            clientEmail: d.clientEmail || '',
+            clientPhone: d.clientPhone || '',
+            prestationTitle: d.prestationTitle || d.prestationId,
+            location: d.location || ''
+          }));
+          this.updateLocalMetrics();
+        }
+      },
+      error: (err) => console.warn('API Gestionnaire getAllDemandes non accessible pour AdminDashboard', err)
+    });
+
+    this.gestionnaireApiService.getDashboardStats().subscribe({
+      next: (stats) => {
+        if (stats) {
+          this.totalRevenue = Number(stats.totalRevenue) || 0;
+          this.conversionRate = Math.round(Number(stats.conversionRate) || 0);
+        }
+      },
+      error: (err) => console.warn('API Gestionnaire stats non accessible pour AdminDashboard', err)
+    });
+  }
+
+  updateLocalMetrics(): void {
     this.totalRevenue = this.requests
-      .filter(r => r.status === 'accepted')
+      .filter(r => r.status === 'accepted' || r.status === 'approved')
       .reduce((acc, r) => acc + (this.getUnitPrice(r.prestationId) * (r.guests || 50)), 0);
 
     const total = this.requests.length;
-    const accepted = this.requests.filter(r => r.status === 'accepted').length;
+    const accepted = this.requests.filter(r => r.status === 'accepted' || r.status === 'approved').length;
     this.conversionRate = total > 0 ? Math.round((accepted / total) * 100) : 0;
-
     this.divaCount = this.requests.filter(r => r.prestationId === 'salle-diva').length;
   }
 
@@ -409,12 +452,18 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   getClientName(clientId: string): string {
-    const c = this.clients.find(item => item.id === clientId);
-    return c ? c.name : clientId;
+    const r = this.requests.find(item => String(item.clientId) === String(clientId) && item.clientName && item.clientName !== 'Client inconnu' && item.clientName !== clientId);
+    if (r && r.clientName) {
+      return r.clientName;
+    }
+    const c = this.clients.find(item => String(item.id) === String(clientId));
+    return c ? c.name : (clientId ? `Client #${clientId}` : 'Client inconnu');
   }
 
   getClientOrg(clientId: string): string {
-    const c = this.clients.find(item => item.id === clientId);
+    const r = this.requests.find(item => String(item.clientId) === String(clientId));
+    if (r && r.organization) return r.organization;
+    const c = this.clients.find(item => String(item.id) === String(clientId));
     return (c && c.organization) ? c.organization : 'Particulier';
   }
 
@@ -482,9 +531,25 @@ export class AdminDashboardComponent implements OnInit {
   }
 
   setStatus(id: string, st: string): void {
-    this.dataService.updateRequestStatus(id, st);
-    this.dataService.showToast(`Statut de la demande mis à jour.`);
-    this.loadData();
+    const numId = Number(id);
+    if (!isNaN(numId) && numId > 0) {
+      this.gestionnaireApiService.updateStatus(numId, st).subscribe({
+        next: () => {
+          this.dataService.updateRequestStatus(id, st);
+          this.dataService.showToast(`Statut de la demande mis à jour.`);
+          this.loadData();
+        },
+        error: () => {
+          this.dataService.updateRequestStatus(id, st);
+          this.dataService.showToast(`Statut de la demande mis à jour.`);
+          this.loadData();
+        }
+      });
+    } else {
+      this.dataService.updateRequestStatus(id, st);
+      this.dataService.showToast(`Statut de la demande mis à jour.`);
+      this.loadData();
+    }
   }
 
   deleteRequest(id: string): void {

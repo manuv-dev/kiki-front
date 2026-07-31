@@ -1,0 +1,75 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface GestionnaireDemandeDto {
+  id: number;
+  clientId: number;
+  clientName: string;
+  clientEmail: string;
+  clientPhone: string;
+  clientType: string;
+  clientOrganization?: string;
+  prestationId: string;
+  prestationTitle: string;
+  date: string;
+  time: string;
+  guests: number;
+  isInstitution?: boolean;
+  organization?: string;
+  location?: string;
+  cuisine?: string;
+  message?: string;
+  status: string;
+  dateSubmitted: string;
+}
+
+export interface DashboardStatsDto {
+  totalRequests: number;
+  acceptedRequests: number;
+  pendingRequests: number;
+  rejectedRequests: number;
+  conversionRate: number;
+  totalRevenue: number;
+  totalClients: number;
+  particuliersCount: number;
+  entreprisesCount: number;
+  recentRequests: GestionnaireDemandeDto[];
+}
+
+export interface UpdateStatusRequestDto {
+  status: string;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GestionnaireApiService {
+  private apiUrl = 'http://localhost:8080/api/gestionnaire';
+
+  constructor(private http: HttpClient) {}
+
+  getAllDemandes(): Observable<GestionnaireDemandeDto[]> {
+    return this.http.get<GestionnaireDemandeDto[]>(`${this.apiUrl}/demandes`);
+  }
+
+  getDemandeById(id: number): Observable<GestionnaireDemandeDto> {
+    return this.http.get<GestionnaireDemandeDto>(`${this.apiUrl}/demandes/${id}`);
+  }
+
+  updateStatus(id: number, status: string): Observable<GestionnaireDemandeDto> {
+    return this.http.put<GestionnaireDemandeDto>(`${this.apiUrl}/demandes/${id}/status`, { status });
+  }
+
+  getDashboardStats(): Observable<DashboardStatsDto> {
+    return this.http.get<DashboardStatsDto>(`${this.apiUrl}/dashboard/stats`);
+  }
+
+  createOrUpdateDevis(devis: any): Observable<any> {
+    return this.http.post<any>('http://localhost:8080/api/devis', devis);
+  }
+
+  getDevisByDemandeId(demandeId: number): Observable<any> {
+    return this.http.get<any>(`http://localhost:8080/api/devis/demande/${demandeId}`);
+  }
+}

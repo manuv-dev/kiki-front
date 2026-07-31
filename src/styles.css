@@ -58,3 +58,43 @@ textarea {
   resize: vertical;
   min-height: 90px;
 }
+
+/* =============================================
+   CORRECTION DES CHEVAUCHEMENTS ICÔNES / TEXTES
+   ============================================= */
+.input-with-icon input,
+.input-with-icon .form-control,
+.input-with-icon input.form-control,
+input.input-with-icon-el {
+  padding-left: 2.75rem !important;
+}
+
+.input-with-icon {
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.input-with-icon .input-icon,
+.input-with-icon i {
+  position: absolute !important;
+  left: 0.95rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #94A3B8;
+  font-size: 1rem;
+  pointer-events: none;
+  z-index: 5;
+  margin-right: 0 !important;
+}
+
+/* Espacement global automatique pour éviter que les icônes ne touchent le texte dans tout le projet */
+button i[class*="fa-"]:not(.input-icon),
+a i[class*="fa-"]:not(.input-icon),
+span i[class*="fa-"]:not(.input-icon),
+h1 i[class*="fa-"], h2 i[class*="fa-"], h3 i[class*="fa-"], h4 i[class*="fa-"], h5 i[class*="fa-"], h6 i[class*="fa-"],
+label i[class*="fa-"], p i[class*="fa-"], div.badge i[class*="fa-"],
+.btn i[class*="fa-"] {
+  margin-right: 0.45rem !important;
+}
+
