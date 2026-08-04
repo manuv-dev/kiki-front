@@ -45,7 +45,7 @@ export interface UpdateStatusRequestDto {
   providedIn: 'root'
 })
 export class GestionnaireApiService {
-  private apiUrl = 'http://localhost:8080/api/gestionnaire';
+  private apiUrl = 'https://kiki-backend-iuyo.onrender.com/api/gestionnaire';
 
   constructor(private http: HttpClient) {}
 
@@ -66,10 +66,10 @@ export class GestionnaireApiService {
   }
 
   createOrUpdateDevis(devis: any): Observable<any> {
-    return this.http.post<any>('http://localhost:8080/api/devis', devis);
+    return this.http.post<any>('https://kiki-backend-iuyo.onrender.com/api/devis', devis);
   }
 
   getDevisByDemandeId(demandeId: number): Observable<any> {
-    return this.http.get<any>(`http://localhost:8080/api/devis/demande/${demandeId}`);
+    return this.http.get<any>(`https://kiki-backend-iuyo.onrender.com/api/devis/demande/${demandeId}`);
   }
 }

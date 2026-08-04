@@ -47,7 +47,7 @@ export interface DemandeDevisResponseDto {
   providedIn: 'root'
 })
 export class ClientApiService {
-  private apiUrl = 'http://localhost:8080/api/client';
+  private apiUrl = 'https://kiki-backend-iuyo.onrender.com/api/client';
 
   constructor(private http: HttpClient) {}
 
