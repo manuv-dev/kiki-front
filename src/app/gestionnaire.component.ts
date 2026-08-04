@@ -1552,8 +1552,11 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
               </div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                 <div class="form-group">
-                  <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Nom du client *</label>
-                  <input type="text" class="form-control" [(ngModel)]="testimonialForm.clientName" placeholder="Ex: Sophie Laurent">
+                  <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Choisir le client (BDD) *</label>
+                  <select class="form-control" [(ngModel)]="testimonialForm.clientName" (change)="onSelectClientForTestimonial($event)">
+                    <option value="">-- Sélectionner un client --</option>
+                    <option *ngFor="let c of clients" [value]="c.name">{{ c.name }} {{ c.organization ? '(' + c.organization + ')' : '' }}</option>
+                  </select>
                 </div>
                 <div class="form-group">
                   <label style="font-weight: 600; font-size: 0.75rem; color: #475569; text-transform: uppercase; display: block; margin-bottom: 0.35rem;">Titre / Fonction</label>
@@ -4133,6 +4136,14 @@ export class GestionnaireComponent implements OnInit {
 
   closeTestimonialModal(): void {
     this.showTestimonialModal = false;
+  }
+
+  onSelectClientForTestimonial(event: any): void {
+    const selectedName = event.target.value;
+    const client = this.clients.find(c => c.name === selectedName);
+    if (client && !this.testimonialForm.clientTitle) {
+      this.testimonialForm.clientTitle = client.organization || 'Client Kiki Traiteur';
+    }
   }
 
   saveTestimonial(): void {
