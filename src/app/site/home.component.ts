@@ -388,39 +388,6 @@ import { KikiDataService } from '../services/kiki-data.service';
       </div>
     </section>
 
-    <!-- SECTION FOIRE AUX QUESTIONS (FAQ DYNAMIQUE DEPUIS BASE DE DONNÉES NEONDB) -->
-    <section class="section-padding faq-section" style="background-color: var(--bg-secondary); border-top: 1px solid var(--border-color);">
-      <div class="container animate-fade">
-        <div class="section-header" style="text-align: center; margin-bottom: 3.5rem;">
-          <span class="slbl">Vos interrogations, nos réponses</span>
-          <h2 style="font-size: 2.5rem; font-weight: 900; color: var(--primary-dark);">Foire Aux Questions</h2>
-          <div class="sline" style="margin: 0.8rem auto 0 auto;"></div>
-        </div>
-
-        <div class="faq-accordion" style="max-width: 800px; margin: 0 auto;">
-          <div class="faq-item" *ngFor="let item of faqs; let idx = index" [class.active]="item.active"
-               style="background: #fff; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 0.75rem; overflow: hidden;">
-            <div class="faq-header" (click)="toggleFaq(idx)"
-                 style="cursor: pointer; display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; transition: all 0.3s ease;">
-              <div style="display: flex; align-items: center; gap: 0.75rem;">
-                <span style="font-size: 0.75rem; background: var(--primary-gradient); color: #fff; padding: 0.2rem 0.6rem; border-radius: 20px; font-weight: 600;">{{ item.category }}</span>
-                <h3 style="margin: 0; font-size: 1.05rem; font-weight: 700; color: var(--primary-dark);">{{ item.question }}</h3>
-              </div>
-              <span class="faq-toggle" style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);">{{ item.active ? '-' : '+' }}</span>
-            </div>
-            <div class="faq-body" *ngIf="item.active"
-                 style="padding: 0 1.5rem 1.25rem 1.5rem; color: var(--text-dark); line-height: 1.7; border-top: 1px solid var(--border-color);">
-              <p style="margin: 0; padding-top: 0.75rem;">{{ item.answer }}</p>
-            </div>
-          </div>
-
-          <div *ngIf="faqs.length === 0" style="text-align: center; padding: 2rem; color: var(--text-muted); background: #fff; border-radius: 12px;">
-            Aucune question fréquente disponible pour le moment.
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- DIVA RESERVATION BANNER -->
     <section class="section-padding section-diva-banner"
       style="text-align: center; border-top: 1px solid var(--border-color);">
@@ -483,51 +450,28 @@ export class HomeComponent implements OnInit, OnDestroy {
   private timer: any;
 
   testimonials: any[] = [];
-  faqs: any[] = [];
 
   constructor(private dataService: KikiDataService, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/temoignages').subscribe({
-      next: (data) => {
-        if (data && Array.isArray(data)) {
-          this.testimonials = data.map(t => {
-            const nom = t.nomClient || t.clientName || 'Anonyme';
-            const ini = nom.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'KT';
-            return {
-              quote: t.temoignage || t.content || '',
-              initials: ini,
-              author: nom,
-              role: t.titreFonction || t.clientRole || 'Client Kiki Traiteur',
-              stars: t.note || t.rating || 5
-            };
-          });
-        } else {
-          this.testimonials = [];
-        }
+    this.http.get<any>('https://kiki-backend-iuyo.onrender.com/api/temoignages').subscribe({
+      next: (res) => {
+        const data = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : (res && Array.isArray(res.value) ? res.value : (res && Array.isArray(res.data) ? res.data : (res && Array.isArray(res.items) ? res.items : []))));
+        this.testimonials = data.map((t: any) => {
+          const nom = t.nomClient || t.clientName || t.NomClient || t.nom_client || t.Nom_Client || 'Anonyme';
+          const ini = nom.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'KT';
+          return {
+            quote: t.temoignage || t.Temoignage || t.TEMOIGNAGE || t.content || t.Content || t.quote || t.Quote || '',
+            initials: ini,
+            author: nom,
+            role: t.titreFonction || t.clientRole || t.TitreFonction || t.titre_fonction || 'Client Kiki Traiteur',
+            stars: parseInt(t.note || t.rating || t.Note || t.Rating) || 5
+          };
+        });
       },
       error: (err) => {
         console.warn('Erreur chargement Témoignages depuis NeonDB', err);
         this.testimonials = [];
-      }
-    });
-
-    this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/faqs').subscribe({
-      next: (data) => {
-        if (data && Array.isArray(data)) {
-          this.faqs = data.map((f, idx) => ({
-            question: f.question,
-            answer: f.reponse || f.answer,
-            category: f.categorie || f.category || 'Général',
-            active: idx === 0
-          }));
-        } else {
-          this.faqs = [];
-        }
-      },
-      error: (err) => {
-        console.warn('Erreur chargement FAQs Accueil depuis NeonDB', err);
-        this.faqs = [];
       }
     });
 
@@ -536,14 +480,6 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.nextTestimonial();
       }
     }, 5000);
-  }
-
-  toggleFaq(index: number): void {
-    if (this.faqs[index]) {
-      const current = this.faqs[index].active;
-      this.faqs.forEach(f => f.active = false);
-      this.faqs[index].active = !current;
-    }
   }
 
 

@@ -367,17 +367,14 @@ export class ContactComponent implements OnInit {
   constructor(private dataService: KikiDataService, private http: HttpClient) {}
 
   ngOnInit(): void {
-    this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/faqs').subscribe({
-      next: (data) => {
-        if (data && Array.isArray(data)) {
-          this.faqs = data.map(f => ({
-            question: f.question,
-            answer: f.reponse || f.answer,
-            active: false
-          }));
-        } else {
-          this.faqs = [];
-        }
+    this.http.get<any>('https://kiki-backend-iuyo.onrender.com/api/faqs').subscribe({
+      next: (res) => {
+        const data = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : (res && Array.isArray(res.value) ? res.value : (res && Array.isArray(res.data) ? res.data : (res && Array.isArray(res.items) ? res.items : []))));
+        this.faqs = data.map((f: any, idx: number) => ({
+          question: f.question || f.Question || f.QUESTION || f.titre || f.title || 'Question',
+          answer: f.reponse || f.answer || f.Reponse || f.Answer || f.REPONSE || f.ANSWER || '',
+          active: idx === 0
+        }));
       },
       error: (err) => {
         console.warn('Erreur chargement FAQs depuis NeonDB', err);
