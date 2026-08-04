@@ -2536,14 +2536,14 @@ export class GestionnaireComponent implements OnInit {
   }
 
   loadData(): void {
-    this.requests = this.dataService.getRequests();
-    this.clients = this.dataService.getClients();
+    this.requests = [];
+    this.clients = [];
     this.staffList = this.dataService.getStaff();
-    this.events = this.dataService.getEvents();
-    this.faqs = this.dataService.getFaqs();
+    this.events = [];
+    this.faqs = [];
     this.mediaList = this.dataService.getMedia();
-    this.devisList = this.dataService.getDevis();
-    this.testimonials = this.dataService.getTestimonials();
+    this.devisList = [];
+    this.testimonials = [];
 
     this.updateLocalMetrics();
 
@@ -2587,10 +2587,95 @@ export class GestionnaireComponent implements OnInit {
             this.clients = Array.from(clientMap.values());
           }
 
+          // Generate confirmed events from requests for calendar / events view
+          this.events = this.requests
+            .filter(r => r.status === 'accepted' || r.status === 'approved' || r.status === 'aboutis' || r.status === 'confirmé')
+            .map(r => ({
+              id: 'ev_' + r.id,
+              title: 'Événement - ' + r.prestationTitle,
+              type: r.prestationId,
+              date: r.date || new Date().toISOString().split('T')[0],
+              time: r.time || '12:00',
+              guests: r.guests || 50,
+              clientId: r.clientId,
+              clientName: r.clientName,
+              location: r.location || 'Dakar',
+              staffIds: [],
+              requestId: r.id,
+              signatureGastronomique: 'Menu Signature Kiki Traiteur',
+              status: 'confirmé',
+              createdDate: r.dateSubmitted
+            }));
+
           this.updateLocalMetrics();
         }
       },
-      error: (err) => console.warn('API Gestionnaire getAllDemandes non accessible, utilisation du mode local', err)
+      error: (err) => console.warn('API Gestionnaire getAllDemandes non accessible', err)
+    });
+
+    this.gestionnaireApiService.getAllClients().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data) && data.length > 0) {
+          this.clients = data.map(c => ({
+            id: String(c.id),
+            name: c.name || c.nom || 'Client',
+            email: c.email || '',
+            phone: c.phone || c.telephone || '',
+            type: c.clientType || 'particular',
+            organization: c.organization || c.clientOrganization || ''
+          }));
+        }
+      },
+      error: (err) => console.warn('Erreur chargement clients NeonDB', err)
+    });
+
+    this.gestionnaireApiService.getAllDevis().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.devisList = data;
+        }
+      },
+      error: (err) => console.warn('Erreur chargement devis NeonDB', err)
+    });
+
+    this.gestionnaireApiService.getFaqs().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.faqs = data.map(f => ({
+            id: String(f.id),
+            question: f.question,
+            answer: f.reponse || f.answer,
+            category: f.categorie || f.category || 'Général'
+          }));
+        } else {
+          this.faqs = [];
+        }
+      },
+      error: (err) => {
+        console.warn('Erreur chargement FAQs depuis NeonDB', err);
+        this.faqs = [];
+      }
+    });
+
+    this.gestionnaireApiService.getTemoignages().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.testimonials = data.map(t => ({
+            id: String(t.id),
+            text: t.temoignage || t.content || '',
+            clientName: t.nomClient || t.clientName || '',
+            clientTitle: t.titreFonction || t.clientRole || '',
+            stars: t.note || t.rating || 5,
+            createdAt: ''
+          }));
+        } else {
+          this.testimonials = [];
+        }
+      },
+      error: (err) => {
+        console.warn('Erreur chargement Témoignages depuis NeonDB', err);
+        this.testimonials = [];
+      }
     });
 
     this.gestionnaireApiService.getDashboardStats().subscribe({
@@ -2600,7 +2685,7 @@ export class GestionnaireComponent implements OnInit {
           this.conversionRate = Math.round(Number(stats.conversionRate) || 0);
         }
       },
-      error: (err) => console.warn('API Gestionnaire stats non accessible, utilisation des statistiques locales', err)
+      error: (err) => console.warn('API Gestionnaire stats non accessible', err)
     });
   }
 
@@ -3986,30 +4071,50 @@ export class GestionnaireComponent implements OnInit {
       this.dataService.showToast('Veuillez remplir la question et la réponse.', true);
       return;
     }
+    const payload = {
+      question: this.faqForm.question,
+      reponse: this.faqForm.answer,
+      categorie: this.faqForm.category || 'Général'
+    };
     if (this.isEditingFaq && this.faqForm.id) {
-      this.dataService.updateFaq(this.faqForm.id, {
-        question: this.faqForm.question,
-        answer: this.faqForm.answer,
-        category: this.faqForm.category
+      this.gestionnaireApiService.updateFaq(this.faqForm.id, payload).subscribe({
+        next: () => {
+          this.dataService.showToast('FAQ modifiée avec succès dans NeonDB.');
+          this.showFaqModal = false;
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Erreur updateFaq', err);
+          this.dataService.showToast('Erreur de modification de la FAQ dans NeonDB.', true);
+        }
       });
-      this.dataService.showToast('FAQ modifiée avec succès.');
     } else {
-      this.dataService.addFaq({
-        question: this.faqForm.question,
-        answer: this.faqForm.answer,
-        category: this.faqForm.category
+      this.gestionnaireApiService.createFaq(payload).subscribe({
+        next: () => {
+          this.dataService.showToast('Nouvelle FAQ enrégistrée avec succès dans NeonDB.');
+          this.showFaqModal = false;
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Erreur createFaq', err);
+          this.dataService.showToast('Erreur d\'enregistrement de la FAQ dans NeonDB.', true);
+        }
       });
-      this.dataService.showToast('Nouvelle FAQ ajoutée au CMS.');
     }
-    this.showFaqModal = false;
-    this.loadData();
   }
 
   deleteFaq(id: string): void {
-    if (confirm('Supprimer cette FAQ du site web ?')) {
-      this.dataService.deleteFaq(id);
-      this.dataService.showToast('FAQ supprimée.');
-      this.loadData();
+    if (confirm('Supprimer cette FAQ de la base de données NeonDB ?')) {
+      this.gestionnaireApiService.deleteFaq(id).subscribe({
+        next: () => {
+          this.dataService.showToast('FAQ supprimée de NeonDB.');
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Erreur deleteFaq', err);
+          this.dataService.showToast('Erreur lors de la suppression dans NeonDB.', true);
+        }
+      });
     }
   }
 
@@ -4035,32 +4140,51 @@ export class GestionnaireComponent implements OnInit {
       this.dataService.showToast('Le témoignage et le nom du client sont requis.', true);
       return;
     }
+    const payload = {
+      temoignage: this.testimonialForm.text,
+      nomClient: this.testimonialForm.clientName,
+      titreFonction: this.testimonialForm.clientTitle || 'Client Kiki Traiteur',
+      note: Number(this.testimonialForm.stars) || 5
+    };
     if (this.isEditingTestimonial && this.testimonialForm.id) {
-      this.dataService.updateTestimonial(this.testimonialForm.id, {
-        text: this.testimonialForm.text,
-        clientName: this.testimonialForm.clientName,
-        clientTitle: this.testimonialForm.clientTitle,
-        stars: this.testimonialForm.stars
+      this.gestionnaireApiService.updateTemoignage(this.testimonialForm.id, payload).subscribe({
+        next: () => {
+          this.dataService.showToast('Témoignage modifié avec succès dans NeonDB.');
+          this.showTestimonialModal = false;
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Erreur updateTemoignage', err);
+          this.dataService.showToast('Erreur de modification du témoignage dans NeonDB.', true);
+        }
       });
-      this.dataService.showToast('Témoignage modifié avec succès.');
     } else {
-      this.dataService.addTestimonial({
-        text: this.testimonialForm.text,
-        clientName: this.testimonialForm.clientName,
-        clientTitle: this.testimonialForm.clientTitle,
-        stars: this.testimonialForm.stars
+      this.gestionnaireApiService.createTemoignage(payload).subscribe({
+        next: () => {
+          this.dataService.showToast('Témoignage enrégistré avec succès dans NeonDB.');
+          this.showTestimonialModal = false;
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Erreur createTemoignage', err);
+          this.dataService.showToast('Erreur d\'enregistrement du témoignage dans NeonDB.', true);
+        }
       });
-      this.dataService.showToast('Témoignage ajouté au CMS.');
     }
-    this.showTestimonialModal = false;
-    this.loadData();
   }
 
   deleteTestimonial(id: string): void {
-    if (confirm('Supprimer ce témoignage du site ?')) {
-      this.dataService.deleteTestimonial(id);
-      this.dataService.showToast('Témoignage supprimé.');
-      this.loadData();
+    if (confirm('Supprimer ce témoignage de la base de données NeonDB ?')) {
+      this.gestionnaireApiService.deleteTemoignage(id).subscribe({
+        next: () => {
+          this.dataService.showToast('Témoignage supprimé de NeonDB.');
+          this.loadData();
+        },
+        error: (err) => {
+          console.error('Erreur deleteTemoignage', err);
+          this.dataService.showToast('Erreur lors de la suppression dans NeonDB.', true);
+        }
+      });
     }
   }
 

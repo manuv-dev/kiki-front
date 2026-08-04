@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { KikiDataService } from '../services/kiki-data.service';
 
 @Component({
@@ -368,8 +369,13 @@ import { KikiDataService } from '../services/kiki-data.service';
 
           </div>
 
+          <!-- Empty State -->
+          <div *ngIf="testimonials.length === 0" style="text-align: center; padding: 3rem; color: #64748B;">
+            Aucun témoignage pour le moment.
+          </div>
+
           <!-- Navigation Controls -->
-          <div class="slider-controls">
+          <div class="slider-controls" *ngIf="testimonials.length > 0">
             <button class="slider-arrow" (click)="prevTestimonial()" aria-label="Précédent"><i class="fas fa-chevron-left"></i></button>
             <div class="slider-dots">
               <span class="slider-dot" *ngFor="let item of testimonials; let idx = index"
@@ -443,40 +449,42 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentTestimonial = 0;
   private timer: any;
 
-  testimonials = [
-    {
-      quote: "Très bonne organisation. Accueil très agréable. Ces gens savent vous mettre à l'aise lorsque vous avez des choix difficiles à faire. Bref, de vrais professionnels !",
-      initials: 'YN',
-      author: 'Yohann De Sa Nogueira',
-      role: 'Client Événementiel'
-    },
-    {
-      quote: "Très belle organisation. Un service impeccable et un personnel souriant et à l'écoute. Nous avons passé une excellente soirée où l'animation a été à la hauteur de l'événement. Je recommande vivement.",
-      initials: 'NP',
-      author: 'Nino Poungoura',
-      role: "Dîner d'Entreprise"
-    },
-    {
-      quote: "Idéale pour une réception de mariage. La salle, la décoration, le service, le repas... tout est inclus dans le forfait proposé. Le service est vraiment de qualité. Les restes sont remis aux mariés pour éviter le gaspillage !",
-      initials: 'JN',
-      author: 'JT Ndione',
-      role: 'Mariage à la Salle La Diva'
-    },
-    {
-      quote: "Service exceptionnel du début à la fin. Les plats étaient savoureux et présentés avec beaucoup d'élégance. Notre événement d'entreprise a été une réussite totale grâce à Kiki Traiteur. Nous reviendrons sans hésitation !",
-      initials: 'AD',
-      author: 'Aminata Diallo',
-      role: 'Réception Corporative'
-    }
-  ];
+  testimonials: any[] = [];
 
-  constructor(private dataService: KikiDataService) {}
+  constructor(private dataService: KikiDataService, private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/temoignages').subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.testimonials = data.map(t => {
+            const nom = t.nomClient || t.clientName || 'Anonyme';
+            const ini = nom.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() || 'KT';
+            return {
+              quote: t.temoignage || t.content || '',
+              initials: ini,
+              author: nom,
+              role: t.titreFonction || t.clientRole || 'Client Kiki Traiteur',
+              stars: t.note || t.rating || 5
+            };
+          });
+        } else {
+          this.testimonials = [];
+        }
+      },
+      error: (err) => {
+        console.warn('Erreur chargement Témoignages depuis NeonDB', err);
+        this.testimonials = [];
+      }
+    });
+
     this.timer = setInterval(() => {
-      this.nextTestimonial();
+      if (this.testimonials.length > 1) {
+        this.nextTestimonial();
+      }
     }, 5000);
   }
+
 
   ngOnDestroy(): void {
     if (this.timer) {

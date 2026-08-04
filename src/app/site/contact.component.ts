@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { KikiDataService } from '../services/kiki-data.service';
 
 @Component({
@@ -157,6 +158,9 @@ import { KikiDataService } from '../services/kiki-data.service';
             <div class="faq-body" *ngIf="item.active">
               <p>{{ item.answer }}</p>
             </div>
+          </div>
+          <div *ngIf="faqs.length === 0" style="text-align:center; padding: 2rem; color: #64748B;">
+            Aucune question pour le moment.
           </div>
         </div>
 
@@ -350,7 +354,7 @@ import { KikiDataService } from '../services/kiki-data.service';
     `
   ]
 })
-export class ContactComponent {
+export class ContactComponent implements OnInit {
   form = {
     name: '',
     email: '',
@@ -358,33 +362,34 @@ export class ContactComponent {
     message: ''
   };
 
-  faqs = [
-    {
-      question: 'Quels sont vos délais de réservation pour la salle La Diva ?',
-      answer: "La salle La Diva étant très demandée à Dakar pour les réceptions de mariage et de gala, nous vous conseillons de réserver au moins 3 à 6 mois à l'avance. Pour les prestations traiteur hors salle, un délai de 15 jours est généralement suffisant.",
-      active: false
-    },
-    {
-      question: 'Quelles sont les capacités de la salle La Diva ?',
-      answer: "Notre salle de réception exclusive La Diva peut accueillir confortablement jusqu'à 150 convives dans une configuration de banquet assis (repas de mariage), et jusqu'à 250 convives dans le cadre d'un cocktail dînatoire debout.",
-      active: false
-    },
-    {
-      question: 'Proposez-vous des options adaptées aux régimes alimentaires spécifiques ?',
-      answer: "Tout à fait. Nos brigades culinaires conçoivent des menus personnalisés sans surcoût pour s'adapter à toutes vos exigences : plats végétariens, végétaliens, sans gluten ou respectant des régimes confessionnels spécifiques.",
-      active: false
-    },
-    {
-      question: 'Pouvons-nous emporter les restes de notre réception ?',
-      answer: "Oui, absolument. C'est l'un de nos engagements éco-responsables majeurs à Dakar : à la fin de votre réception à la salle La Diva, l'intégralité des restes alimentaires non consommés est soigneusement conditionnée et remise aux mariés ou aux organisateurs pour éviter tout gaspillage culinaire.",
-      active: false
-    }
-  ];
+  faqs: any[] = [];
 
-  constructor(private dataService: KikiDataService) {}
+  constructor(private dataService: KikiDataService, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/faqs').subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.faqs = data.map(f => ({
+            question: f.question,
+            answer: f.reponse || f.answer,
+            active: false
+          }));
+        } else {
+          this.faqs = [];
+        }
+      },
+      error: (err) => {
+        console.warn('Erreur chargement FAQs depuis NeonDB', err);
+        this.faqs = [];
+      }
+    });
+  }
 
   toggleFaq(index: number): void {
-    this.faqs[index].active = !this.faqs[index].active;
+    if (this.faqs[index]) {
+      this.faqs[index].active = !this.faqs[index].active;
+    }
   }
 
   onSubmit(): void {
@@ -397,3 +402,4 @@ export class ContactComponent {
     };
   }
 }
+

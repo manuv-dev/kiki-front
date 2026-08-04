@@ -72,4 +72,46 @@ export class GestionnaireApiService {
   getDevisByDemandeId(demandeId: number): Observable<any> {
     return this.http.get<any>(`https://kiki-backend-iuyo.onrender.com/api/devis/demande/${demandeId}`);
   }
+
+  getAllDevis(): Observable<any[]> {
+    return this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/devis');
+  }
+
+  getAllClients(): Observable<any[]> {
+    return this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/client/clients');
+  }
+
+  // --- FAQs ---
+  getFaqs(): Observable<any[]> {
+    return this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/faqs');
+  }
+
+  createFaq(faq: any): Observable<any> {
+    return this.http.post<any>('https://kiki-backend-iuyo.onrender.com/api/faqs', faq);
+  }
+
+  updateFaq(id: number | string, faq: any): Observable<any> {
+    return this.http.put<any>(`https://kiki-backend-iuyo.onrender.com/api/faqs/${id}`, faq);
+  }
+
+  deleteFaq(id: number | string): Observable<void> {
+    return this.http.delete<void>(`https://kiki-backend-iuyo.onrender.com/api/faqs/${id}`);
+  }
+
+  // --- Témoignages ---
+  getTemoignages(): Observable<any[]> {
+    return this.http.get<any[]>('https://kiki-backend-iuyo.onrender.com/api/temoignages');
+  }
+
+  createTemoignage(t: any): Observable<any> {
+    return this.http.post<any>('https://kiki-backend-iuyo.onrender.com/api/temoignages', t);
+  }
+
+  updateTemoignage(id: number | string, t: any): Observable<any> {
+    return this.http.put<any>(`https://kiki-backend-iuyo.onrender.com/api/temoignages/${id}`, t);
+  }
+
+  deleteTemoignage(id: number | string): Observable<void> {
+    return this.http.delete<void>(`https://kiki-backend-iuyo.onrender.com/api/temoignages/${id}`);
+  }
 }

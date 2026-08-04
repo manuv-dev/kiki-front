@@ -200,7 +200,7 @@ export class KikiDataService {
       localStorage.setItem(this.STORAGE_KEYS.PRESTATIONS, JSON.stringify(initialPrestations));
     }
 
-    // Nettoyage complet de toutes les fausses données (clients, demandes, devis, événements, médias, gestionnaires, témoignages)
+    // Nettoyage complet de toutes les fausses données (clients, demandes, devis, événements, médias, gestionnaires, témoignages, faqs)
     localStorage.removeItem(this.STORAGE_KEYS.CLIENTS);
     localStorage.removeItem(this.STORAGE_KEYS.REQUESTS);
     localStorage.removeItem(this.STORAGE_KEYS.DEVIS);
@@ -208,6 +208,7 @@ export class KikiDataService {
     localStorage.removeItem(this.STORAGE_KEYS.MEDIA);
     localStorage.removeItem(this.STORAGE_KEYS.TESTIMONIALS);
     localStorage.removeItem(this.STORAGE_KEYS.MANAGERS);
+    localStorage.removeItem(this.STORAGE_KEYS.FAQS);
 
     if (!localStorage.getItem(this.STORAGE_KEYS.CLIENTS)) {
       localStorage.setItem(this.STORAGE_KEYS.CLIENTS, JSON.stringify([]));
@@ -233,12 +234,7 @@ export class KikiDataService {
     }
 
     if (!localStorage.getItem(this.STORAGE_KEYS.FAQS)) {
-      const initialFaqs: FaqItem[] = [
-        { id: 'faq_1', question: 'Comment réserver la Salle La Diva ?', answer: 'Vous pouvez soumettre une demande de devis en ligne. Notre gestionnaire vous enverra une proposition personnalisée en moins de 24h.' },
-        { id: 'faq_2', question: 'Proposez-vous des menus adaptés aux régimes spécifiques ?', answer: 'Oui, notre chef cuisinier propose des menus halal, végétariens et sans gluten sur demande lors de la conception du menu.' },
-        { id: 'faq_3', question: 'Quelles sont les conditions de paiement et d\'annulation ?', answer: 'Un acompte de 40% est demandé à la signature du devis. L\'annulation est gratuite jusqu\'à 15 jours avant la date de la réception.' }
-      ];
-      localStorage.setItem(this.STORAGE_KEYS.FAQS, JSON.stringify(initialFaqs));
+      localStorage.setItem(this.STORAGE_KEYS.FAQS, JSON.stringify([]));
     }
 
     if (!localStorage.getItem(this.STORAGE_KEYS.MEDIA)) {
