@@ -1,0 +1,54 @@
+        <section class="dashboard-section active">
+          <div class="panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
+              <h2 class="panel-title">Médiathèque (Photos & Vidéos regroupées par événement)</h2>
+              <button class="btn btn-accent" (click)="openAddMediaModal()"><i class="fas fa-upload me-1"></i> Ajouter un média</button>
+            </div>
+            <!-- Event filter bar -->
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem;">
+              <button class="btn btn-sm" [style.background]="selectedEventFilterForMedia === 'ALL' ? '#7A1C1C' : '#E2E8F0'" [style.color]="selectedEventFilterForMedia === 'ALL' ? 'white' : '#334155'" (click)="selectedEventFilterForMedia = 'ALL'">
+                Tous les événements ({{ mediaList.length }})
+              </button>
+              <button *ngFor="let title of getEventTitlesWithMedia()" class="btn btn-sm" [style.background]="selectedEventFilterForMedia === title ? '#7A1C1C' : '#E2E8F0'" [style.color]="selectedEventFilterForMedia === title ? 'white' : '#334155'" (click)="selectedEventFilterForMedia = title">
+                {{ title }}
+              </button>
+            </div>
+            <!-- Grouped Sections -->
+            <div *ngFor="let evTitle of (selectedEventFilterForMedia === 'ALL' ? getEventTitlesWithMedia() : [selectedEventFilterForMedia])" style="margin-bottom: 1.75rem;">
+              <h3 style="color: #1E293B; font-size: 0.95rem; font-weight: 600; margin-bottom: 0.75rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.4rem;">
+                <i class="fas fa-folder-open me-2" style="color: #7A1C1C;"></i> {{ evTitle }}
+              </h3>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 1.15rem;">
+                <div *ngFor="let m of getMediaByEventTitle(evTitle)" style="border: 1px solid #E2E8F0; border-radius: 10px; overflow: hidden; background: white; box-shadow: 0 2px 6px rgba(0,0,0,0.03); position: relative;">
+                  <div style="height: 135px; background: #E2E8F0; position: relative;">
+                    <img [src]="m.url" alt="" style="width: 100%; height: 100%; object-fit: cover;">
+                    <button class="btn btn-sm" style="position: absolute; top: 0.4rem; right: 0.4rem; background: rgba(220, 38, 38, 0.85); color: white; padding: 0.2rem 0.5rem;" (click)="deleteMedia(m.id)" title="Supprimer">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                  <div style="padding: 0.75rem;">
+                    <strong style="display: block; color: #1E293B; font-size: 0.82rem;">{{ m.title }}</strong>
+                    <small style="color: #64748B; font-size: 0.72rem; display: block; margin-top: 0.2rem;">
+                      <i class="fas" [ngClass]="m.type === 'video' ? 'fa-video' : 'fa-image'"></i> {{ m.type === 'video' ? 'Vidéo' : 'Photo HD' }} • {{ m.eventTitle }}
+                    </small>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div *ngIf="mediaList.length === 0" style="text-align: center; padding: 2.5rem; color: #94A3B8; font-size: 0.85rem;">
+              Aucun média dans la médiathèque. Cliquez sur "Ajouter un média" pour commencer.
+            </div>
+
+            <!-- PAGINATION MEDIATHÈQUE -->
+            <div *ngIf="getMediaTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
+              <button *ngFor="let p of getMediaPageArray()" type="button" class="btn btn-sm"
+                [style.background]="mediaPage === p ? '#7A1C1C' : 'white'"
+                [style.color]="mediaPage === p ? 'white' : '#64748B'"
+                [style.border]="mediaPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+                style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                (click)="mediaPage = p">
+                {{ p }}
+              </button>
+            </div>
+          </div>
+        </section>

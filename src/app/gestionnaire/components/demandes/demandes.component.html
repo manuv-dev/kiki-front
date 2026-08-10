@@ -1,0 +1,436 @@
+        <section class="dashboard-section active">
+          <div class="panel">
+            <!-- En-tête de la table avec bouton Créer un Devis -->
+            <div class="panel-header" style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+              <h2 class="panel-title" style="color: #7A1C1C; font-size: 1.15rem; margin: 0;">Demandes de devis des clients</h2>
+              <button class="btn" style="background: #7A1C1C; color: white; font-weight: 600;" (click)="openCreateDevisModal()">
+                <i class="fas fa-plus me-1"></i> CRÉER UN DEVIS
+              </button>
+            </div>
+
+            <!-- FILTRES RECHERCHE CLIENT & PRESTATIONS -->
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: center; margin-bottom: 0.85rem;">
+              <input type="text" class="form-control" [(ngModel)]="requestClientFilter" placeholder="Rechercher un client..." style="width: 210px; font-size: 0.78rem;">
+              <select class="form-control" [(ngModel)]="requestPrestationFilter" style="width: 210px; font-size: 0.78rem;">
+                <option value="ALL">Toutes les prestations</option>
+                <option value="salle-diva">Salle La Diva</option>
+                <option value="traiteur">Service Traiteur Prestige</option>
+                <option value="evenements">Organisation d'Événements</option>
+                <option value="foodtruck">Food Truck Gourmet</option>
+                <option value="takeaway">Plats à Emporter</option>
+              </select>
+            </div>
+
+            <!-- BOUTONS DE FILTRE PAR STATUT (restent sélectionnés après pagination) -->
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.25rem;">
+              <button *ngFor="let sf of statusFiltersList" type="button" class="btn btn-sm"
+                [style.background]="selectedRequestStatusFilter === sf.value ? '#7A1C1C' : '#F1F5F9'"
+                [style.color]="selectedRequestStatusFilter === sf.value ? 'white' : '#334155'"
+                [style.border]="selectedRequestStatusFilter === sf.value ? '1px solid #7A1C1C' : '1px solid #E2E8F0'"
+                style="border-radius: 20px; padding: 0.35rem 0.85rem; font-weight: 600;"
+                (click)="selectRequestStatusFilter(sf.value)">
+                {{ sf.label }} ({{ getRequestCountByStatus(sf.value) }})
+              </button>
+            </div>
+
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID DEMANDE</th>
+                    <th>CLIENT</th>
+                    <th>TYPE</th>
+                    <th>PRESTATION</th>
+                    <th>LIEU</th>
+                    <th>DATE</th>
+                    <th>CONVIVES</th>
+                    <th>STATUT</th>
+                    <th style="min-width: 120px; width: 120px;">ACTIONS</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let req of getFilteredRequestsForPage()">
+                    <td><strong style="color: #1E293B;">#{{ req.id }}</strong></td>
+                    <td><strong style="color: #1E293B;">{{ req.clientName && req.clientName !== req.clientId ? req.clientName : getClientName(req.clientId) }}</strong></td>
+                    <td>
+                      <span class="badge" style="background: #EDE9FE; color: #6D28D9; font-size: 0.65rem;">
+                        {{ getClientType(req.clientId) }}
+                      </span>
+                    </td>
+                    <td>{{ getPrestationName(req.prestationId) }}</td>
+                    <td>{{ req.location || 'À définir' }}</td>
+                    <td>{{ formatDate(req.date) }}</td>
+                    <td>{{ req.guests || 0 }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getBadgeClass(req.status)">
+                        {{ getStatusLabel(req.status) }}
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.3rem; flex-wrap: nowrap; align-items: center;">
+                        <!-- 1. En attente (pending) : Voir détails, Accepter, Refuser -->
+                        <ng-container *ngIf="isPendingStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails de la demande">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #059669; color: white;" (click)="acceptRequest(req)" title="Accepter la demande">
+                            <i class="fas fa-check"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser la demande">
+                            <i class="fas fa-times"></i>
+                          </button>
+                        </ng-container>
+
+                        <!-- 2. Accepté : Éditer devis, Refuser, Voir détails -->
+                        <ng-container *ngIf="isAcceptedStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #7A1C1C; color: white;" (click)="openDevisModal(req, false)" title="Éditer et envoyer le devis PDF au client">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser">
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les infos de la demande">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </ng-container>
+
+                        <!-- 3. Devis envoyé : Modifier, Créer événement, Refuser, Voir -->
+                        <ng-container *ngIf="isSentStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #2563EB; color: white;" (click)="openDevisModal(req, false)" title="Modifier et renvoyer le devis PDF">
+                            <i class="fas fa-edit"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #059669; color: white;" (click)="acceptDevisAndCreateEvent(req)" title="Créer l'événement">
+                            <i class="fas fa-calendar-plus"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #DC2626; color: white;" (click)="rejectRequest(req)" title="Refuser le devis">
+                            <i class="fas fa-times"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les infos du client">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </ng-container>
+
+                        <!-- 4. Aboutis : Voir devis, Voir détails -->
+                        <ng-container *ngIf="isAboutisStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #5B21B6; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis conclu">
+                            <i class="fas fa-file-invoice"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                        </ng-container>
+
+                        <!-- 5. Refusé : Voir détails, Voir devis -->
+                        <ng-container *ngIf="isRejectedStatus(req.status)">
+                          <button class="btn btn-sm" style="background: #475569; color: white;" (click)="openRequestDetailsModal(req)" title="Voir les détails">
+                            <i class="fas fa-eye"></i>
+                          </button>
+                          <button class="btn btn-sm" style="background: #64748B; color: white;" (click)="openDevisModal(req, true)" title="Voir le devis">
+                            <i class="fas fa-file-invoice"></i>
+                          </button>
+                        </ng-container>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="getFilteredRequestsForPage().length === 0">
+                    <td colspan="9" style="text-align: center; padding: 2.5rem; color: #94A3B8;">
+                      Aucune demande de devis trouvée avec les filtres actuels.
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- PAGINATION CIRCLES (Image 4) -->
+            <div *ngIf="getRequestTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.5rem;">
+              <button *ngFor="let p of getRequestPageArray()" type="button" class="btn btn-sm"
+                [style.background]="requestPage === p ? '#DC2626' : 'white'"
+                [style.color]="requestPage === p ? 'white' : '#64748B'"
+                [style.border]="requestPage === p ? '1px solid #DC2626' : '1px solid #CBD5E1'"
+                style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                (click)="requestPage = p">
+                {{ p }}
+              </button>
+            </div>
+          </div>
+        </section>
+
+
+<!-- MODAL : DÉTAILS DE LA DEMANDE CLIENT -->
+<div *ngIf="showRequestDetailsModal && currentDetailRequest" class="custom-modal-backdrop" (click)="closeRequestDetailsModal()">
+  <div class="custom-modal-box" style="max-width: 580px; background: #FFFFFF; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);" (click)="$event.stopPropagation()">
+    <!-- Header bordeaux premium -->
+    <div class="modal-header" style="background: #7A1C1C; color: #FFFFFF; padding: 1.25rem 1.5rem; border-bottom: none;">
+      <h3 style="margin: 0; color: #FFFFFF; font-family: 'Playfair Display', serif; font-size: 1.2rem;">
+        <i class="fas fa-file-alt me-2"></i>Détails de la demande #{{ currentDetailRequest.id }}
+      </h3>
+      <button class="btn-close" style="color: #FFFFFF; opacity: 0.9;" (click)="closeRequestDetailsModal()"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Body : informations complètes envoyées par le client -->
+    <div class="modal-body" style="padding: 1.75rem 1.5rem;">
+      <!-- Client Banner -->
+      <div style="display: flex; align-items: center; gap: 1rem; background: #FDFBF7; border: 1px solid #EBE4D5; border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1.5rem;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: #7A1C1C; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.2rem;">
+          {{ (gData.getClientName(currentDetailRequest.clientId) || currentDetailRequest.clientName || 'C').substring(0,2).toUpperCase() }}
+        </div>
+        <div>
+          <h4 style="margin: 0; color: #1E293B; font-size: 1.1rem; font-weight: 700;">{{ gData.getClientName(currentDetailRequest.clientId) || currentDetailRequest.clientName }}</h4>
+          <div style="font-size: 0.8rem; color: #64748B; margin-top: 0.2rem;">
+            <i class="fas fa-envelope me-1" style="color: #7A1C1C;"></i> {{ gData.getClientEmail(currentDetailRequest.clientId) || currentDetailRequest.clientEmail }} &nbsp;|&nbsp;
+            <i class="fas fa-phone me-1" style="color: #7A1C1C;"></i> {{ currentDetailRequest.clientPhone || '+221 77 777 77 78' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Grille d'informations -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">PRESTATION DEMANDÉE</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #7A1C1C; margin-top: 0.3rem;">
+            <i class="fas fa-utensils me-1"></i> {{ currentDetailRequest.prestationId || 'Non défini' }}
+          </div>
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">NOMBRE DE CONVIVES</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+            <i class="fas fa-users me-1" style="color: #D97706;"></i> {{ currentDetailRequest.guests || 'Non spécifié' }} personnes
+          </div>
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">DATE & HEURE SOUHAITÉES</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+            <i class="fas fa-calendar-alt me-1" style="color: #2563EB;"></i> {{ currentDetailRequest.date | date:'dd/MM/yyyy' }}
+            <span style="margin: 0 0.4rem; color: #CBD5E1;">|</span>
+            <i class="fas fa-clock me-1" style="color: #10B981;"></i> {{ currentDetailRequest.time || 'Non spécifiée' }}
+          </div>
+        </div>
+        <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">LIEU / ADRESSE</span>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+            <i class="fas fa-map-marker-alt me-1" style="color: #DC2626;"></i> {{ currentDetailRequest.location || 'Dakar / À définir' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Notes & Commentaire client -->
+      <div style="background: #F1F5F9; border-left: 4px solid #7A1C1C; border-radius: 6px; padding: 1rem; margin-bottom: 0.5rem;">
+        <span style="font-size: 0.72rem; color: #64748B; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">PRÉCISIONS / MESSAGE DU CLIENT :</span>
+        <p *ngIf="currentDetailRequest.message && currentDetailRequest.message.trim()" style="margin: 0; font-style: italic; color: #334155; font-size: 0.9rem; line-height: 1.5;">
+          "{{ currentDetailRequest.message }}"
+        </p>
+        <p *ngIf="!currentDetailRequest.message || !currentDetailRequest.message.trim()" style="margin: 0; font-style: italic; color: #64748B; font-size: 0.9rem; line-height: 1.5;">
+          Aucune note supplémentaire n'a été transmise par le client lors de la demande.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer : Actions dynamiques selon le statut -->
+    <div class="modal-footer" style="background: #F8FAFC; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0;">
+      <button type="button" class="btn btn-outline" (click)="closeRequestDetailsModal()">Fermer</button>
+      <div style="display: flex; gap: 0.6rem;">
+        <!-- Si en attente : possibilité d'accepter ou refuser -->
+        <ng-container *ngIf="currentDetailRequest.status === 'pending' || currentDetailRequest.status === 'En attente'">
+          <button type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="acceptRequestFromDetails()">
+            <i class="fas fa-check me-1"></i> ACCEPTER LA DEMANDE
+          </button>
+          <button type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="rejectRequestFromDetails()">
+            <i class="fas fa-times me-1"></i> REFUSER
+          </button>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CREATE DEVIS -->
+<div class="custom-modal-backdrop" *ngIf="showDevisModal">
+  <div class="custom-modal-box" style="max-width: 800px; width: 95%;">
+    <div class="modal-header" style="border-bottom: 1px solid #eee; padding-bottom: 1rem; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; font-family: 'Playfair Display', serif; color: #7A1C1C; font-size: 1.5rem; font-weight: 700;">
+        <i class="fas fa-file-invoice-dollar" style="margin-right: 0.5rem;"></i> {{ isNewDevis ? 'Création de devis' : (isDevisReadonly ? 'Consulter le devis' : 'Modification de devis') }}
+      </h3>
+      <button class="modal-close" (click)="closeDevisModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer;">&times;</button>
+    </div>
+    
+    <div class="modal-body" style="max-height: 70vh; overflow-y: auto; padding-right: 0.5rem;">
+      <form>
+        <!-- Client Selection block -->
+        <div *ngIf="isNewDevis" style="border: 1px solid #E2E8F0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+            <label style="font-weight: 700; color: #7A1C1C; font-size: 0.95rem; margin: 0;">
+              <i class="fas fa-user" style="margin-right: 0.5rem;"></i> Client destinataire du devis <span style="color: #DC2626;">*</span>
+            </label>
+            <button type="button" (click)="isCreatingNewClient = !isCreatingNewClient" style="background: transparent; border: 1px solid #CBD5E1; border-radius: 20px; padding: 0.3rem 0.8rem; font-size: 0.75rem; font-weight: 600; color: #475569; cursor: pointer;">
+              <i class="fas" [ngClass]="isCreatingNewClient ? 'fa-search' : 'fa-plus'"></i> {{ isCreatingNewClient ? 'Rechercher existant' : 'Nouveau client' }}
+            </button>
+          </div>
+          
+          <div *ngIf="!isCreatingNewClient">
+            <input type="text" [(ngModel)]="devisSearchClientQuery" name="clientQ" placeholder="Rechercher par nom client..." style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none; margin-bottom: 0.5rem;">
+            
+            <div *ngIf="devisSearchClientQuery" style="max-height: 150px; overflow-y: auto; background: white; border: 1px solid #E2E8F0; border-radius: 4px;">
+              <div *ngFor="let c of getFilteredClientsForDevis()" style="padding: 0.75rem; border-bottom: 1px solid #F1F5F9; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <span style="font-weight: 700; color: #1E293B; margin-right: 0.5rem;">{{ c.name }}</span>
+                  <span style="font-size: 0.85rem; color: #64748B;">({{ c.email }})</span>
+                </div>
+                <button type="button" (click)="selectClientForDevis(c)" style="background: #E0E7FF; color: #3730A3; border: none; padding: 0.4rem 0.8rem; border-radius: 12px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">SÉLECTIONNER</button>
+              </div>
+            </div>
+            <div *ngIf="selectedClientForDevis" style="margin-top: 1rem; background: #F8FAFC; padding: 0.75rem; border-radius: 4px; border: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+              <div style="font-weight: 700; color: #1E293B;">Client sélectionné : {{ selectedClientForDevis.name }}</div>
+              <button type="button" (click)="selectedClientForDevis = null; devisForm.clientId=''" style="background: none; border: none; color: #EF4444; font-size: 1.2rem; cursor: pointer;">&times;</button>
+            </div>
+          </div>
+          
+          <div *ngIf="isCreatingNewClient" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; background: #F8FAFC; padding: 1rem; border-radius: 4px; border: 1px dashed #CBD5E1;">
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">NOM DU CLIENT <span style="color: #DC2626;">*</span></label>
+              <input type="text" [(ngModel)]="newClientForm.name" name="ncName" placeholder="Ex: Jane Doe" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">TYPE DE CLIENT <span style="color: #DC2626;">*</span></label>
+              <select [(ngModel)]="newClientForm.type" name="ncType" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none; background: white;">
+                <option value="particulier">Particulier</option>
+                <option value="entreprise">Entreprise</option>
+              </select>
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">EMAIL <span style="color: #DC2626;">*</span></label>
+              <input type="email" [(ngModel)]="newClientForm.email" name="ncEmail" placeholder="jane@example.com" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+            </div>
+            <div>
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">TÉLÉPHONE</label>
+              <input type="text" [(ngModel)]="newClientForm.phone" name="ncPhone" placeholder="+221..." style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+            </div>
+            <div *ngIf="newClientForm.type === 'entreprise'" style="grid-column: span 2;">
+              <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">NOM DE L'ENTREPRISE <span style="color: #DC2626;">*</span></label>
+              <input type="text" [(ngModel)]="newClientForm.organization" name="ncOrg" placeholder="Ex: Kiki Traiteur SAS" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!isNewDevis" style="margin-bottom: 1.5rem;">
+          <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem; text-transform: uppercase;">CLIENT</label>
+          <input type="text" [value]="devisForm.clientName" readonly style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none; background: #F1F5F9; color: #475569;">
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+          <div>
+            <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem;">Type de prestation</label>
+            <select [(ngModel)]="devisForm.prestationId" name="prestationId" [disabled]="isDevisReadonly" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none; background: white;">
+              <option value="salle-diva">Salle La Diva</option>
+              <option value="traiteur">Traiteur</option>
+              <option value="evenements">Événements</option>
+              <option value="foodtruck">Food Truck</option>
+              <option value="takeaway">À Emporter</option>
+            </select>
+          </div>
+          <div>
+            <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem;">Signature gastronomique <span style="color: #DC2626;">*</span></label>
+            <input type="text" [(ngModel)]="devisForm.signatureGastronomique" name="signature" [readonly]="isDevisReadonly" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 2fr 1.5fr 1.5fr; gap: 1rem; margin-bottom: 2rem;">
+          <div>
+            <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem;">Convives</label>
+            <input type="number" [(ngModel)]="devisForm.guests" name="guests" [readonly]="isDevisReadonly" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+          </div>
+          <div>
+            <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem;">Lieu de réception</label>
+            <input type="text" [(ngModel)]="devisForm.location" name="location" [readonly]="isDevisReadonly" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+          </div>
+          <div>
+            <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem;">Date prévue</label>
+            <input type="date" [(ngModel)]="devisForm.date" name="date" [readonly]="isDevisReadonly" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+          </div>
+          <div>
+            <label style="display: block; font-weight: 700; color: #64748B; margin-bottom: 0.5rem; font-size: 0.8rem;">Heure</label>
+            <input type="time" [(ngModel)]="devisForm.time" name="time" [readonly]="isDevisReadonly" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+          </div>
+        </div>
+
+        <!-- ITEMS TABLE -->
+        <div style="margin-bottom: 1rem;">
+          <div style="display: grid; grid-template-columns: 3fr 1fr 40px; gap: 1rem; margin-bottom: 0.5rem; border-bottom: 2px solid #F1F5F9; padding-bottom: 0.5rem;">
+            <div style="font-weight: 700; color: #64748B; font-size: 0.8rem; text-transform: uppercase;">TITRE / DESCRIPTION DU MONTANT</div>
+            <div style="font-weight: 700; color: #64748B; font-size: 0.8rem; text-transform: uppercase;">MONTANT (FCFA)</div>
+            <div></div>
+          </div>
+          
+          <div *ngFor="let item of devisForm.items; let i = index" style="display: grid; grid-template-columns: 3fr 1fr 40px; gap: 1rem; margin-bottom: 0.5rem; align-items: center;">
+            <input type="text" [(ngModel)]="item.desc" name="desc{{i}}" [readonly]="isDevisReadonly" placeholder="Saisissez le titre d'une prestation" style="width: 100%; padding: 0.75rem; border: 1px solid #7A1C1C; border-radius: 4px; outline: none;">
+            <input type="number" [(ngModel)]="item.unitPrice" name="up{{i}}" [readonly]="isDevisReadonly" placeholder="Saisissez un montant" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+            <button type="button" *ngIf="!isDevisReadonly" (click)="removeDevisItem(i)" style="background: #DC2626; color: white; border: none; width: 32px; height: 32px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+              <i class="fas fa-trash" style="font-size: 0.8rem;"></i>
+            </button>
+          </div>
+        </div>
+
+        <button type="button" *ngIf="!isDevisReadonly" (click)="addDevisItem()" style="background: transparent; border: 1px solid #E2E8F0; color: #475569; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center;">
+          <i class="fas fa-plus" style="margin-right: 0.5rem;"></i> Ajouter un titre de montant
+        </button>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem; margin-bottom: 2rem;">
+          <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 8px; padding: 1.5rem; width: 300px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: #475569; font-weight: 600;">
+              <span>Sous-total :</span>
+              <span style="color: #1E293B;">{{ getDevisTotal().toLocaleString('fr-FR') }} FCFA</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; color: #475569; font-weight: 600; align-items: center;">
+              <span>Remise (%) :</span>
+              <input type="number" [(ngModel)]="devisForm.discount" name="discount" [readonly]="isDevisReadonly" style="width: 60px; padding: 0.4rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none; text-align: center;">
+            </div>
+            <div style="display: flex; justify-content: space-between; border-top: 2px solid #E2E8F0; padding-top: 1rem; color: #7A1C1C; font-weight: 800; font-size: 1.2rem;">
+              <span>Total Net :</span>
+              <span>{{ (getDevisTotal() * (1 - (devisForm.discount||0)/100)).toLocaleString('fr-FR') }} FCFA</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding-top: 1.5rem; border-top: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+          <button type="button" (click)="closeDevisModal()" style="padding: 0.5rem 1.5rem; background: white; border: 1px solid #CBD5E1; border-radius: 6px; color: #475569; font-weight: 600; cursor: pointer;">Annuler</button>
+          
+          <div style="display: flex; gap: 1rem;">
+            <button type="button" *ngIf="!isDevisReadonly" [disabled]="!isDevisFormValid() || isSubmitting" (click)="isNewDevis ? createDevisDirectly() : sendDevis()" [style.opacity]="(!isDevisFormValid() || isSubmitting) ? '0.5' : '1'" [style.cursor]="(!isDevisFormValid() || isSubmitting) ? 'not-allowed' : 'pointer'" style="padding: 0.6rem 1.5rem; background: #7A1C1C; border: none; border-radius: 6px; color: white; font-weight: 700; display: flex; align-items: center;">
+              <i class="fas" [ngClass]="isSubmitting ? 'fa-spinner fa-spin' : 'fa-file-pdf'" style="margin-right: 0.5rem;"></i> 
+              <span *ngIf="!isSubmitting">ENREGISTRER ET ENVOYER PAR MAIL (PDF)</span>
+              <span *ngIf="isSubmitting">Envoi en cours...</span>
+            </button>
+            <button type="button" *ngIf="!isDevisReadonly" [disabled]="!isDevisFormValid()" (click)="isNewDevis ? createDevisDirectly() : sendDevis()" [style.opacity]="!isDevisFormValid() ? '0.5' : '1'" [style.cursor]="!isDevisFormValid() ? 'not-allowed' : 'pointer'" style="padding: 0.6rem 1.5rem; background: #2563EB; border: none; border-radius: 6px; color: white; font-weight: 600; display: flex; align-items: center;">
+              <i class="fas fa-calendar-plus" style="margin-right: 0.5rem;"></i> Créer un événement
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- MODALE DE REFUS -->
+<div *ngIf="showRejectModal" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;">
+  <div class="modal-content" style="background: white; border-radius: 12px; width: 90%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; animation: slideDown 0.3s ease-out;">
+    <div class="modal-header" style="background: #F8FAFC; padding: 1.5rem; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; color: #DC2626; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center;">
+        <i class="fas fa-exclamation-triangle" style="margin-right: 0.75rem;"></i> Confirmer le refus
+      </h3>
+      <button class="modal-close" (click)="closeRejectModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer;">&times;</button>
+    </div>
+    
+    <div class="modal-body" style="padding: 1.5rem; color: #475569; font-size: 0.95rem; line-height: 1.5;">
+      <p>Êtes-vous sûr de vouloir refuser la demande <strong>#{{requestToReject?.id}}</strong> de <strong>{{requestToReject?.clientName || gData.getClientName(requestToReject?.clientId)}}</strong> ?</p>
+      <p style="margin-top: 0.5rem;">Cette action est irréversible et le client sera notifié.</p>
+    </div>
+
+    <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 1rem; background: #F8FAFC;">
+      <button type="button" (click)="closeRejectModal()" style="padding: 0.5rem 1rem; background: white; border: 1px solid #CBD5E1; border-radius: 6px; color: #475569; font-weight: 600; cursor: pointer;">
+        Annuler
+      </button>
+      <button type="button" (click)="confirmReject()" style="padding: 0.5rem 1rem; background: #DC2626; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center;">
+        <i class="fas fa-times" style="margin-right: 0.5rem;"></i> Confirmer le refus
+      </button>
+    </div>
+  </div>
+</div>

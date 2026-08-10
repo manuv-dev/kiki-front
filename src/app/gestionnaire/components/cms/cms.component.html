@@ -1,0 +1,148 @@
+        <section class="dashboard-section active">
+
+          <!-- FILTRES DE CONTENU CMS -->
+          <div style="display: flex; gap: 0.75rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 0.82rem; font-weight: 700; color: #64748B; text-transform: uppercase; margin-right: 0.5rem;"><i class="fas fa-filter me-1"></i> Filtrer la rubrique :</span>
+            <button type="button" class="btn"
+              [style.background]="cmsFilterTab === 'FAQS' ? '#7A1C1C' : '#F8FAFC'"
+              [style.color]="cmsFilterTab === 'FAQS' ? 'white' : '#475569'"
+              [style.border]="cmsFilterTab === 'FAQS' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
+              (click)="cmsFilterTab = 'FAQS'">
+              <i class="fas fa-question-circle me-1"></i> FAQs (Questions Fréquentes)
+            </button>
+            <button type="button" class="btn"
+              [style.background]="cmsFilterTab === 'TESTIMONIALS' ? '#7A1C1C' : '#F8FAFC'"
+              [style.color]="cmsFilterTab === 'TESTIMONIALS' ? 'white' : '#475569'"
+              [style.border]="cmsFilterTab === 'TESTIMONIALS' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
+              (click)="cmsFilterTab = 'TESTIMONIALS'">
+              <i class="fas fa-star me-1"></i> Témoignages &amp; Commentaires
+            </button>
+            <button type="button" class="btn"
+              [style.background]="cmsFilterTab === 'ALL' ? '#7A1C1C' : '#F8FAFC'"
+              [style.color]="cmsFilterTab === 'ALL' ? 'white' : '#475569'"
+              [style.border]="cmsFilterTab === 'ALL' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
+              (click)="cmsFilterTab = 'ALL'">
+              <i class="fas fa-layer-group me-1"></i> Tous les contenus
+            </button>
+          </div>
+
+          <!-- FAQ PANEL -->
+          <div *ngIf="cmsFilterTab === 'ALL' || cmsFilterTab === 'FAQS'" class="panel" style="margin-bottom: 1.25rem;">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
+              <h2 class="panel-title"><i class="fas fa-question-circle me-2" style="color:#7A1C1C;"></i>Questions Fréquentes (FAQs)</h2>
+              <button class="btn btn-accent" (click)="openAddFaqModal()"><i class="fas fa-plus me-1"></i> Créer une FAQ</button>
+            </div>
+            <p style="color: #64748B; font-size: 0.78rem; margin-bottom: 1rem;">
+              Gérez ici les questions et réponses affichées sur votre site internet.
+            </p>
+            <div class="table-responsive">
+              <table class="admin-table" style="table-layout: fixed; width: 100%;">
+                <colgroup>
+                  <col style="width: 30%;">
+                  <col style="width: 42%;">
+                  <col style="width: 14%;">
+                  <col style="width: 14%;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Question</th>
+                    <th>Réponse</th>
+                    <th>Catégorie</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let f of getFaqsForPage()">
+                    <td style="white-space: normal; word-break: break-word;"><strong style="color: #1E293B; font-size: 0.70rem;">{{ f.question }}</strong></td>
+                    <td style="white-space: normal; word-break: break-word; color: #475569; font-size: 0.68rem;">{{ f.answer }}</td>
+                    <td><span class="badge" style="background:#E2E8F0; color:#334155;">{{ f.category || 'Général' }}</span></td>
+                    <td>
+                      <div style="display: flex; gap: 0.3rem;">
+                        <button class="btn btn-sm btn-outline" (click)="openEditFaqModal(f)" title="Modifier">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm" style="background:#DC2626; color:white;" (click)="deleteFaq(f.id)" title="Supprimer">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="faqs.length === 0">
+                    <td colspan="4" style="text-align: center; padding: 2rem; color: #94A3B8;">Aucune FAQ configurée.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- PAGINATION FAQS -->
+            <div *ngIf="getFaqTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
+              <button *ngFor="let p of getFaqPageArray()" type="button" class="btn btn-sm"
+                [style.background]="faqPage === p ? '#7A1C1C' : 'white'"
+                [style.color]="faqPage === p ? 'white' : '#64748B'"
+                [style.border]="faqPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+                style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                (click)="faqPage = p">
+                {{ p }}
+              </button>
+            </div>
+          </div>
+
+          <!-- TESTIMONIALS PANEL -->
+          <div *ngIf="cmsFilterTab === 'ALL' || cmsFilterTab === 'TESTIMONIALS'" class="panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
+              <h2 class="panel-title"><i class="fas fa-star me-2" style="color:#D97706;"></i>Témoignages Clients</h2>
+              <button class="btn btn-accent" (click)="openAddTestimonialModal()"><i class="fas fa-plus me-1"></i> Ajouter un témoignage</button>
+            </div>
+            <p style="color: #64748B; font-size: 0.78rem; margin-bottom: 1rem;">
+              Gérez les avis clients affichés sur votre site (texte, nom, titre et étoiles).
+            </p>
+            <div class="table-responsive">
+              <table class="admin-table" style="table-layout: fixed; width: 100%;">
+                <colgroup>
+                  <col style="width: 38%;">
+                  <col style="width: 20%;">
+                  <col style="width: 20%;">
+                  <col style="width: 10%;">
+                  <col style="width: 12%;">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>Témoignage</th>
+                    <th>Nom du client</th>
+                    <th>Titre / Fonction</th>
+                    <th>Étoiles</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let t of testimonials">
+                    <td style="white-space: normal; word-break: break-word; font-style: italic; color: #475569; font-size: 0.68rem;">"{{ t.text }}"</td>
+                    <td style="white-space: normal; font-size: 0.70rem;"><strong>{{ t.clientName }}</strong></td>
+                    <td style="white-space: normal; font-size: 0.68rem; color: #64748B;">{{ t.clientTitle }}</td>
+                    <td>
+                      <span style="color: #D97706; font-size: 0.75rem; letter-spacing: 1px;">
+                        <ng-container *ngFor="let s of getStarsArray(t.stars)">&#9733;</ng-container>
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.3rem;">
+                        <button class="btn btn-sm btn-outline" (click)="openEditTestimonialModal(t)" title="Modifier">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm" style="background:#DC2626; color:white;" (click)="deleteTestimonial(t.id)" title="Supprimer">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr *ngIf="testimonials.length === 0">
+                    <td colspan="5" style="text-align: center; padding: 2rem; color: #94A3B8;">Aucun témoignage configuré.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>

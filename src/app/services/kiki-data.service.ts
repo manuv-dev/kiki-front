@@ -47,6 +47,10 @@ export interface DevisItem {
   status: string;
   signatureGastronomique?: string;
   history?: Array<{ date: string; action: string }>;
+  guests?: number;
+  location?: string;
+  date?: string;
+  time?: string;
 }
 
 export interface RealisationItem {
@@ -301,6 +305,21 @@ export class KikiDataService {
   getClients(): ClientItem[] {
     const data = localStorage.getItem(this.STORAGE_KEYS.CLIENTS);
     return data ? JSON.parse(data) : [];
+  }
+
+  addClient(client: Partial<ClientItem>): ClientItem {
+    const clients = this.getClients();
+    const newClient: ClientItem = {
+      id: 'cli_' + (Math.floor(Math.random() * 899) + 100),
+      name: client.name || '',
+      email: client.email || '',
+      phone: client.phone || '',
+      type: client.type || 'particulier',
+      organization: client.organization || ''
+    };
+    clients.unshift(newClient);
+    localStorage.setItem(this.STORAGE_KEYS.CLIENTS, JSON.stringify(clients));
+    return newClient;
   }
 
   getRequests(): RequestItem[] {
@@ -588,7 +607,7 @@ export class KikiDataService {
       id: 'dev_' + (Math.floor(Math.random() * 899) + 100),
       requestId: devis.requestId || '',
       dateCreated: new Date().toISOString().split('T')[0],
-      items: devis.items || [{ desc: 'Prestation Traiteur - Forfait', qty: 1, unitPrice: 15000 }],
+      items: devis.items || [{ desc: '', qty: 1, unitPrice: null as any }],
       tvaRate: devis.tvaRate !== undefined ? devis.tvaRate : 18,
       discount: devis.discount || 0,
       status: devis.status || 'sent',

@@ -1,0 +1,39 @@
+        <section class="dashboard-section active">
+          <div class="panel">
+            <div class="panel-header">
+              <h2 class="panel-title">Personnel Traiteur & Brigade de Cuisine</h2>
+            </div>
+            <div class="table-responsive">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Nom Prénom</th>
+                    <th>Rôle / Poste</th>
+                    <th>Téléphone</th>
+                    <th>Statut</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let s of getStaffForPage()">
+                    <td><strong>{{ s.name }}</strong></td>
+                    <td>{{ s.role }}</td>
+                    <td>{{ s.phone }}</td>
+                    <td><span class="badge badge-accepted">Disponible</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- PAGINATION STAFF -->
+            <div *ngIf="getStaffTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
+              <button *ngFor="let p of getStaffPageArray()" type="button" class="btn btn-sm"
+                [style.background]="staffPage === p ? '#7A1C1C' : 'white'"
+                [style.color]="staffPage === p ? 'white' : '#64748B'"
+                [style.border]="staffPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+                style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                (click)="staffPage = p">
+                {{ p }}
+              </button>
+            </div>
+          </div>
+        </section>

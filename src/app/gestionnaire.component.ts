@@ -1318,9 +1318,22 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
                   <i class="fas fa-times me-1"></i> Refuser la demande
                 </button>
               </div>
-              <div *ngIf="!isDevisReadonly" style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
-                <button type="button" class="btn" style="background: #7A1C1C; color: white; font-weight: 700; padding: 0.55rem 1.2rem;" (click)="sendDevisByEmail()">
-                  <i class="fas fa-file-pdf me-1"></i> ENREGISTRER ET ENVOYER PAR MAIL (PDF)
+              <div style="display: flex; gap: 0.6rem; align-items: center; flex-wrap: wrap; justify-content: flex-end;">
+                <!-- Bouton télécharger PDF (visible si un devis existe en base) -->
+                <button *ngIf="currentDevisId" type="button" class="btn" 
+                  style="background: #475569; color: white; font-weight: 600; padding: 0.55rem 1rem;"
+                  [disabled]="isDevisDownloading"
+                  (click)="_downloadPdf(currentDevisId!)">
+                  <i [class]="isDevisDownloading ? 'fas fa-spinner fa-spin me-1' : 'fas fa-download me-1'"></i>
+                  {{ isDevisDownloading ? 'Génération...' : 'Télécharger PDF' }}
+                </button>
+                <!-- Bouton envoyer par email -->
+                <button *ngIf="!isDevisReadonly" type="button" class="btn" 
+                  style="background: #7A1C1C; color: white; font-weight: 700; padding: 0.55rem 1.2rem;"
+                  [disabled]="isDevisSending"
+                  (click)="sendDevisByEmail()">
+                  <i [class]="isDevisSending ? 'fas fa-spinner fa-spin me-1' : 'fas fa-paper-plane me-1'"></i>
+                  {{ isDevisSending ? 'Envoi en cours...' : 'ENREGISTRER ET ENVOYER PAR MAIL (PDF)' }}
                 </button>
                 <button *ngIf="canShowCreateEventButton(devisForm)" type="button" class="btn" style="background: #2563EB; color: white; font-weight: 600; padding: 0.55rem 1rem;" (click)="concludeDevisAndCreateEvent()">
                   <i class="fas fa-calendar-plus me-1"></i> Créer un événement
@@ -1349,10 +1362,22 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
                   {{ getClientInitials(currentDetailRequest.clientId) }}
                 </div>
                 <div>
-                  <h4 style="margin: 0; color: #1E293B; font-size: 1.1rem; font-weight: 700;">{{ getClientName(currentDetailRequest.clientId) }}</h4>
-                  <div style="font-size: 0.8rem; color: #64748B; margin-top: 0.2rem;">
-                    <i class="fas fa-envelope me-1" style="color: #7A1C1C;"></i> {{ getClientEmail(currentDetailRequest.clientId) }} &nbsp;|&nbsp;
-                    <i class="fas fa-phone me-1" style="color: #7A1C1C;"></i> {{ getClientPhone(currentDetailRequest.clientId) }}
+                  <h4 style="margin: 0; color: #1E293B; font-size: 1.1rem; font-weight: 700;">
+                    {{ currentDetailRequest.clientName || getClientName(currentDetailRequest.clientId) }}
+                  </h4>
+                  <div style="font-size: 0.8rem; color: #64748B; margin-top: 0.3rem;">
+                    <i class="fas fa-envelope me-1" style="color: #7A1C1C;"></i>
+                    {{ currentDetailRequest.clientEmail || getClientEmail(currentDetailRequest.clientId) }}
+                    &nbsp;|&nbsp;
+                    <i class="fas fa-phone me-1" style="color: #7A1C1C;"></i>
+                    {{ currentDetailRequest.clientPhone || getClientPhone(currentDetailRequest.clientId) }}
+                  </div>
+                  <!-- Badge organisation si institution -->
+                  <div *ngIf="currentDetailRequest.organization || currentDetailRequest.clientOrganization" style="margin-top: 0.35rem;">
+                    <span style="background: #EDE9FE; color: #6D28D9; font-size: 0.7rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 20px;">
+                      <i class="fas fa-building me-1"></i>
+                      {{ currentDetailRequest.organization || currentDetailRequest.clientOrganization }}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1375,6 +1400,7 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
                   <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">DATE SOUHAITÉE</span>
                   <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
                     <i class="fas fa-calendar-alt me-1" style="color: #2563EB;"></i> {{ formatDate(currentDetailRequest.date) }}
+                    <span style="color: #64748B; font-weight: 500; font-size: 0.85rem; margin-left: 0.3rem;">&agrave; {{ currentDetailRequest.time || 'Non spécifié' }}</span>
                   </div>
                 </div>
                 <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
@@ -1383,31 +1409,121 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
                     <i class="fas fa-map-marker-alt me-1" style="color: #DC2626;"></i> {{ currentDetailRequest.location || 'Dakar / À définir' }}
                   </div>
                 </div>
+                
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">TYPE DE CLIENT & ORGANISME</span>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+                    <i class="fas fa-building me-1" style="color: #059669;"></i> {{ currentDetailRequest.clientType === 'entreprise' ? 'Entreprise' : 'Particulier' }}
+                    <span *ngIf="currentDetailRequest.organization" style="color: #64748B; font-weight: 500; font-size: 0.85rem; margin-left: 0.3rem;">({{ currentDetailRequest.organization }})</span>
+                  </div>
+                </div>
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">STYLE DE CUISINE</span>
+                  <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
+                    <i class="fas fa-concierge-bell me-1" style="color: #D97706;"></i> {{ currentDetailRequest.cuisine || 'Non spécifié' }}
+                  </div>
+                </div>
+                <!-- Date de soumission -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">SOUMISE LE</span>
+                  <div style="font-size: 0.88rem; font-weight: 600; color: #475569; margin-top: 0.3rem;">
+                    <i class="fas fa-clock me-1" style="color: #64748B;"></i>
+                    {{ currentDetailRequest.dateSubmitted ? formatDate(currentDetailRequest.dateSubmitted) : 'Aujourd\'hui' }}
+                  </div>
+                </div>
+                <!-- Statut actuel -->
+                <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
+                  <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">STATUT ACTUEL</span>
+                  <div style="margin-top: 0.3rem;">
+                    <span class="badge" [ngClass]="getBadgeClass(currentDetailRequest.status)">
+                      {{ getStatusLabel(currentDetailRequest.status) }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <!-- Notes & Commentaire client -->
               <div style="background: #F1F5F9; border-left: 4px solid #7A1C1C; border-radius: 6px; padding: 1rem; margin-bottom: 0.5rem;">
                 <span style="font-size: 0.72rem; color: #64748B; font-weight: 700; text-transform: uppercase; display: block; margin-bottom: 0.4rem;">PRÉCISIONS / MESSAGE DU CLIENT :</span>
                 <p *ngIf="currentDetailRequest.message && currentDetailRequest.message.trim()" style="margin: 0; font-style: italic; color: #334155; font-size: 0.9rem; line-height: 1.5;">
-                  "{{ currentDetailRequest.message }}"
+                  &ldquo;{{ currentDetailRequest.message }}&rdquo;
                 </p>
                 <p *ngIf="!currentDetailRequest.message || !currentDetailRequest.message.trim()" style="margin: 0; font-style: italic; color: #64748B; font-size: 0.9rem; line-height: 1.5;">
                   Aucune note supplémentaire n'a été transmise par le client lors de la demande.
                 </p>
               </div>
+
+              <!-- Détails du devis associé (si applicable) -->
+              <div *ngIf="currentDetailDevis && currentDetailDevis.items && currentDetailDevis.items.length > 0" style="margin-top: 1.5rem;">
+                <h5 style="color: #7A1C1C; font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 0.4rem;">
+                  <i class="fas fa-file-invoice-dollar me-2"></i>Détails du Devis Lié
+                </h5>
+                <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 8px; overflow: hidden;">
+                  <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.85rem;">
+                    <thead>
+                      <tr style="background: #F8FAFC; color: #64748B; border-bottom: 1px solid #E2E8F0;">
+                        <th style="padding: 0.75rem 1rem; font-weight: 600;">Désignation / Titre</th>
+                        <th style="padding: 0.75rem 1rem; font-weight: 600; text-align: right;">Montant (FCFA)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let item of currentDetailDevis.items" style="border-bottom: 1px solid #F1F5F9;">
+                        <td style="padding: 0.75rem 1rem; color: #334155;">{{ item.desc }}</td>
+                        <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 600; color: #1E293B;">{{ item.unitPrice | number }}</td>
+                      </tr>
+                    </tbody>
+                    <tfoot>
+                      <tr style="background: #FDFBF7;">
+                        <td style="padding: 0.75rem 1rem; font-weight: 700; color: #7A1C1C; text-align: right;">TOTAL NET</td>
+                        <td style="padding: 0.75rem 1rem; text-align: right; font-weight: 800; color: #7A1C1C;">{{ getDetailDevisTotal() | number }}</td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
             </div>
 
             <!-- Footer : Actions dynamiques selon le statut -->
-            <div class="modal-footer" style="background: #F8FAFC; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0;">
+            <div class="modal-footer" style="background: #F8FAFC; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #E2E8F0; flex-wrap: wrap; gap: 0.5rem;">
               <button type="button" class="btn btn-outline" (click)="closeRequestDetailsModal()">Fermer</button>
-              <div style="display: flex; gap: 0.6rem;">
+              <div style="display: flex; gap: 0.6rem; flex-wrap: wrap;">
                 <!-- Si en attente : possibilité d'accepter ou refuser -->
                 <ng-container *ngIf="isPendingStatus(currentDetailRequest.status)">
                   <button type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="acceptRequestFromDetails()">
-                    <i class="fas fa-check me-1"></i> ACCEPTER LA DEMANDE
+                    <i class="fas fa-check me-1"></i> ACCEPTER
                   </button>
                   <button type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="rejectRequestFromDetails()">
                     <i class="fas fa-times me-1"></i> REFUSER
+                  </button>
+                </ng-container>
+                <!-- Si accepté : ouvrir le formulaire de devis -->
+                <ng-container *ngIf="isAcceptedStatus(currentDetailRequest.status)">
+                  <button type="button" class="btn" style="background: #7A1C1C; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="closeRequestDetailsModal(); openDevisModal(currentDetailRequest, false)">
+                    <i class="fas fa-file-invoice-dollar me-1"></i> CRÉER LE DEVIS
+                  </button>
+                  <button type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="rejectRequestFromDetails()">
+                    <i class="fas fa-times me-1"></i> REFUSER
+                  </button>
+                </ng-container>
+                <!-- Si devis envoyé -->
+                <ng-container *ngIf="isSentStatus(currentDetailRequest.status)">
+                  <button type="button" class="btn" style="background: #2563EB; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="closeRequestDetailsModal(); openDevisModal(currentDetailRequest, false)">
+                    <i class="fas fa-edit me-1"></i> MODIFIER LE DEVIS
+                  </button>
+                  <button type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="closeRequestDetailsModal(); acceptDevisAndCreateEvent(currentDetailRequest)">
+                    <i class="fas fa-calendar-plus me-1"></i> CRÉER ÉVÉNEMENT
+                  </button>
+                  <button type="button" class="btn" style="background: #475569; color: white; font-weight: 600; padding: 0.5rem 0.9rem;" (click)="closeRequestDetailsModal(); downloadDevisPdfForRequest(currentDetailRequest)">
+                    <i class="fas fa-download me-1"></i> PDF
+                  </button>
+                </ng-container>
+                <!-- Si aboutis : voir devis + télécharger PDF -->
+                <ng-container *ngIf="isAboutisStatus(currentDetailRequest.status)">
+                  <button type="button" class="btn" style="background: #5B21B6; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="closeRequestDetailsModal(); openDevisModal(currentDetailRequest, true)">
+                    <i class="fas fa-file-invoice me-1"></i> VOIR LE DEVIS
+                  </button>
+                  <button type="button" class="btn" style="background: #475569; color: white; font-weight: 600; padding: 0.5rem 0.9rem;" (click)="closeRequestDetailsModal(); downloadDevisPdfForRequest(currentDetailRequest)">
+                    <i class="fas fa-download me-1"></i> PDF
                   </button>
                 </ng-container>
               </div>
@@ -2469,6 +2585,14 @@ export class GestionnaireComponent implements OnInit {
 
   // Devis Modal
   isNewDevis = false;
+  isDevisSending = false;       // spinner envoi email
+  isClientsLoading = false;
+
+  currentDetailDevis: any = null;
+  showRejectConfirmModal = false;
+  requestToReject: any = null;
+  isDevisDownloading = false;   // spinner téléchargement PDF
+  currentDevisId: number | null = null; // ID du devis en base (pour sendMail et pdf)
   selectedClientForDevis: any = null;
   devisSearchClientQuery = '';
   devisForm = {
@@ -2552,7 +2676,9 @@ export class GestionnaireComponent implements OnInit {
 
     this.gestionnaireApiService.getAllDemandes().subscribe({
       next: (data) => {
+        this.dataService.showToast(`API: data type=${typeof data}, isArray=${Array.isArray(data)}`);
         if (data && Array.isArray(data)) {
+          this.dataService.showToast(`API: demandes count=${data.length}`);
           this.requests = data.map(d => ({
             id: String(d.id),
             clientId: String(d.clientId || ''),
@@ -2568,6 +2694,8 @@ export class GestionnaireComponent implements OnInit {
             clientName: d.clientName || 'Client inconnu',
             clientEmail: d.clientEmail || '',
             clientPhone: d.clientPhone || '',
+            clientType: d.clientType || 'particulier',
+            cuisine: d.cuisine || 'Non spécifié',
             prestationTitle: d.prestationTitle || d.prestationId,
             location: d.location || ''
           }));
@@ -3090,20 +3218,14 @@ export class GestionnaireComponent implements OnInit {
     if (!isNaN(numId) && numId > 0) {
       this.gestionnaireApiService.updateStatus(numId, st).subscribe({
         next: () => {
-          this.dataService.updateRequestStatus(id, st);
           this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
-          this.loadData();
+          this.loadData(); // On recharge depuis l'API, pas besoin de updateRequestStatus mock
         },
-        error: () => {
-          this.dataService.updateRequestStatus(id, st);
-          this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
-          this.loadData();
+        error: (err) => {
+          console.error("Erreur de mise à jour du statut", err);
+          this.dataService.showToast(`Erreur API: impossible de mettre à jour le statut.`, true);
         }
       });
-    } else {
-      this.dataService.updateRequestStatus(id, st);
-      this.dataService.showToast(`Statut actualisé en : ${this.getStatusLabel(st)}`);
-      this.loadData();
     }
   }
 
@@ -3689,11 +3811,82 @@ export class GestionnaireComponent implements OnInit {
     this.isNewDevis = false;
     this.isDevisModified = false;
     this.isDevisReadonly = isReadonly;
-    const d = this.dataService.getDevisByRequest(req.id);
+    this.currentDevisId = null;
+
     const client = this.clients.find(c => String(c.id) === String(req.clientId));
     const cEmail = req.clientEmail || (client ? client.email : 'client@gmail.com');
     const cName = req.clientName || (client ? client.name : 'Client');
     const cId = client ? client.id : req.clientId || '';
+
+    // D'abord, essayer de charger le devis depuis l'API
+    const numId = Number(req.id);
+    if (!isNaN(numId) && numId > 0) {
+      this.gestionnaireApiService.getDevisByDemandeId(numId).subscribe({
+        next: (apiDevis) => {
+          if (apiDevis && apiDevis.id) {
+            this.currentDevisId = apiDevis.id;
+            this.devisForm = {
+              requestId: String(apiDevis.demandeId || req.id),
+              clientEmail: apiDevis.clientEmail || cEmail,
+              clientName: apiDevis.clientName || cName,
+              clientId: cId,
+              prestationId: apiDevis.prestationId || req.prestationId || 'salle-diva',
+              signatureGastronomique: apiDevis.signatureGastronomique || 'Menu Signature Kiki Traiteur',
+              guests: apiDevis.guests || req.guests || 50,
+              location: apiDevis.location || req.location || 'Salle La Diva, Dakar',
+              date: apiDevis.date || req.date || new Date().toISOString().split('T')[0],
+              time: apiDevis.time || req.time || '19:00',
+              items: apiDevis.items && apiDevis.items.length ? [...apiDevis.items] : [{ desc: 'Prestation Traiteur', qty: 1, unitPrice: 15000 }],
+              tvaRate: apiDevis.tvaRate || 0,
+              discount: apiDevis.discount || 0,
+              status: apiDevis.status || req.status,
+              history: []
+            };
+          } else {
+            // Pas de devis en base → formulaire vierge avec données de la demande
+            this._initDevisFormFromRequest(req, cEmail, cName, cId);
+          }
+          this.showDevisModal = true;
+        },
+        error: () => {
+          // Fallback local si l'API n'est pas dispo
+          const d = this.dataService.getDevisByRequest(req.id);
+          this._initDevisFormFromLocal(d, req, cEmail, cName, cId);
+          this.showDevisModal = true;
+        }
+      });
+      return;
+    }
+
+    const d = this.dataService.getDevisByRequest(req.id);
+    this._initDevisFormFromLocal(d, req, cEmail, cName, cId);
+    this.showDevisModal = true;
+  }
+
+  private _initDevisFormFromRequest(req: any, cEmail: string, cName: string, cId: any): void {
+    this.devisForm = {
+      requestId: req.id,
+      clientEmail: cEmail,
+      clientName: cName,
+      clientId: cId,
+      prestationId: req.prestationId || 'salle-diva',
+      signatureGastronomique: req.signatureGastronomique || 'Menu Signature Kiki Traiteur',
+      guests: req.guests || 50,
+      location: req.location || 'Salle La Diva, Dakar',
+      date: req.date || new Date().toISOString().split('T')[0],
+      time: req.time || '19:00',
+      items: [
+        { desc: `Service ${this.getPrestationName(req.prestationId)}`, qty: 1, unitPrice: this.getUnitPrice(req.prestationId) },
+        { desc: `Forfait Menu Gastronomique (${req.guests} convives)`, qty: 1, unitPrice: (req.guests || 50) * 6500 }
+      ],
+      tvaRate: 0,
+      discount: 0,
+      status: req.status || 'sent',
+      history: [{ date: new Date().toISOString().split('T')[0], action: 'Devis initial créé par le gestionnaire' }]
+    };
+  }
+
+  private _initDevisFormFromLocal(d: any, req: any, cEmail: string, cName: string, cId: any): void {
     if (d) {
       this.devisForm = {
         requestId: d.requestId,
@@ -3782,69 +3975,102 @@ export class GestionnaireComponent implements OnInit {
 
   sendDevisByEmail(): void {
     let reqId = this.devisForm.requestId;
+    this.isDevisSending = true;
+
     if (this.isNewDevis || !reqId) {
       if (!this.selectedClientForDevis) {
         this.dataService.showToast('Veuillez sélectionner un client pour ce devis.', true);
+        this.isDevisSending = false;
         return;
       }
-      const newReq = this.dataService.addRequest({
-        clientId: this.selectedClientForDevis.id,
+      
+      const newDemande = {
+        clientName: this.selectedClientForDevis.name,
+        clientEmail: this.selectedClientForDevis.email,
+        clientPhone: this.selectedClientForDevis.phone || '+221 77 000 00 00',
         prestationId: this.devisForm.prestationId || 'salle-diva',
         guests: this.devisForm.guests || 50,
         location: this.devisForm.location || 'Salle La Diva, Dakar',
         date: this.devisForm.date || new Date().toISOString().split('T')[0],
         time: (this.devisForm as any).time || '19:00',
-        status: 'sent'
-      });
-      reqId = newReq.id;
-      this.devisForm.requestId = reqId;
-    }
+        message: 'Demande créée automatiquement pour devis direct'
+      };
 
+      // 1. Créer la demande via l'API
+      this.gestionnaireApiService.createDemande(newDemande).subscribe({
+        next: (createdDemande) => {
+          this.devisForm.requestId = createdDemande.id;
+          this.proceedWithDevisCreationAndSend(createdDemande.id);
+        },
+        error: (err) => {
+          this.isDevisSending = false;
+          console.error("Erreur lors de la création de la demande :", err);
+          this.dataService.showToast("Erreur lors de la création de la demande côté serveur.", true);
+        }
+      });
+    } else {
+      // Demande existante
+      this.proceedWithDevisCreationAndSend(reqId);
+    }
+  }
+
+  private proceedWithDevisCreationAndSend(reqId: string | number): void {
     const devisPayload = {
       demandeId: Number(reqId) || 0,
-      devisRef: `#DEV-${reqId}-${Date.now()}`,
+      devisRef: this.currentDevisId ? undefined : `#DEV-${reqId}-${Date.now()}`,
       clientName: this.devisForm.clientName,
       clientEmail: this.devisForm.clientEmail,
       prestationId: this.devisForm.prestationId,
       signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
       tvaRate: 0,
       discount: this.devisForm.discount || 0,
+      guests: this.devisForm.guests,
+      location: this.devisForm.location,
+      date: this.devisForm.date,
+      time: (this.devisForm as any).time,
       status: 'sent',
       items: this.devisForm.items || []
     };
 
-    // Appel à l'API Spring Boot pour enregistrer en base MySQL et envoyer le mail PDF depuis contact@kikitraiteursenegal.net
+    // Étape 2 : Créer/mettre à jour le devis en base
     this.gestionnaireApiService.createOrUpdateDevis(devisPayload).subscribe({
-      next: () => console.log('Devis enregistré dans MySQL et mail PDF envoyé depuis contact@kikitraiteursenegal.net'),
-      error: (e) => console.log('Backend non accessible ou mode simu, continuation locale', e)
+      next: (savedDevis) => {
+        this.currentDevisId = savedDevis?.id || this.currentDevisId;
+        
+        if (this.currentDevisId) {
+          // Étape 3 : Appeler l'API d'envoi d'email avec le PDF
+          this.gestionnaireApiService.sendDevisEmail(this.currentDevisId).subscribe({
+            next: () => {
+              this.isDevisSending = false;
+              this.dataService.showToast(`✅ Devis envoyé par email à ${this.devisForm.clientEmail} !`);
+              this.setStatus(String(reqId), 'sent');
+              this.showDevisModal = false;
+              // Recharger les données API
+              this.loadData();
+            },
+            error: (err) => {
+              this.isDevisSending = false;
+              console.error('Erreur API envoi email', err);
+              this.dataService.showToast(`Devis enregistré, mais erreur lors de l'envoi de l'email.`, true);
+              this.showDevisModal = false;
+              this.loadData();
+            }
+          });
+        } else {
+          this.isDevisSending = false;
+          this.dataService.showToast(`✅ Devis enregistré !`);
+          this.setStatus(String(reqId), 'sent');
+          this.showDevisModal = false;
+          // Recharger les données API
+          this.loadData();
+        }
+      },
+      error: (e) => {
+        this.isDevisSending = false;
+        console.error('Erreur API création devis', e);
+        this.dataService.showToast(`Erreur lors de l'enregistrement du devis.`, true);
+      }
     });
-
-    const existing = this.dataService.getDevisByRequest(reqId);
-    const actionMsg = `Devis envoyé par mail à ${this.devisForm.clientEmail}`;
-    if (existing) {
-      this.dataService.updateDevis(existing.id, {
-        items: this.devisForm.items,
-        tvaRate: 0,
-        discount: this.devisForm.discount,
-        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
-        status: 'sent'
-      }, actionMsg);
-    } else {
-      this.dataService.addDevis({
-        requestId: reqId,
-        items: this.devisForm.items,
-        tvaRate: 0,
-        discount: this.devisForm.discount,
-        signatureGastronomique: (this.devisForm as any).signatureGastronomique || 'Menu Signature Kiki Traiteur',
-        status: 'sent'
-      });
-    }
-    if (reqId) {
-      this.setStatus(String(reqId), 'sent');
-    }
-    this.dataService.showToast(`Devis enregistré et envoyé à ${this.devisForm.clientEmail} ! Statut de la demande passé à Envoyé.`);
-    this.showDevisModal = false;
-    this.loadData();
   }
 
   createDevisDirectly(): void {
@@ -3939,14 +4165,81 @@ export class GestionnaireComponent implements OnInit {
   }
 
   acceptDevisAndCreateEvent(req: any): void {
-    this.dataService.updateRequestStatus(req.id, 'aboutis');
-    const dev = this.dataService.getDevisByRequest(req.id);
-    if (dev) {
-      this.dataService.updateDevis(dev.id, { status: 'conclue' }, 'Devis accepté par le client');
+    const numId = Number(req.id);
+    // Appel API pour mettre à jour le statut en "aboutis"
+    if (!isNaN(numId) && numId > 0) {
+      this.gestionnaireApiService.updateStatus(numId, 'aboutis').subscribe({
+        next: () => {
+          this.dataService.updateRequestStatus(req.id, 'aboutis');
+          this.dataService.showToast("✅ Devis accepté ! Statut mis à jour en 'Aboutis'. Créez maintenant l'événement dans l'agenda.");
+          this.loadData();
+          this.openCreateEventModal(req);
+        },
+        error: () => {
+          // Fallback local
+          this.dataService.updateRequestStatus(req.id, 'aboutis');
+          this.dataService.showToast("Devis accepté (mode local). Créez l'événement dans l'agenda.");
+          this.loadData();
+          this.openCreateEventModal(req);
+        }
+      });
+    } else {
+      this.dataService.updateRequestStatus(req.id, 'aboutis');
+      this.dataService.showToast("Devis accepté ! Ouverture de la création d'événement...");
+      this.loadData();
+      this.openCreateEventModal(req);
     }
-    this.dataService.showToast("Devis accepté par le client ! Statut passé à 'Aboutis'. Ouverture de la création d'événement...");
-    this.loadData();
-    this.openCreateEventModal(req);
+  }
+
+  /**
+   * Télécharge le PDF du devis pour une demande donnée
+   * Ouvre le PDF dans un nouvel onglet
+   */
+  downloadDevisPdfForRequest(req: any): void {
+    if (this.currentDevisId) {
+      this._downloadPdf(this.currentDevisId);
+      return;
+    }
+    const numId = Number(req.id);
+    if (!isNaN(numId) && numId > 0) {
+      this.isDevisDownloading = true;
+      this.gestionnaireApiService.getDevisByDemandeId(numId).subscribe({
+        next: (devis) => {
+          if (devis && devis.id) {
+            this._downloadPdf(devis.id);
+          } else {
+            this.isDevisDownloading = false;
+            this.dataService.showToast('Aucun devis trouvé pour cette demande.', true);
+          }
+        },
+        error: () => {
+          this.isDevisDownloading = false;
+          this.dataService.showToast('Impossible de récupérer le devis depuis le serveur.', true);
+        }
+      });
+    } else {
+      this.dataService.showToast('ID de demande invalide.', true);
+    }
+  }
+
+  _downloadPdf(devisId: number): void {
+    this.isDevisDownloading = true;
+    this.gestionnaireApiService.downloadDevisPdf(devisId).subscribe({
+      next: (blob) => {
+        this.isDevisDownloading = false;
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `Devis_KikiTraiteur_${devisId}.pdf`;
+        link.click();
+        window.URL.revokeObjectURL(url);
+        this.dataService.showToast('📥 PDF du devis téléchargé avec succès !');
+      },
+      error: () => {
+        this.isDevisDownloading = false;
+        this.dataService.showToast('Erreur lors du téléchargement du PDF.', true);
+      }
+    });
   }
 
   rejectDevisFromModal(): void {
@@ -3961,15 +4254,49 @@ export class GestionnaireComponent implements OnInit {
   }
 
   rejectRequest(req: any): void {
-    if (confirm(`Confirmer le refus de la demande #${req.id} pour ${this.getClientName(req.clientId)} ?`)) {
-      this.setStatus(req.id, 'rejected');
-      this.dataService.showToast(`Demande #${req.id} passée au statut 'Refusé'.`);
+    this.requestToReject = req;
+    this.showRejectConfirmModal = true;
+  }
+
+  closeRejectModal(): void {
+    this.showRejectConfirmModal = false;
+    this.requestToReject = null;
+  }
+
+  confirmRejectRequest(): void {
+    if (this.requestToReject) {
+      const reqId = this.requestToReject.id;
+      this.setStatus(reqId, 'rejected');
+      this.dataService.showToast(`Demande #${reqId} refusée avec succès.`);
+      this.closeRejectModal();
     }
   }
 
   openRequestDetailsModal(req: any): void {
     this.currentDetailRequest = req;
     this.showRequestDetailsModal = true;
+    this.currentDetailDevis = null;
+
+    // Charger les infos du devis associé s'il y en a un
+    const numId = Number(req.id);
+    if (!isNaN(numId) && numId > 0) {
+      this.gestionnaireApiService.getDevisByDemandeId(numId).subscribe({
+        next: (devis) => {
+          if (devis && devis.id) {
+            this.currentDetailDevis = devis;
+          }
+        },
+        error: (e) => {
+          // Normal si pas de devis
+        }
+      });
+    }
+  }
+
+  getDetailDevisTotal(): number {
+    if (!this.currentDetailDevis || !this.currentDetailDevis.items) return 0;
+    const sub = this.currentDetailDevis.items.reduce((acc: any, item: any) => acc + (item.unitPrice || 0), 0);
+    return sub - (sub * ((this.currentDetailDevis.discount || 0) / 100));
   }
 
   closeRequestDetailsModal(): void {

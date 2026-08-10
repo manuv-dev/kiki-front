@@ -1,0 +1,232 @@
+        <div class="month-selector-card">
+          <button class="month-nav-btn" (click)="prevMonth()" title="Mois précédent">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <div class="month-display" style="position: relative; cursor: pointer;" title="Cliquer pour choisir n'importe quel mois depuis 1997">
+            <i class="fas fa-calendar-alt calendar-icon"></i>
+            <span>{{ currentMonth }}</span>
+            <input type="month" min="1997-01" [value]="getMonthInputValue()" (change)="onMonthInputChange($event)"
+                   style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;" />
+          </div>
+          <button class="month-nav-btn" (click)="nextMonth()" title="Mois suivant">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+        <section class="dashboard-section active">
+          <div *ngIf="isLoadingStats" style="text-align: center; padding: 2rem;">
+            <i class="fas fa-spinner fa-spin fa-2x"></i>
+            <p>Chargement des statistiques...</p>
+          </div>
+          <!-- 6 KPI Cards Grid -->
+          <div class="kpi-grid" *ngIf="!isLoadingStats && dashboardStats">
+            <!-- 1. DEMANDES REÇUES -->
+            <div class="kpi-card card-dark-maroon">
+              <div class="kpi-header">DEMANDES REÇUES</div>
+              <div class="kpi-body">
+                <div class="kpi-icon-box"><i class="fas fa-inbox"></i></div>
+                <div class="kpi-stat">
+                  <span class="kpi-number">{{ dashboardStats.totalRequests }}</span>
+                  <span class="kpi-sub">pour ce mois</span>
+                </div>
+              </div>
+              <div class="kpi-footer">
+                <i class="fas fa-layer-group me-2"></i> Toutes prestations confondues
+              </div>
+            </div>
+
+            <!-- 2. DEMANDES ABOUTIES -->
+            <div class="kpi-card card-bright-red">
+              <div class="kpi-header">DEMANDES ABOUTIES</div>
+              <div class="kpi-body">
+                <div class="kpi-icon-box"><i class="fas fa-check"></i></div>
+                <div class="kpi-stat">
+                  <span class="kpi-number">{{ dashboardStats.acceptedRequests }}</span>
+                  <span class="kpi-sub">réservations validées</span>
+                </div>
+              </div>
+              <div class="kpi-footer">
+                <i class="fas fa-handshake me-2"></i> Devis signés et confirmés
+              </div>
+            </div>
+
+            <!-- 3. EN ATTENTE DE RÉALISATION -->
+            <div class="kpi-card card-gold">
+              <div class="kpi-header">EN ATTENTE DE RÉALISATION</div>
+              <div class="kpi-body">
+                <div class="kpi-icon-box"><i class="fas fa-hourglass-half"></i></div>
+                <div class="kpi-stat">
+                  <span class="kpi-number">{{ dashboardStats.pendingRequests }}</span>
+                  <span class="kpi-sub">à confirmer ce mois-ci</span>
+                </div>
+              </div>
+              <div class="kpi-footer">
+                <i class="fas fa-clock me-2"></i> Statuts : En attente / Devis émis
+              </div>
+            </div>
+
+            <!-- 4. TAUX DE CONVERSION -->
+            <div class="kpi-card card-white">
+              <div class="kpi-header">TAUX DE CONVERSION</div>
+              <div class="kpi-body">
+                <div class="kpi-icon-box"><i class="fas fa-percentage"></i></div>
+                <div class="kpi-stat">
+                  <span class="kpi-number">{{ dashboardStats.conversionRate }} %</span>
+                  <span class="kpi-sub">abouties / reçues</span>
+                </div>
+              </div>
+              <div class="kpi-footer">
+                <i class="fas fa-chart-line me-2"></i> Performance commerciale mensuelle
+              </div>
+            </div>
+
+            <!-- 5. CLIENTS & ENTREPRISES -->
+            <div class="kpi-card card-navy">
+              <div class="kpi-header">CLIENTS & ENTREPRISES</div>
+              <div class="kpi-body">
+                <div class="kpi-icon-box"><i class="fas fa-users"></i></div>
+                <div class="kpi-stat">
+                  <span class="kpi-number">{{ dashboardStats.totalClients }}</span>
+                  <span class="kpi-sub">inscrits dans l'ERP</span>
+                </div>
+              </div>
+              <div class="kpi-footer">
+                <i class="fas fa-user me-2"></i> {{ dashboardStats.particuliersCount }} Particuliers / {{ dashboardStats.entreprisesCount }} Entreprises
+              </div>
+            </div>
+
+            <!-- 6. EN ATTENTE DE VALIDATION -->
+            <div class="kpi-card card-amber">
+              <div class="kpi-header">EN ATTENTE DE VALIDATION</div>
+              <div class="kpi-body">
+                <div class="kpi-icon-box"><i class="fas fa-exclamation-triangle"></i></div>
+                <div class="kpi-stat">
+                  <span class="kpi-number">{{ dashboardStats.urgentRequests }}</span>
+                  <span class="kpi-sub">demandes urgentes</span>
+                </div>
+              </div>
+              <div class="kpi-footer">
+                <i class="fas fa-bolt me-2"></i> Action requise du gestionnaire
+              </div>
+            </div>
+          </div>
+
+          <!-- Dashboard Bottom Grid -->
+          <div class="dashboard-bottom-grid">
+            <!-- LEFT COLUMN: LINE CHART -->
+            <div class="chart-card">
+              <div class="chart-header">
+                <div class="chart-title">
+                  <i class="fas fa-chart-line me-2" style="color: #DC2626;"></i>
+                  <span>ÉVOLUTION DES DEMANDES</span>
+                </div>
+                <p class="chart-subtitle">Courbe sur les 6 derniers mois – par type de prestation</p>
+              </div>
+
+              <!-- FILTER TABS -->
+              <div class="chart-filter-pills">
+                <button *ngFor="let tab of chartTabs" 
+                        class="chart-pill-btn" 
+                        [class.active]="selectedChartFilter === tab" 
+                        (click)="selectedChartFilter = tab">
+                  {{ tab }}
+                </button>
+              </div>
+
+              <!-- SVG LINE CHART -->
+              <div class="svg-chart-container">
+                <svg viewBox="0 0 560 215" class="svg-chart">
+                  <!-- Gradient definition -->
+                  <defs>
+                    <linearGradient id="maroonGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#7A1C1C" stop-opacity="0.25" />
+                      <stop offset="100%" stop-color="#7A1C1C" stop-opacity="0.01" />
+                    </linearGradient>
+                  </defs>
+
+                  <!-- Horizontal Grid lines & Y Labels -->
+                  <line x1="55" y1="20" x2="540" y2="20" stroke="#E2E8F0" stroke-width="1" />
+                  <text x="35" y="24" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">{{ getChartYLabel3() }}</text>
+
+                  <line x1="55" y1="70" x2="540" y2="70" stroke="#E2E8F0" stroke-width="1" />
+                  <text x="35" y="74" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">{{ getChartYLabel2() }}</text>
+
+                  <line x1="55" y1="120" x2="540" y2="120" stroke="#E2E8F0" stroke-width="1" />
+                  <text x="35" y="124" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">{{ getChartYLabel1() }}</text>
+
+                  <line x1="55" y1="170" x2="540" y2="170" stroke="#CBD5E1" stroke-width="1.5" />
+                  <text x="35" y="174" fill="#64748B" font-size="11" text-anchor="end" font-family="Poppins, sans-serif">0</text>
+
+
+                  <!-- Shaded Area Under Curve -->
+                  <path [attr.d]="getChartAreaPath()" fill="url(#maroonGradient)" />
+
+                  <!-- Line Curve -->
+                  <path [attr.d]="getChartPath()" fill="none" stroke="#7A1C1C" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+                  <!-- Data Point Dots & Month Labels -->
+                  <g *ngFor="let pt of getChartPoints()">
+                    <circle [attr.cx]="pt.x" [attr.cy]="pt.y" [attr.r]="pt.isLast ? 5 : 3.5" 
+                            fill="#7A1C1C" [attr.stroke]="pt.isLast ? '#FFFFFF' : 'none'" 
+                            [attr.stroke-width]="pt.isLast ? 2 : 0" />
+                    <text [attr.x]="pt.x" y="198" fill="#64748B" font-size="11" text-anchor="middle" font-family="Poppins, sans-serif">{{ pt.label }}</text>
+                  </g>
+                </svg>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: STACKED CARDS -->
+            <div class="right-stacked-cards">
+              <!-- TOP CARD: DISPONIBILITÉ & BLOCAGES -->
+              <div class="side-card">
+                <div class="side-card-title">
+                  <i class="fas fa-shield-alt me-2" style="color: #DC2626;"></i>
+                  <span>DISPONIBILITÉ & BLOCAGES</span>
+                </div>
+
+                <div class="conflict-box">
+                  <div class="conflict-item">
+                    <div class="conflict-num green-text">{{ getActiveConflictsCount() }}</div>
+                    <div class="conflict-label">CONFLIT ACTIF</div>
+                  </div>
+                  <div class="conflict-divider"></div>
+                  <div class="conflict-item">
+                    <div class="conflict-num orange-text">{{ getRoomBlockedCount() }}</div>
+                    <div class="conflict-label">BLOCAGE SALLE</div>
+                  </div>
+                </div>
+
+                <a routerLink="/gestionnaire/agenda" class="side-card-link">
+                  GÉRER LE CALENDRIER <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+              </div>
+
+              <!-- BOTTOM CARD: FLUX DES DEMANDES RÉCENTES -->
+              <div class="side-card">
+                <div class="side-card-title">
+                  <i class="fas fa-bars me-2" style="color: #DC2626;"></i>
+                  <span>FLUX DES DEMANDES RÉCENTES</span>
+                </div>
+
+                <div class="recent-requests-list">
+                  <div *ngIf="!getRecentRequestsFeed() || getRecentRequestsFeed().length === 0" style="padding: 1.5rem; text-align: center; color: #94A3B8; font-size: 0.9rem;">
+                    Aucune demande en base de données pour ce mois.
+                  </div>
+                  <div class="recent-item" *ngFor="let item of getRecentRequestsFeed()">
+                    <div class="recent-left">
+                      <span class="dot" [ngStyle]="{'background-color': item.dotColor}"></span>
+                      <span class="recent-name">{{ item.name }}</span>
+                    </div>
+                    <div class="recent-right">
+                      <span class="recent-badge">{{ item.badge }}</span>
+                      <span class="recent-date">{{ item.date }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <a routerLink="/gestionnaire/demandes" class="side-card-link">
+                  VOIR TOUTES LES DEMANDES <i class="fas fa-arrow-right ms-1"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>

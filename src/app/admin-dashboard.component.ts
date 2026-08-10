@@ -78,43 +78,111 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
 
         <!-- TAB 1: DASHBOARD -->
         <section *ngIf="activeTab === 'dashboard'" class="dashboard-section active">
-          <!-- Stats cards grid -->
-          <div class="admin-card-grid">
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <span>Chiffre d'Affaires Validé</span>
-                <span>HT</span>
+          <!-- STATS CARDS -->
+          <div class="stats-grid">
+            
+            <div class="stat-card" style="background: #5C2018; color: white;" *ngIf="!isLoadingStats">
+              <div class="stat-icon" style="background: rgba(255, 255, 255, 0.1); color: white;">
+                <i class="fas fa-inbox"></i>
               </div>
-              <div class="admin-card-value">{{ totalRevenue.toLocaleString('fr-FR') }} XOF</div>
-              <div class="admin-card-trend up">↗ +12% ce mois</div>
+              <div class="stat-details">
+                <span class="stat-label" style="color: rgba(255, 255, 255, 0.8);">DEMANDES REÇUES</span>
+                <span class="stat-value" style="color: white;">{{dashboardStats.totalRequests}}</span>
+                <span class="stat-trend" style="color: rgba(255, 255, 255, 0.6); font-weight: normal; font-size: 0.85rem;">pour ce mois</span>
+              </div>
+              <div style="width: 100%; border-top: 1px solid rgba(255,255,255,0.1); margin-top: 1rem; padding-top: 0.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.7); grid-column: span 2;">
+                <i class="fas fa-layer-group me-1"></i>Toutes prestations confondues
+              </div>
+            </div>
+            <div class="stat-card" *ngIf="isLoadingStats" style="display: flex; justify-content: center; align-items: center; background: #5C2018;">
+               <div class="spinner-border" style="width: 2rem; height: 2rem; color: white; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             </div>
 
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <span>Taux de Conversion</span>
-                <span>Devis</span>
+            <div class="stat-card" style="background: #DC2626; color: white;" *ngIf="!isLoadingStats">
+              <div class="stat-icon" style="background: rgba(255, 255, 255, 0.2); color: white;">
+                <i class="fas fa-check-circle"></i>
               </div>
-              <div class="admin-card-value">{{ conversionRate }}%</div>
-              <div class="admin-card-trend up">↗ Objectif 60%</div>
+              <div class="stat-details">
+                <span class="stat-label" style="color: rgba(255, 255, 255, 0.8);">DEMANDES ABOUTIES</span>
+                <span class="stat-value" style="color: white;">{{dashboardStats.acceptedRequests}}</span>
+                <span class="stat-trend" style="color: rgba(255, 255, 255, 0.8); font-weight: normal; font-size: 0.85rem;">réservations validées</span>
+              </div>
+              <div style="width: 100%; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.1); margin: 1rem -1.5rem -1.5rem -1.5rem; padding: 0.7rem 1.5rem; font-size: 0.8rem; color: white; grid-column: span 2;">
+                <i class="fas fa-handshake me-1"></i>Devis signés et confirmés
+              </div>
+            </div>
+            <div class="stat-card" *ngIf="isLoadingStats" style="display: flex; justify-content: center; align-items: center; background: #DC2626;">
+               <div class="spinner-border" style="width: 2rem; height: 2rem; color: white; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             </div>
 
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <span>Réservations Salle Diva</span>
-                <span>Événements</span>
+            <div class="stat-card" style="background: #A1A178; color: white;" *ngIf="!isLoadingStats">
+              <div class="stat-icon" style="background: rgba(255, 255, 255, 0.2); color: white;">
+                <i class="fas fa-hourglass-half"></i>
               </div>
-              <div class="admin-card-value">{{ divaCount }}</div>
-              <div class="admin-card-trend">Salle occupée</div>
+              <div class="stat-details">
+                <span class="stat-label" style="color: rgba(255, 255, 255, 0.9);">EN ATTENTE DE RÉALISATION</span>
+                <span class="stat-value" style="color: white;">{{dashboardStats.pendingRequests}}</span>
+                <span class="stat-trend" style="color: rgba(255, 255, 255, 0.9); font-weight: normal; font-size: 0.85rem;">à confirmer ce mois-ci</span>
+              </div>
+              <div style="width: 100%; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.1); margin: 1rem -1.5rem -1.5rem -1.5rem; padding: 0.7rem 1.5rem; font-size: 0.8rem; color: white; grid-column: span 2;">
+                <i class="fas fa-clock me-1"></i>Statuts : En attente / Devis émis
+              </div>
+            </div>
+            <div class="stat-card" *ngIf="isLoadingStats" style="display: flex; justify-content: center; align-items: center; background: #A1A178;">
+               <div class="spinner-border" style="width: 2rem; height: 2rem; color: white; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
             </div>
 
-            <div class="admin-card">
-              <div class="admin-card-header">
-                <span>Fichier Clients</span>
-                <span>Profils</span>
+            <div class="stat-card" style="background: white; border: 1px solid #E2E8F0;" *ngIf="!isLoadingStats">
+              <div class="stat-icon" style="background: #F8FAFC; color: #475569; border: 1px solid #E2E8F0;">
+                <i class="fas fa-percent"></i>
               </div>
-              <div class="admin-card-value">{{ clients.length }}</div>
-              <div class="admin-card-trend up">↗ Actifs</div>
+              <div class="stat-details">
+                <span class="stat-label" style="color: #7A1C1C;">TAUX DE CONVERSION</span>
+                <span class="stat-value" style="color: #1E293B;">{{dashboardStats.conversionRate}} <small style="font-size: 1.2rem; font-weight: 500; color: #64748B;">%</small></span>
+                <span class="stat-trend" style="color: #64748B; font-weight: normal; font-size: 0.85rem;">abouties / reçues</span>
+              </div>
+              <div style="width: 100%; border-top: 1px solid #E2E8F0; background: #F8FAFC; margin: 1rem -1.5rem -1.5rem -1.5rem; padding: 0.7rem 1.5rem; font-size: 0.8rem; color: #475569; grid-column: span 2;">
+                <i class="fas fa-chart-line me-1"></i>Performance commerciale mensuelle
+              </div>
             </div>
+            <div class="stat-card" *ngIf="isLoadingStats" style="display: flex; justify-content: center; align-items: center; background: white; border: 1px solid #E2E8F0;">
+               <div class="spinner-border" style="width: 2rem; height: 2rem; color: #7A1C1C; border: 3px solid rgba(122, 28, 28, 0.3); border-top-color: #7A1C1C; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+
+            <div class="stat-card" style="background: #1E293B; color: white;" *ngIf="!isLoadingStats">
+              <div class="stat-icon" style="background: rgba(255, 255, 255, 0.1); color: white;">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-label" style="color: rgba(255, 255, 255, 0.8);">CLIENTS & ENTREPRISES</span>
+                <span class="stat-value" style="color: white;">{{dashboardStats.totalClients}}</span>
+                <span class="stat-trend" style="color: rgba(255, 255, 255, 0.7); font-weight: normal; font-size: 0.85rem;">inscrits dans l'ERP</span>
+              </div>
+              <div style="width: 100%; border-top: 1px solid rgba(0,0,0,0.2); background: #0F172A; margin: 1rem -1.5rem -1.5rem -1.5rem; padding: 0.7rem 1.5rem; font-size: 0.8rem; color: rgba(255,255,255,0.9); grid-column: span 2;">
+                <i class="fas fa-user me-1"></i>{{dashboardStats.particuliersCount}} Particulier / {{dashboardStats.entreprisesCount}} Entreprise
+              </div>
+            </div>
+            <div class="stat-card" *ngIf="isLoadingStats" style="display: flex; justify-content: center; align-items: center; background: #1E293B;">
+               <div class="spinner-border" style="width: 2rem; height: 2rem; color: white; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+
+            <div class="stat-card" style="background: #D97706; color: white;" *ngIf="!isLoadingStats">
+              <div class="stat-icon" style="background: rgba(255, 255, 255, 0.2); color: white;">
+                <i class="fas fa-exclamation-triangle"></i>
+              </div>
+              <div class="stat-details">
+                <span class="stat-label" style="color: rgba(255, 255, 255, 0.9);">EN ATTENTE DE VALIDATION</span>
+                <span class="stat-value" style="color: white;">{{dashboardStats.urgentRequests}}</span>
+                <span class="stat-trend" style="color: rgba(255, 255, 255, 0.9); font-weight: normal; font-size: 0.85rem;">demandes urgentes</span>
+              </div>
+              <div style="width: 100%; border-top: 1px solid rgba(0,0,0,0.1); background: rgba(0,0,0,0.15); margin: 1rem -1.5rem -1.5rem -1.5rem; padding: 0.7rem 1.5rem; font-size: 0.8rem; color: white; grid-column: span 2;">
+                <i class="fas fa-bolt me-1"></i>Action requise du gestionnaire
+              </div>
+            </div>
+            <div class="stat-card" *ngIf="isLoadingStats" style="display: flex; justify-content: center; align-items: center; background: #D97706;">
+               <div class="spinner-border" style="width: 2rem; height: 2rem; color: white; border: 3px solid rgba(255, 255, 255, 0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+            </div>
+
           </div>
 
           <!-- Recent requests table -->
@@ -356,9 +424,17 @@ export class AdminDashboardComponent implements OnInit {
   requests: any[] = [];
   clients: any[] = [];
 
-  totalRevenue = 0;
-  conversionRate = 0;
-  divaCount = 0;
+  dashboardStats: any = {
+    totalRequests: 0,
+    acceptedRequests: 0,
+    pendingRequests: 0,
+    urgentRequests: 0,
+    conversionRate: 0,
+    totalClients: 0,
+    particuliersCount: 0,
+    entreprisesCount: 0
+  };
+  isLoadingStats = false;
 
   settings = {
     companyName: 'Kiki Traiteur SAS',
@@ -409,26 +485,32 @@ export class AdminDashboardComponent implements OnInit {
       error: (err) => console.warn('API Gestionnaire getAllDemandes non accessible pour AdminDashboard', err)
     });
 
+    this.isLoadingStats = true;
     this.gestionnaireApiService.getDashboardStats().subscribe({
       next: (stats) => {
         if (stats) {
-          this.totalRevenue = Number(stats.totalRevenue) || 0;
-          this.conversionRate = Math.round(Number(stats.conversionRate) || 0);
+          this.dashboardStats = {
+            totalRequests: Number(stats.totalRequests) || 0,
+            acceptedRequests: Number(stats.acceptedRequests) || 0,
+            pendingRequests: Number(stats.pendingRequests) || 0,
+            urgentRequests: Number(stats.urgentRequests) || 0,
+            conversionRate: Math.round(Number(stats.conversionRate) || 0),
+            totalClients: Number(stats.totalClients) || 0,
+            particuliersCount: Number(stats.particuliersCount) || 0,
+            entreprisesCount: Number(stats.entreprisesCount) || 0
+          };
         }
+        this.isLoadingStats = false;
       },
-      error: (err) => console.warn('API Gestionnaire stats non accessible pour AdminDashboard', err)
+      error: (err) => {
+        console.warn('API Gestionnaire stats non accessible pour AdminDashboard', err);
+        this.isLoadingStats = false;
+      }
     });
   }
 
   updateLocalMetrics(): void {
-    this.totalRevenue = this.requests
-      .filter(r => r.status === 'accepted' || r.status === 'approved')
-      .reduce((acc, r) => acc + (this.getUnitPrice(r.prestationId) * (r.guests || 50)), 0);
-
-    const total = this.requests.length;
-    const accepted = this.requests.filter(r => r.status === 'accepted' || r.status === 'approved').length;
-    this.conversionRate = total > 0 ? Math.round((accepted / total) * 100) : 0;
-    this.divaCount = this.requests.filter(r => r.prestationId === 'salle-diva').length;
+    // Relying on stats from API now
   }
 
   getTitle(): string {
