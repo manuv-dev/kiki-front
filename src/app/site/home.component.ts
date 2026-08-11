@@ -14,7 +14,7 @@ import { KikiDataService } from '../services/kiki-data.service';
       <div class="hbgtxt">TRAITEUR</div>
       <div class="container hero-grid">
         <div class="hero-content animate-fade">
-          <h1>La Poésie des Saveurs & <span>l'Art Culinaire</span></h1>
+          <h1>La poêle des <span>souvenirs</span></h1>
           <p class="hero-desc">Une expérience gastronomique inégalée depuis 1997. Kiki Traiteur orchestre vos réceptions
             privées et professionnelles et met à votre disposition la prestigieuse salle La Diva.</p>
 
@@ -29,23 +29,18 @@ import { KikiDataService } from '../services/kiki-data.service';
 
           <div class="hstats">
             <div class="hstat">
-              <span class="snum">25<em>+</em></span>
+              <span class="snum">30</span>
               <small>Ans d'expérience</small>
             </div>
             <div class="sdiv"></div>
             <div class="hstat">
-              <span class="snum">500<em>+</em></span>
+              <span class="snum">1000<em>+</em></span>
               <small>Événements gérés</small>
             </div>
             <div class="sdiv"></div>
             <div class="hstat">
-              <span class="snum">250</span>
+              <span class="snum">400</span>
               <small>Capacité La Diva</small>
-            </div>
-            <div class="sdiv"></div>
-            <div class="hstat">
-              <span class="snum">100%</span>
-              <small>Fait Maison</small>
             </div>
           </div>
         </div>
@@ -59,37 +54,34 @@ import { KikiDataService } from '../services/kiki-data.service';
             </div>
 
             <div class="fcard fc1">
-              <div class="fcoi r"><i class="fas fa-fire"></i></div>
+              <div class="fcoi r"><i class="fas fa-glass-cheers"></i></div>
               <div>
-                <span class="fcnum">Salle La Diva</span>
-                <span class="fcsm">Espace de réception exclusif</span>
+                <span class="fcnum">Événementiel</span>
+                <span class="fcsm">Mariages & Réceptions</span>
               </div>
             </div>
 
             <div class="fcard fc2">
-              <div class="fcoi y"><i class="fas fa-star"></i></div>
+              <div class="fcoi y"><i class="fas fa-briefcase"></i></div>
               <div>
-                <span class="fcnum">4.9/5 Avis</span>
-                <span class="fcsm">Plus de 2k+ avis positifs</span>
+                <span class="fcnum">Entreprise</span>
+                <span class="fcsm">Restauration corporate</span>
               </div>
             </div>
 
             <div class="fcard fc3">
-              <div class="steam-pan-wrapper"
-                style="margin: 0; margin-right: 0.75rem; display: flex; align-items: center; justify-content: center; position: relative; width: 45px; height: 45px; background: rgba(56, 125, 34, 0.1); border-radius: 50%;">
-                <div class="steam-cloud" style="top: -6px;">
-                  <span></span>
-                  <span></span>
-                  <span></span>
-                </div>
-                <div class="steam-pan-icon"
-                  style="font-size: 1.4rem; color: #387D22; animation: pan-bounce 3s infinite ease-in-out;">
-                  <i class="fa-solid fa-bowl-food"></i>
-                </div>
-              </div>
+              <div class="fcoi g"><i class="fas fa-shopping-bag"></i></div>
               <div>
-                <span class="fcnum">Fait Maison</span>
-                <span class="fcsm">Produits frais & locaux</span>
+                <span class="fcnum">À emporter</span>
+                <span class="fcsm">Plats frais & locaux</span>
+              </div>
+            </div>
+
+            <div class="fcard fc4">
+              <div class="fcoi" style="background-color: var(--primary-dark);"><i class="fas fa-building"></i></div>
+              <div>
+                <span class="fcnum">Salle La Diva</span>
+                <span class="fcsm">Espace de réception</span>
               </div>
             </div>
           </div>
@@ -144,37 +136,67 @@ import { KikiDataService } from '../services/kiki-data.service';
       </div>
     </section>
 
-    <!-- CLIENTS DE CONFIANCE SECTION -->
-    <section class="section-padding clients-section-bg">
+    <!-- CLIENTS DE CONFIANCE SECTION (SLIDER AUTOMATIQUE) -->
+    <section class="section-padding clients-section-bg" style="overflow: hidden;">
       <div class="container" style="position: relative; z-index: 2;">
         <div class="section-header animate-fade" style="text-align: center;">
           <span class="slbl" style="color: #FFFFFF; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.9rem;">Ils nous font confiance</span>
           <h2 style="font-size: 2.5rem; color: #fff; margin-bottom: 1.5rem; margin-top: 1rem; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,0.15);">Des institutions prestigieuses & clients de renom</h2>
-          <div class="sline" style="background: rgba(255, 255, 255, 0.4); height: 3px;"></div>
+          <div class="sline" style="background: rgba(255, 255, 255, 0.4); height: 3px; margin: 0 auto;"></div>
         </div>
 
-        <div class="clients-grid animate-fade delay-1" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2.5rem; margin-top: 4rem; align-items: center;">
+        <div class="slider-wrapper animate-fade delay-1" style="position: relative; margin-top: 4rem; display: flex; align-items: center;" (mouseenter)="pauseAutoScroll()" (mouseleave)="resumeAutoScroll()">
           
-          <div class="client-card animate-fade">
-            <div style="min-width: 90px; flex-shrink: 0;">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyYHcfvSND2RnyBQ7HAEpPhHnOgLYAv1CkZtI9kCj1vw&s=10" alt="Sonatel" style="width: 90px; height: 90px; object-fit: contain; background: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+          <!-- Bouton Gauche -->
+          <button (click)="scrollSlider('left')" style="position: absolute; left: -25px; z-index: 10; background: #fff; border: 1px solid #eaeaea; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: var(--primary-dark); font-size: 1.2rem;">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+
+          <style>
+            #clients-slider::-webkit-scrollbar { display: none; }
+            #clients-slider { -ms-overflow-style: none; scrollbar-width: none; }
+            .client-logo-card {
+              flex: 0 0 auto;
+              width: 220px;
+              height: 220px;
+              background: #fff;
+              border-radius: 24px;
+              box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 2rem;
+              transition: transform 0.3s ease;
+            }
+            .client-logo-card:hover {
+              transform: translateY(-5px);
+              box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+            }
+          </style>
+          
+          <div id="clients-slider" style="display: flex; gap: 2.5rem; overflow-x: auto; scroll-behavior: smooth; padding: 2rem 1rem; width: 100%;">
+            <!-- 3 sets identiques pour permettre un scroll infini parfait sans saut -->
+            <div id="logo-set-1" style="display: flex; gap: 2.5rem; flex: 0 0 auto;">
+              <div *ngFor="let logo of clientLogos" class="client-logo-card">
+                <img [src]="'assets/images/' + logo" alt="Client Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
             </div>
-            <div>
-              <h3 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.5rem; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.2);">SONATEL</h3>
-              <p style="color: rgba(255, 255, 255, 0.95); font-size: 0.95rem; line-height: 1.6; font-weight: 500;">Partenaire institutionnel majeur pour la haute restauration d'affaires</p>
+            <div id="logo-set-2" style="display: flex; gap: 2.5rem; flex: 0 0 auto;">
+              <div *ngFor="let logo of clientLogos" class="client-logo-card">
+                <img [src]="'assets/images/' + logo" alt="Client Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
+            </div>
+            <div id="logo-set-3" style="display: flex; gap: 2.5rem; flex: 0 0 auto;">
+              <div *ngFor="let logo of clientLogos" class="client-logo-card">
+                <img [src]="'assets/images/' + logo" alt="Client Logo" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+              </div>
             </div>
           </div>
-
-          <div class="client-card animate-fade">
-            <div style="min-width: 90px; flex-shrink: 0;">
-              <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0S8i_6PP9r-u5jmt8xanVHaxhwyTV17OUlNFzz27OPw&s=10" alt="Groupe ISM" style="width: 90px; height: 90px; object-fit: contain; background: rgba(255, 255, 255, 0.95); padding: 10px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            </div>
-            <div>
-              <h3 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.5rem; color: #fff; text-shadow: 0 1px 4px rgba(0,0,0,0.2);">GROUPE ISM</h3>
-              <p style="color: rgba(255, 255, 255, 0.95); font-size: 0.95rem; line-height: 1.6; font-weight: 500;">Partenaire académique d'excellence pour nos événements de prestige</p>
-            </div>
-          </div>
-
+          
+          <!-- Bouton Droite -->
+          <button (click)="scrollSlider('right')" style="position: absolute; right: -25px; z-index: 10; background: #fff; border: 1px solid #eaeaea; border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); color: var(--primary-dark); font-size: 1.2rem;">
+            <i class="fas fa-chevron-right"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -393,9 +415,9 @@ import { KikiDataService } from '../services/kiki-data.service';
       style="text-align: center; border-top: 1px solid var(--border-color);">
       <div class="container animate-fade">
         <span class="slbl">Salle La Diva</span>
-        <h2 style="font-size: 2.5rem; font-weight:900; color:var(--primary-dark); margin-bottom: 1.5rem;">Préparez votre
+        <h2 class="diva-title" style="font-weight:900; color:var(--primary-dark); margin-bottom: 1.5rem;">Préparez votre
           événement à la Salle La Diva</h2>
-        <p style="color: var(--text-muted); max-width: 650px; margin: 0 auto 2.5rem auto;">Notre équipe commerciale vous
+        <p class="diva-desc" style="color: var(--text-muted); max-width: 650px; margin: 0 auto 2.5rem auto;">Notre équipe commerciale vous
           contactera rapidement après avoir reçu votre demande de réservation pour la salle La Diva afin de planifier
           une visite et vous proposer une offre personnalisée.</p>
         <a routerLink="/devis" [queryParams]="{prestation: 'salle-diva'}" class="btn-red" style="font-size: 1.1rem; padding: 1rem 2.5rem;"><i class="fas fa-calendar-check me-2"></i> Réserver La Diva maintenant</a>
@@ -441,6 +463,14 @@ import { KikiDataService } from '../services/kiki-data.service';
     .testimonial-card {
       color: var(--text-main);
     }
+    .diva-title { font-size: 2.5rem; }
+    .diva-desc { font-size: 1rem; }
+    
+    @media (max-width: 768px) {
+      .diva-title { font-size: 1.8rem; line-height: 1.2; margin-bottom: 1rem !important; padding: 0 10px; }
+      .diva-desc { font-size: 0.95rem; margin-bottom: 1.5rem !important; padding: 0 15px; }
+      .section-diva-banner { padding: 3rem 0; }
+    }
     `
   ]
 })
@@ -449,11 +479,83 @@ export class HomeComponent implements OnInit, OnDestroy {
   currentTestimonial = 0;
   private timer: any;
 
+  isContactFormVisible = false;
+
+  clientLogos = [
+    'CICAD.png',
+    'ELTON.png',
+    'ICS-INDORAMA.png',
+    'ISM.png',
+    'MSC.png',
+    'SENICO.png',
+    'SONATEL.png',
+    'TOTAL ENERGIES.png',
+    'apave_news.png'
+  ];
+
+  private autoScrollInterval: any;
+
+  scrollSlider(direction: 'left' | 'right') {
+    const slider = document.getElementById('clients-slider');
+    const set1 = document.getElementById('logo-set-1');
+    if (slider && set1) {
+      const gap = parseFloat(getComputedStyle(set1).gap) || 40;
+      const setWidth = set1.offsetWidth + gap;
+
+      slider.style.scrollBehavior = 'auto'; // Désactiver temporairement le smooth pour un reset invisible
+      
+      if (direction === 'left' && slider.scrollLeft <= 0) {
+         slider.scrollLeft += setWidth;
+      } else if (direction === 'right' && slider.scrollLeft >= setWidth * 2) {
+         slider.scrollLeft -= setWidth;
+      }
+      
+      // Forcer le recalcul du layout pour appliquer le reset immédiatement
+      void slider.offsetWidth;
+      
+      slider.style.scrollBehavior = 'smooth';
+      const scrollAmount = 260; // Approximativement la largeur d'une carte + gap
+      slider.scrollBy({ left: direction === 'left' ? -scrollAmount : scrollAmount });
+    }
+  }
+
+  startAutoScroll() {
+    if (typeof window !== 'undefined') {
+      this.autoScrollInterval = setInterval(() => {
+        const slider = document.getElementById('clients-slider');
+        const set1 = document.getElementById('logo-set-1');
+        if (slider && set1) {
+          slider.style.scrollBehavior = 'auto';
+          slider.scrollLeft += 1; // Défilement très doux d'1px
+          
+          // Boucle infinie parfaite
+          const gap = parseFloat(getComputedStyle(set1).gap) || 40;
+          const setWidth = set1.offsetWidth + gap;
+          if (slider.scrollLeft >= setWidth) {
+             slider.scrollLeft -= setWidth; 
+          }
+        }
+      }, 25); // 25ms = animation fluide et douce
+    }
+  }
+
+  pauseAutoScroll() {
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
+    }
+  }
+
+  resumeAutoScroll() {
+    this.startAutoScroll();
+  }
+
   testimonials: any[] = [];
 
   constructor(private dataService: KikiDataService, private http: HttpClient) {}
 
   ngOnInit(): void {
+    this.startAutoScroll();
+    
     this.http.get<any>('https://kiki-backend-iuyo.onrender.com/api/temoignages').subscribe({
       next: (res) => {
         const data = Array.isArray(res) ? res : (res && Array.isArray(res.content) ? res.content : (res && Array.isArray(res.value) ? res.value : (res && Array.isArray(res.data) ? res.data : (res && Array.isArray(res.items) ? res.items : []))));
@@ -486,6 +588,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.timer) {
       clearInterval(this.timer);
+    }
+    if (this.autoScrollInterval) {
+      clearInterval(this.autoScrollInterval);
     }
   }
 
