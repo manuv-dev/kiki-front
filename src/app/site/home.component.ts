@@ -46,8 +46,8 @@ import { KikiDataService } from '../services/kiki-data.service';
         </div>
 
         <!-- Floating Circle Hero Image (Sarab style) -->
-        <div class="hero-media animate-fade delay-1">
-          <div style="position:relative; text-align:center;">
+        <div class="hero-media animate-fade delay-1" style="text-align: center; width: 100%;">
+          <div style="position:relative; display: inline-block;">
             <div class="hcircle">
               <img src="https://images.unsplash.com/photo-1555244162-803834f70033?q=80&w=800"
                 alt="Gastronomie Kiki Traiteur">
@@ -138,11 +138,12 @@ import { KikiDataService } from '../services/kiki-data.service';
 
     <!-- CLIENTS DE CONFIANCE SECTION (SLIDER AUTOMATIQUE) -->
     <section class="section-padding clients-section-bg" style="overflow: hidden;">
+      <div class="vision-overlay" style="position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(250, 248, 245, 0.85); z-index: 1;"></div>
       <div class="container" style="position: relative; z-index: 2;">
         <div class="section-header animate-fade" style="text-align: center;">
-          <span class="slbl" style="color: #FFFFFF; text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.9rem;">Ils nous font confiance</span>
-          <h2 style="font-size: 2.5rem; color: #fff; margin-bottom: 1.5rem; margin-top: 1rem; font-weight: 900; text-shadow: 0 2px 8px rgba(0,0,0,0.15);">Des institutions prestigieuses & clients de renom</h2>
-          <div class="sline" style="background: rgba(255, 255, 255, 0.4); height: 3px; margin: 0 auto;"></div>
+          <span class="slbl" style="color: var(--primary-dark); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; font-size: 0.9rem;">Ils nous font confiance</span>
+          <h2 style="font-size: 2.5rem; color: var(--primary-dark) !important; margin-bottom: 1.5rem; margin-top: 1rem; font-weight: 900; text-shadow: none;">Des institutions prestigieuses & clients de renom</h2>
+          <div class="sline" style="background: var(--primary-color); height: 3px; margin: 0 auto;"></div>
         </div>
 
         <div class="slider-wrapper animate-fade delay-1" style="position: relative; margin-top: 4rem; display: flex; align-items: center;" (mouseenter)="pauseAutoScroll()" (mouseleave)="resumeAutoScroll()">
@@ -420,7 +421,7 @@ import { KikiDataService } from '../services/kiki-data.service';
         <p class="diva-desc" style="color: var(--text-muted); max-width: 650px; margin: 0 auto 2.5rem auto;">Notre équipe commerciale vous
           contactera rapidement après avoir reçu votre demande de réservation pour la salle La Diva afin de planifier
           une visite et vous proposer une offre personnalisée.</p>
-        <a routerLink="/devis" [queryParams]="{prestation: 'salle-diva'}" class="btn-red" style="font-size: 1.1rem; padding: 1rem 2.5rem;"><i class="fas fa-calendar-check me-2"></i> Réserver La Diva maintenant</a>
+        <a routerLink="/devis" [queryParams]="{prestation: 'salle-diva'}" class="btn-red btn-diva-banner"><i class="fas fa-calendar-check me-2"></i> Réserver La Diva maintenant</a>
       </div>
     </section>
   `,
@@ -428,12 +429,11 @@ import { KikiDataService } from '../services/kiki-data.service';
     `
     :host { display: block; }
     .clients-section-bg {
-      background: linear-gradient(135deg, rgba(114, 21, 19, 0.82) 0%, rgba(85, 15, 14, 0.90) 100%),
-        url('/assets/images/KIKI TRAITEUR Logo animé [Récupéré].png');
+      background: url('/assets/images/KIKI TRAITEUR Logo animé Beige.png');
       background-size: cover;
       background-position: center;
+      background-attachment: fixed;
       background-repeat: no-repeat;
-      color: #fff;
       position: relative;
     }
     .client-card {
@@ -465,11 +465,23 @@ import { KikiDataService } from '../services/kiki-data.service';
     }
     .diva-title { font-size: 2.5rem; }
     .diva-desc { font-size: 1rem; }
+    .btn-diva-banner {
+      font-size: 1.1rem;
+      padding: 1rem 2.5rem;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
     
     @media (max-width: 768px) {
       .diva-title { font-size: 1.8rem; line-height: 1.2; margin-bottom: 1rem !important; padding: 0 10px; }
       .diva-desc { font-size: 0.95rem; margin-bottom: 1.5rem !important; padding: 0 15px; }
       .section-diva-banner { padding: 3rem 0; }
+      .btn-diva-banner {
+        font-size: 0.9rem;
+        padding: 0.8rem 1.2rem;
+      }
     }
     `
   ]

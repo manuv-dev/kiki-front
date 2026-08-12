@@ -35,64 +35,40 @@ import { ClientApiService } from '../services/client-api.service';
               <div class="mobile-step-title">{{ getStepSubtitle(currentStep) }}</div>
             </div>
 
-            <!-- STEPPER PROGRESS BAR (7 STEPS) -->
+            <!-- STEPPER PROGRESS BAR (6 STEPS) -->
             <div class="wizard-stepper">
               <!-- Step 1: Profil -->
               <div class="step-item" [class.active]="currentStep === 1" [class.completed]="currentStep > 1" (click)="goToStep(1)">
-                <div class="step-circle">
-                  <i class="fas" [ngClass]="currentStep > 1 ? 'fa-check' : 'fa-user'"></i>
-                </div>
+                <div class="step-circle"><i class="fas" [ngClass]="currentStep > 1 ? 'fa-check' : 'fa-user'"></i></div>
                 <span class="step-label">PROFIL</span>
               </div>
-
               <div class="step-line" [class.active]="currentStep > 1"></div>
 
-              <!-- Step 2: Prestation -->
+              <!-- Step 2: Contact -->
               <div class="step-item" [class.active]="currentStep === 2" [class.completed]="currentStep > 2" (click)="goToStep(2)">
-                <div class="step-circle">
-                  <i class="fas" [ngClass]="currentStep > 2 ? 'fa-check' : 'fa-concierge-bell'"></i>
-                </div>
-                <span class="step-label">PRESTATION</span>
+                <div class="step-circle"><i class="fas" [ngClass]="currentStep > 2 ? 'fa-check' : 'fa-id-card'"></i></div>
+                <span class="step-label">CONTACT</span>
               </div>
-
               <div class="step-line" [class.active]="currentStep > 2"></div>
 
-              <!-- Step 3: Date -->
+              <!-- Step 3: Prestation -->
               <div class="step-item" [class.active]="currentStep === 3" [class.completed]="currentStep > 3" (click)="goToStep(3)">
-                <div class="step-circle">
-                  <i class="fas" [ngClass]="currentStep > 3 ? 'fa-check' : 'fa-calendar-alt'"></i>
-                </div>
-                <span class="step-label">DATE</span>
+                <div class="step-circle"><i class="fas" [ngClass]="currentStep > 3 ? 'fa-check' : 'fa-concierge-bell'"></i></div>
+                <span class="step-label">PRESTATION</span>
               </div>
-
               <div class="step-line" [class.active]="currentStep > 3"></div>
 
-              <!-- Step 4: Lieu -->
+              <!-- Step 4: Date -->
               <div class="step-item" [class.active]="currentStep === 4" [class.completed]="currentStep > 4" (click)="goToStep(4)">
-                <div class="step-circle">
-                  <i class="fas" [ngClass]="currentStep > 4 ? 'fa-check' : 'fa-map-marker-alt'"></i>
-                </div>
-                <span class="step-label">LIEU</span>
+                <div class="step-circle"><i class="fas" [ngClass]="currentStep > 4 ? 'fa-check' : 'fa-calendar-alt'"></i></div>
+                <span class="step-label">DATE</span>
               </div>
-
               <div class="step-line" [class.active]="currentStep > 4"></div>
 
-              <!-- Step 5: Cuisine -->
+              <!-- Step 5: Lieu -->
               <div class="step-item" [class.active]="currentStep === 5" [class.completed]="currentStep > 5" (click)="goToStep(5)">
-                <div class="step-circle">
-                  <i class="fas" [ngClass]="currentStep > 5 ? 'fa-check' : 'fa-utensils'"></i>
-                </div>
-                <span class="step-label">CUISINE</span>
-              </div>
-
-              <div class="step-line" [class.active]="currentStep > 5"></div>
-
-              <!-- Step 6: Contact -->
-              <div class="step-item" [class.active]="currentStep === 6" [class.completed]="currentStep > 6" (click)="goToStep(6)">
-                <div class="step-circle">
-                  <i class="fas" [ngClass]="currentStep > 6 ? 'fa-check' : 'fa-id-card'"></i>
-                </div>
-                <span class="step-label">CONTACT</span>
+                <div class="step-circle"><i class="fas" [ngClass]="currentStep > 5 ? 'fa-check' : 'fa-map-marker-alt'"></i></div>
+                <span class="step-label">LIEU</span>
               </div>
             </div>
 
@@ -105,16 +81,12 @@ import { ClientApiService } from '../services/client-api.service';
 
               <div class="cat-tabs-grid">
                 <div class="cat-card-item" [class.active]="form.clientType === 'particulier'" (click)="setClientType('particulier')">
-                  <div class="icon-circle">
-                    <i class="fas fa-user"></i>
-                  </div>
+                  <div class="icon-circle"><i class="fas fa-user"></i></div>
                   <div class="cat-title">Client Particulier</div>
                   <div class="cat-sub">Réception, mariage, fête privée...</div>
                 </div>
                 <div class="cat-card-item" [class.active]="form.clientType === 'entreprise'" (click)="setClientType('entreprise')">
-                  <div class="icon-circle">
-                    <i class="fas fa-building"></i>
-                  </div>
+                  <div class="icon-circle"><i class="fas fa-building"></i></div>
                   <div class="cat-title">Institution / Entreprise</div>
                   <div class="cat-sub">Séminaire, cocktail corporate...</div>
                 </div>
@@ -132,156 +104,8 @@ import { ClientApiService } from '../services/client-api.service';
               </div>
             </div>
 
-            <!-- ÉTAPE 2 : PRESTATION -->
+            <!-- ÉTAPE 2 : CONTACT -->
             <div [hidden]="currentStep !== 2" class="animate-fade">
-              <div class="wizard-step-header">
-                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Quelle prestation ?</h2>
-                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Sélectionnez le type d'événement souhaité</p>
-              </div>
-
-              <div class="prestations-grid-3x2">
-                <div *ngFor="let prest of prestationsList"
-                     class="prestation-card-img"
-                     [class.active]="form.prestationId === prest.id"
-                     (click)="selectPrestation(prest.id)">
-                  <div class="icon-box">
-                    <i class="fas {{ prest.icon }}"></i>
-                  </div>
-                  <div class="prest-name">{{ prest.label }}</div>
-                </div>
-              </div>
-
-              <div class="wizard-actions">
-                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
-                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
-                </button>
-                <button type="button" class="btn-red-pill" [disabled]="!isStep2Valid()" (click)="nextStep()">
-                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- ÉTAPE 3 : DATE & CONVIVES -->
-            <div [hidden]="currentStep !== 3" class="animate-fade">
-              <div class="wizard-step-header">
-                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Magnifique projet</h2>
-                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Pour quel jour et combien de convives ?</p>
-              </div>
-
-              <!-- NOMBRE ESTIMÉ DE CONVIVES -->
-              <div class="form-group" style="margin-bottom: 1.25rem;">
-                <label style="font-weight: 700; font-size: 0.9rem; color: #7A1C1C; text-transform: uppercase; letter-spacing: 0.5px;">
-                  NOMBRE ESTIMÉ DE CONVIVES ({{ form.guests }}) *
-                </label>
-                <input type="range" [(ngModel)]="form.guests" name="guests" min="10" max="500" step="10" class="custom-slider" style="width: 100%; margin: 1rem 0 0.5rem;">
-                <div style="display: flex; justify-content: space-between; color: #64748B; font-size: 0.8rem; font-weight: 600;">
-                  <span>10 (INTIME)</span>
-                  <span>100 (MOYEN)</span>
-                  <span>250+ (GALA)</span>
-                </div>
-              </div>
-
-              <!-- DATE & HEURE -->
-              <div class="form-group-row">
-                <div class="form-group">
-                  <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase;">DATE DE L'ÉVÉNEMENT *</label>
-                  <input type="date" [(ngModel)]="form.date" name="date" class="form-control" required>
-                </div>
-                <div class="form-group">
-                  <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase;">HEURE SOUHAITÉE *</label>
-                  <input type="time" [(ngModel)]="form.time" name="time" class="form-control" required>
-                </div>
-              </div>
-
-              <div class="wizard-actions">
-                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
-                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
-                </button>
-                <button type="button" class="btn-red-pill" [disabled]="!isStep3Valid()" (click)="nextStep()">
-                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- ÉTAPE 4 : LIEU -->
-            <div [hidden]="currentStep !== 4" class="animate-fade">
-              <div class="wizard-step-header">
-                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Un timing précieux</h2>
-                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Où souhaitez-vous célébrer cet événement ?</p>
-              </div>
-
-              <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase; margin-bottom: 1rem; display: block;">
-                LIEU DE L'ÉVÉNEMENT *
-              </label>
-
-              <div class="lieu-grid-3">
-                <div class="lieu-card-item" [class.active]="form.locationType === 'salle-diva'" (click)="selectLocationType('salle-diva', 'Salle La Diva, Dakar')">
-                  <i class="fas fa-map-marker-alt"></i>
-                  <div class="lieu-title">Salle La Diva</div>
-                  <div class="lieu-sub">Dakar</div>
-                </div>
-                <div class="lieu-card-item" [class.active]="form.locationType === 'exception'" (click)="selectLocationType('exception', 'Villa prestige')">
-                  <i class="fas fa-star"></i>
-                  <div class="lieu-title">Lieu d'Exception</div>
-                  <div class="lieu-sub">Villa prestige</div>
-                </div>
-                <div class="lieu-card-item" [class.active]="form.locationType === 'autre'" (click)="selectLocationType('autre', '')">
-                  <i class="fas fa-pen"></i>
-                  <div class="lieu-title">Autre</div>
-                  <div class="lieu-sub">À préciser</div>
-                </div>
-              </div>
-
-              <div class="form-group" *ngIf="form.locationType === 'exception' || form.locationType === 'autre'" style="margin-top: 1.5rem;">
-                <label for="loc"><i class="fas fa-map-pin" style="margin-right: 0.4rem; color: var(--primary-color);"></i> Précisez le lieu ou l'adresse du projet *</label>
-                <input type="text" id="loc" name="locationDetails" [(ngModel)]="form.locationDetails" class="form-control" placeholder="Ex: Almadies, Villa 12, Dakar...">
-              </div>
-
-              <div class="wizard-actions">
-                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
-                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
-                </button>
-                <button type="button" class="btn-red-pill" [disabled]="!isStep4Valid()" (click)="nextStep()">
-                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- ÉTAPE 5 : CUISINE -->
-            <div [hidden]="currentStep !== 5" class="animate-fade">
-              <div class="wizard-step-header">
-                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Signature gastronomique</h2>
-                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Quel esprit culinaire pour votre événement ?</p>
-              </div>
-
-              <div class="cuisine-grid">
-                <div *ngFor="let c of cuisineList"
-                     class="cuisine-card"
-                     [class.active]="form.cuisine === c.id"
-                     (click)="form.cuisine = c.id">
-                  <i class="fas {{ c.icon }}"></i>
-                  <div class="cuisine-name">{{ c.label }}</div>
-                  <div class="cuisine-sub">{{ c.sub }}</div>
-                </div>
-              </div>
-
-              <div class="form-group" [hidden]="form.cuisine !== 'autre'" style="margin-top: 1.2rem;">
-                <label for="cuisine-autre"><i class="fas fa-pen" style="margin-right: 0.4rem; color: var(--primary-color);"></i> Précisez votre souhait *</label>
-                <input type="text" id="cuisine-autre" name="cuisineAutre" [(ngModel)]="form.cuisineAutre" class="form-control" placeholder="Décrivez l'esprit culinaire que vous souhaitez...">
-              </div>
-
-              <div class="wizard-actions">
-                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
-                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
-                </button>
-                <button type="button" class="btn-red-pill" [disabled]="!isStep5Valid()" (click)="nextStep()">
-                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
-                </button>
-              </div>
-            </div>
-
-            <!-- ÉTAPE 6 : CONTACT -->
-            <div [hidden]="currentStep !== 6" class="animate-fade">
               <div class="wizard-step-header">
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Vos coordonnées</h2>
                 <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Comment pouvons-nous vous joindre pour échanger sur ce projet ?</p>
@@ -303,8 +127,49 @@ import { ClientApiService } from '../services/client-api.service';
                 <input type="tel" id="d-phone" name="phone" [(ngModel)]="form.phone" class="form-control" placeholder="+221 77 000 00 00" required>
               </div>
 
-              <div class="form-group">
-                <label for="d-msg">DÉSIRS PARTICULIERS, ALLERGIES, REMARQUES (OPTIONNEL)</label>
+              <div class="wizard-actions">
+                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
+                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
+                </button>
+                <button type="button" class="btn-red-pill" [disabled]="!isStep2Valid()" (click)="nextStep()">
+                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- ÉTAPE 3 : PRESTATION -->
+            <div [hidden]="currentStep !== 3" class="animate-fade">
+              <div class="wizard-step-header">
+                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Quelle prestation ?</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Sélectionnez l'offre qui correspond à votre besoin</p>
+              </div>
+
+              <div class="cuisine-grid">
+                <div *ngFor="let prest of prestationsList"
+                     class="cuisine-card"
+                     [class.active]="form.prestationId === prest.id"
+                     (click)="selectPrestation(prest.id)">
+                  <div style="display: flex; align-items: center; justify-content: flex-start; gap: 0.8rem; margin-bottom: 0.6rem;">
+                    <i class="fas {{ prest.icon }}" style="font-size: 1.4rem;"></i>
+                    <div class="cuisine-name" style="margin: 0; font-size: 1.05rem; text-align: left;">{{ prest.label }}</div>
+                  </div>
+                  <div class="cuisine-sub" style="margin-top: 0; text-transform: none; line-height: 1.4; text-align: left;">
+                    <ng-container *ngIf="prest.id !== 'evenementiel' || form.prestationId !== 'evenementiel'">
+                      {{ prest.desc }}
+                    </ng-container>
+                    <div *ngIf="prest.id === 'evenementiel' && form.prestationId === 'evenementiel'" style="margin-top: 0.5rem;">
+                      <label for="event-nature-{{prest.id}}" style="font-weight: 700; font-size: 0.75rem; color: #7A1C1C; text-transform: uppercase; margin-bottom: 0.4rem; display: block;">Nature de l'événement *</label>
+                      <select id="event-nature-{{prest.id}}" name="evenementNature" [(ngModel)]="form.evenementNature" class="form-control" style="cursor: pointer; padding: 0.5rem; border-radius: 6px; font-size: 0.9rem; border: 1px solid var(--border-color); background: var(--bg-white);">
+                        <option value="" disabled selected>Sélectionnez...</option>
+                        <option *ngFor="let nat of eventNatures" [value]="nat">{{ nat }}</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 1.5rem;">
+                <label for="d-msg">DÉSIRS PARTICULIERS, REMARQUES (OPTIONNEL)</label>
                 <textarea id="d-msg" name="message" [(ngModel)]="form.message" class="form-control" rows="4" placeholder="Dites-nous ce qui vous ferait vibrer d'émotion..."></textarea>
               </div>
 
@@ -312,14 +177,112 @@ import { ClientApiService } from '../services/client-api.service';
                 <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
                   <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
                 </button>
-                <button type="button" class="btn-red-pill" [disabled]="!isStep6Valid()" (click)="nextStep()">
+                <button type="button" class="btn-red-pill" [disabled]="!isStep3Valid()" (click)="nextStep()">
+                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- ÉTAPE 4 : DATE & CONVIVES -->
+            <div [hidden]="currentStep !== 4" class="animate-fade">
+              <div class="wizard-step-header">
+                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Magnifique projet</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Pour quel jour et combien de convives ?</p>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 1.25rem;">
+                <label style="font-weight: 700; font-size: 0.9rem; color: #7A1C1C; text-transform: uppercase; letter-spacing: 0.5px;">
+                  NOMBRE ESTIMÉ DE CONVIVES ({{ form.guests }}) *
+                </label>
+                <input type="range" [(ngModel)]="form.guests" (ngModelChange)="onGuestsChange()" name="guests" min="10" max="2500" step="10" class="custom-slider" style="width: 100%; margin: 1rem 0 0.5rem;">
+                <div style="display: flex; justify-content: space-between; color: #64748B; font-size: 0.8rem; font-weight: 600;">
+                  <span>10 (INTIME)</span>
+                  <span>100 (MOYEN)</span>
+                  <span>2500 (GALA)</span>
+                </div>
+              </div>
+
+              <div class="form-group-row">
+                <div class="form-group">
+                  <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase;">DATE *</label>
+                  <input type="date" [(ngModel)]="form.date" name="date" class="form-control" required>
+                </div>
+                <div class="form-group">
+                  <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase;">HEURE SOUHAITÉE *</label>
+                  <input type="time" [(ngModel)]="form.time" name="time" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="wizard-actions">
+                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
+                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
+                </button>
+                <button type="button" class="btn-red-pill" [disabled]="!isStep4Valid()" (click)="nextStep()">
+                  CONTINUER <i class="fas fa-chevron-right" style="margin-left: 0.5rem;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- ÉTAPE 5 : LIEU -->
+            <div [hidden]="currentStep !== 5" class="animate-fade">
+              <div class="wizard-step-header">
+                <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Un timing précieux</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; font-style: italic;">Où souhaitez-vous célébrer cet événement ?</p>
+              </div>
+
+              <label style="font-weight: 700; font-size: 0.85rem; color: #7A1C1C; text-transform: uppercase; margin-bottom: 1rem; display: block;">
+                LIEU DE L'ÉVÉNEMENT *
+              </label>
+
+              <!-- Changement Lieu -->
+              <div class="cuisine-grid" style="grid-template-columns: 1fr 1fr;">
+                <div class="cuisine-card" 
+                     [class.active]="form.locationType === 'salle-diva'" 
+                     [class.disabled-card]="form.guests > 400"
+                     (click)="form.guests <= 400 && selectLocationType('salle-diva', 'Salle La Diva, Dakar')"
+                     [style.opacity]="form.guests > 400 ? '0.5' : '1'"
+                     [style.cursor]="form.guests > 400 ? 'not-allowed' : 'pointer'">
+                  <div style="display: flex; align-items: center; justify-content: flex-start; gap: 0.8rem; margin-bottom: 0.6rem;">
+                    <i class="fas fa-map-marker-alt" style="font-size: 1.4rem;"></i>
+                    <div class="cuisine-name" style="margin: 0; font-size: 1.05rem; text-align: left;">Salle de Banquet (La DIVA)</div>
+                  </div>
+                  <div class="cuisine-sub" style="margin-top: 0; text-transform: none; line-height: 1.4; text-align: left;">
+                    Un cadre équipé et modulable pour 400 convives adapté à tous types d'événements.
+                    <strong *ngIf="form.guests > 400" style="color: #7A1C1C; display: block; margin-top: 0.5rem;"><i class="fas fa-exclamation-circle"></i> Indisponible (400 convives max)</strong>
+                  </div>
+                </div>
+                <div class="cuisine-card" [class.active]="form.locationType === 'autre'" (click)="selectLocationType('autre', '')">
+                  <div style="display: flex; align-items: center; justify-content: flex-start; gap: 0.8rem; margin-bottom: 0.6rem;">
+                    <i class="fas fa-pen" style="font-size: 1.4rem;"></i>
+                    <div class="cuisine-name" style="margin: 0; font-size: 1.05rem; text-align: left;">Autre lieu</div>
+                  </div>
+                  <div class="cuisine-sub" style="margin-top: 0; text-transform: none; line-height: 1.4; text-align: left;">Précisez l'adresse ou importez un lien Google Maps.</div>
+                </div>
+              </div>
+
+              <div class="form-group" *ngIf="form.locationType === 'autre'" style="margin-top: 1.5rem;">
+                <label for="loc"><i class="fas fa-map-pin" style="margin-right: 0.4rem; color: var(--primary-color);"></i> Précisez le lieu, l'adresse ou le lien Maps *</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="loc" name="locationDetails" [(ngModel)]="form.locationDetails" class="form-control" placeholder="Ex: Almadies, Villa 12, ou lien Google Maps..." style="flex: 1;">
+                  <button type="button" class="btn-secondary-kiki" (click)="getLocation()" title="Importer ma position actuelle via GPS" style="padding: 0 1rem; border-radius: 8px;">
+                    <i class="fas fa-crosshairs"></i>
+                  </button>
+                </div>
+                <small *ngIf="isLocating" style="color: var(--primary-color); display: block; margin-top: 0.5rem;"><i class="fas fa-spinner fa-spin"></i> Récupération de votre position GPS...</small>
+              </div>
+
+              <div class="wizard-actions">
+                <button type="button" class="btn-secondary-kiki" (click)="prevStep()">
+                  <i class="fas fa-chevron-left" style="margin-right: 0.5rem;"></i> PRÉCÉDENT
+                </button>
+                <button type="button" class="btn-red-pill" [disabled]="!isStep5Valid()" (click)="nextStep()">
                   VOIR LE RÉCAPITULATIF <i class="fas fa-clipboard-check" style="margin-left: 0.5rem;"></i>
                 </button>
               </div>
             </div>
 
-            <!-- ÉTAPE 7 : RÉCAPITULATIF (AVEC BOUTONS MODIFIER PAR SECTION) -->
-            <div [hidden]="currentStep !== 7" class="animate-fade">
+            <!-- ÉTAPE 6 : RÉCAPITULATIF -->
+            <div [hidden]="currentStep !== 6" class="animate-fade">
               <div class="wizard-step-header">
                 <span class="slbl" style="display: inline-block; margin-bottom: 0.5rem;"><i class="fas fa-clipboard-check"></i> ÉTAPE FINALE</span>
                 <h2 style="font-size: 1.85rem; font-weight: 900; color: var(--primary-dark); margin-bottom: 0.3rem; font-family: var(--font-heading);">Récapitulatif de votre demande</h2>
@@ -329,81 +292,75 @@ import { ClientApiService } from '../services/client-api.service';
               <div class="recap-box">
                 <!-- 1. Profil -->
                 <div class="recap-row">
-                  <div>
+                  <div style="flex: 1; min-width: 0; margin-right: 1rem;">
                     <span class="recap-label"><i class="fas fa-user-tag me-2" style="color: #7A1C1C;"></i>Profil client</span>
-                    <div class="recap-value" style="text-align: left;">
+                    <div class="recap-value" style="text-align: left; word-break: break-word;">
                       {{ form.clientType === 'entreprise' ? 'Institution / Entreprise (' + form.organization + ')' : 'Client Particulier' }}
                     </div>
                   </div>
-                  <button type="button" class="btn-edit-recap" (click)="goToStep(1)" title="Modifier le profil">
+                  <button type="button" class="btn-edit-recap" style="flex-shrink: 0;" (click)="goToStep(1)" title="Modifier le profil">
                     <i class="fas fa-edit me-1"></i> Modifier
                   </button>
                 </div>
 
-                <!-- 2. Prestation -->
+                <!-- 2. Contact -->
                 <div class="recap-row">
-                  <div>
-                    <span class="recap-label"><i class="fas fa-concierge-bell me-2" style="color: #7A1C1C;"></i>Prestation souhaitée</span>
-                    <div class="recap-value" style="text-align: left;">{{ getPrestationLabel(form.prestationId) }}</div>
-                  </div>
-                  <button type="button" class="btn-edit-recap" (click)="goToStep(2)" title="Modifier la prestation">
-                    <i class="fas fa-edit me-1"></i> Modifier
-                  </button>
-                </div>
-
-                <!-- 3. Date & Convives -->
-                <div class="recap-row">
-                  <div>
-                    <span class="recap-label"><i class="fas fa-calendar-alt me-2" style="color: #7A1C1C;"></i>Date, Heure & Convives</span>
-                    <div class="recap-value" style="text-align: left;">
-                      Le {{ form.date }} à {{ form.time }} — <strong>{{ form.guests }} convives</strong>
-                    </div>
-                  </div>
-                  <button type="button" class="btn-edit-recap" (click)="goToStep(3)" title="Modifier la date et les convives">
-                    <i class="fas fa-edit me-1"></i> Modifier
-                  </button>
-                </div>
-
-                <!-- 4. Lieu -->
-                <div class="recap-row">
-                  <div>
-                    <span class="recap-label"><i class="fas fa-map-marker-alt me-2" style="color: #7A1C1C;"></i>Lieu de l'événement</span>
-                    <div class="recap-value" style="text-align: left;">{{ getLocationDisplay() }}</div>
-                  </div>
-                  <button type="button" class="btn-edit-recap" (click)="goToStep(4)" title="Modifier le lieu">
-                    <i class="fas fa-edit me-1"></i> Modifier
-                  </button>
-                </div>
-
-                <!-- 5. Signature Gastronomique -->
-                <div class="recap-row">
-                  <div>
-                    <span class="recap-label"><i class="fas fa-utensils me-2" style="color: #7A1C1C;"></i>Signature gastronomique</span>
-                    <div class="recap-value" style="text-align: left;">{{ getCuisineLabel(form.cuisine) }}</div>
-                  </div>
-                  <button type="button" class="btn-edit-recap" (click)="goToStep(5)" title="Modifier la signature gastronomique">
-                    <i class="fas fa-edit me-1"></i> Modifier
-                  </button>
-                </div>
-
-                <!-- 6. Contact & Coordonnées -->
-                <div class="recap-row" style="border-bottom: none;">
-                  <div>
+                  <div style="flex: 1; min-width: 0; margin-right: 1rem;">
                     <span class="recap-label"><i class="fas fa-id-card me-2" style="color: #7A1C1C;"></i>Coordonnées</span>
-                    <div class="recap-value" style="text-align: left;">
-                      <strong>{{ form.name }}</strong> ({{ form.phone }}) — {{ form.email }}
+                    <div class="recap-value" style="text-align: left; display: flex; flex-direction: column; gap: 0.35rem;">
+                      <span style="word-break: break-word;"><strong>Nom :</strong> {{ form.name }}</span>
+                      <span style="word-break: break-word;"><strong>Tél :</strong> {{ form.phone }}</span>
+                      <span style="word-break: break-all;"><strong>Email :</strong> {{ form.email }}</span>
                     </div>
-                    <div *ngIf="form.message" style="margin-top: 0.4rem; font-size: 0.85rem; color: #475569; font-style: italic;">
+                  </div>
+                  <button type="button" class="btn-edit-recap" style="flex-shrink: 0;" (click)="goToStep(2)" title="Modifier les coordonnées">
+                    <i class="fas fa-edit me-1"></i> Modifier
+                  </button>
+                </div>
+
+                <!-- 3. Prestation -->
+                <div class="recap-row" style="align-items: flex-start;">
+                  <div style="flex: 1; min-width: 0; margin-right: 1rem;">
+                    <span class="recap-label"><i class="fas fa-concierge-bell me-2" style="color: #7A1C1C;"></i>Prestation souhaitée</span>
+                    <div class="recap-value" style="text-align: left; word-break: break-word;">
+                      {{ getPrestationLabel(form.prestationId) }}
+                      <span *ngIf="form.prestationId === 'evenementiel' && form.evenementNature"> ({{ form.evenementNature }})</span>
+                    </div>
+                    <div *ngIf="form.message" style="margin-top: 0.6rem; padding: 0.75rem; background: rgba(122, 28, 28, 0.05); border-left: 3px solid #7A1C1C; font-size: 0.85rem; color: #475569; font-style: italic; word-break: break-word; white-space: pre-wrap; border-radius: 4px;">
                       "{{ form.message }}"
                     </div>
                   </div>
-                  <button type="button" class="btn-edit-recap" (click)="goToStep(6)" title="Modifier les coordonnées">
+                  <button type="button" class="btn-edit-recap" style="flex-shrink: 0;" (click)="goToStep(3)" title="Modifier la prestation">
+                    <i class="fas fa-edit me-1"></i> Modifier
+                  </button>
+                </div>
+
+                <!-- 4. Date & Convives -->
+                <div class="recap-row">
+                  <div style="flex: 1; min-width: 0; margin-right: 1rem;">
+                    <span class="recap-label"><i class="fas fa-calendar-alt me-2" style="color: #7A1C1C;"></i>Date, Heure & Convives</span>
+                    <div class="recap-value" style="text-align: left; word-break: break-word;">
+                      Le {{ form.date }} à {{ form.time }} — <strong>{{ form.guests }} convives</strong>
+                    </div>
+                  </div>
+                  <button type="button" class="btn-edit-recap" style="flex-shrink: 0;" (click)="goToStep(4)" title="Modifier la date et les convives">
+                    <i class="fas fa-edit me-1"></i> Modifier
+                  </button>
+                </div>
+
+                <!-- 5. Lieu -->
+                <div class="recap-row" style="border-bottom: none;">
+                  <div style="flex: 1; min-width: 0; margin-right: 1rem;">
+                    <span class="recap-label"><i class="fas fa-map-marker-alt me-2" style="color: #7A1C1C;"></i>Lieu de l'événement</span>
+                    <div class="recap-value" style="text-align: left; word-break: break-word;">{{ getLocationDisplay() }}</div>
+                  </div>
+                  <button type="button" class="btn-edit-recap" style="flex-shrink: 0;" (click)="goToStep(5)" title="Modifier le lieu">
                     <i class="fas fa-edit me-1"></i> Modifier
                   </button>
                 </div>
               </div>
 
-              <!-- Footer Étape 7 -->
+              <!-- Footer Étape 6 -->
               <div class="wizard-actions">
                 <button type="button" class="btn-secondary-kiki" style="padding: 0.85rem 1.6rem;" (click)="prevStep()">
                   <i class="fas fa-chevron-left me-2"></i> PRÉCÉDENT
@@ -413,56 +370,8 @@ import { ClientApiService } from '../services/client-api.service';
                 </button>
               </div>
             </div>
-
           </div>
-
-          <!-- ENGAGEMENT & DEVIS SUR MESURE PANEL (Right Column) -->
-          <div class="contact-info-panel animate-fade delay-1">
-            <div>
-              <span class="slbl">Un Service Sur Mesure</span>
-              <h3 style="font-size: 1.5rem; color: var(--primary-dark); margin-bottom: 1rem; font-family: var(--font-heading);">Notre Engagement d'Excellence</h3>
-              <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Chaque événement étant unique, nous étudions votre demande avec soin pour vous proposer une offre personnalisée, adaptée à vos exigences gastronomiques et logistiques.</p>
-
-              <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem;">
-                <div style="display: flex; align-items: flex-start; margin-bottom: 1.5rem;">
-                  <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(114, 21, 19, 0.08); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; margin-right: 1.2rem; flex-shrink: 0; font-size: 1.1rem;">
-                    <i class="fas fa-gem"></i>
-                  </div>
-                  <div>
-                    <strong style="display: block; color: var(--primary-dark); font-size: 0.98rem; margin-bottom: 0.2rem;">Prestation 100% Sur Mesure</strong>
-                    <span style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5;">Des menus conçus spécialement selon vos envies, le thème de votre événement et le profil de vos convives.</span>
-                  </div>
-                </div>
-
-                <div style="display: flex; align-items: flex-start; margin-bottom: 1.5rem;">
-                  <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(114, 21, 19, 0.08); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; margin-right: 1.2rem; flex-shrink: 0; font-size: 1.1rem;">
-                    <i class="fas fa-clock"></i>
-                  </div>
-                  <div>
-                    <strong style="display: block; color: var(--primary-dark); font-size: 0.98rem; margin-bottom: 0.2rem;">Réactivité Commerciale</strong>
-                    <span style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5;">Envoi de votre proposition détaillée et personnalisée par notre équipe sous 24 à 48 heures ouvrées.</span>
-                  </div>
-                </div>
-
-                <div style="display: flex; align-items: flex-start;">
-                  <div style="width: 42px; height: 42px; border-radius: 50%; background: rgba(114, 21, 19, 0.08); color: var(--primary-dark); display: flex; align-items: center; justify-content: center; margin-right: 1.2rem; flex-shrink: 0; font-size: 1.1rem;">
-                    <i class="fas fa-handshake"></i>
-                  </div>
-                  <div>
-                    <strong style="display: block; color: var(--primary-dark); font-size: 0.98rem; margin-bottom: 0.2rem;">Accompagnement Dédié</strong>
-                    <span style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.5;">Un conseiller Kiki Traiteur à votre disposition pour affiner chaque détail gastronomique et logistique.</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style="border-top: 1px solid var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem; text-align: center;">
-              <span style="display: block; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Besoin d'assistance directe ?</span>
-              <div style="font-size: 1.15rem; font-weight: 700; color: var(--primary-dark);">
-                <i class="fas fa-phone-alt" style="margin-right: 0.5rem; color: var(--primary-color);"></i> +221 33 832 29 66
-              </div>
-            </div>
-          </div>
+          <!-- ENGAGEMENT & DEVIS SUR MESURE PANEL REMOVED -->
         </div>
 
       </div>
@@ -477,9 +386,11 @@ import { ClientApiService } from '../services/client-api.service';
     }
     .contact-grid {
       display: grid;
-      grid-template-columns: 1fr 340px;
+      grid-template-columns: 1fr;
       gap: 2rem;
-      align-items: start; /* ÉVITE AU FORMULAIRE DE S'ÉTIRE EN HAUTEUR ET DE LAISSER DU VIDE */
+      align-items: start;
+      max-width: 800px;
+      margin: 0 auto;
     }
     .contact-form-panel {
       background: var(--bg-white, #FFFFFF);
@@ -589,31 +500,10 @@ import { ClientApiService } from '../services/client-api.service';
       .cat-card-item,
       .lieu-card-item,
       .cuisine-card {
-        display: flex !important;
-        align-items: center !important;
-        text-align: left !important;
-        padding: 0.85rem 1rem !important;
-        gap: 1rem !important;
-        border-radius: 12px !important;
+        padding: 1rem !important;
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-      }
-      .cat-card-item .icon-circle,
-      .lieu-card-item i,
-      .cuisine-card i {
-        margin: 0 !important;
-        width: 42px !important;
-        height: 42px !important;
-        flex-shrink: 0 !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-      }
-      .cat-card-item i,
-      .lieu-card-item i,
-      .cuisine-card i {
-        font-size: 1.25rem !important;
       }
       .cat-title,
       .lieu-title,
@@ -930,17 +820,10 @@ import { ClientApiService } from '../services/client-api.service';
         margin-bottom: 1rem !important;
       }
       .lieu-card-item {
-        display: flex !important;
-        align-items: center !important;
-        text-align: left !important;
-        padding: 0.75rem 1rem !important;
-        gap: 1rem !important;
-        border-radius: 12px !important;
+        padding: 1rem !important;
       }
       .lieu-card-item i {
-        margin-bottom: 0 !important;
         font-size: 1.25rem !important;
-        flex-shrink: 0 !important;
       }
       .lieu-title {
         font-size: 0.98rem !important;
@@ -996,21 +879,7 @@ import { ClientApiService } from '../services/client-api.service';
         margin-bottom: 1rem !important;
       }
       .cuisine-card {
-        display: flex !important;
-        align-items: center !important;
-        text-align: left !important;
-        padding: 0.75rem 1rem !important;
-        gap: 1rem !important;
-        border-radius: 12px !important;
-      }
-      .cuisine-card i {
-        margin-bottom: 0 !important;
-        font-size: 1.25rem !important;
-        flex-shrink: 0 !important;
-      }
-      .cuisine-card .cuisine-name {
-        font-size: 0.98rem !important;
-        margin-bottom: 0.1rem !important;
+        padding: 1rem !important;
       }
     }
 
@@ -1245,13 +1114,12 @@ export class DevisComponent implements OnInit {
     clientType: 'particulier',
     organization: '',
     prestationId: 'restauration-entreprise',
+    evenementNature: '',
     date: new Date().toISOString().split('T')[0],
     time: '19:00',
     guests: 50,
     locationType: 'salle-diva',
     locationDetails: 'Salle La Diva, Dakar',
-    cuisine: 'classique',
-    cuisineAutre: '',
     name: '',
     phone: '',
     email: '',
@@ -1259,19 +1127,19 @@ export class DevisComponent implements OnInit {
   };
 
   prestationsList = [
-    { id: 'restauration-entreprise', label: 'Restauration d\'Entreprise', icon: 'fa-briefcase' },
-    { id: 'restauration-evenementielle', label: 'Restauration Événementielle', icon: 'fa-glass-cheers' },
-    { id: 'salle-diva', label: 'Salle La Diva', icon: 'fa-hotel' },
-    { id: 'scenographie', label: 'Scénographie & Décoration', icon: 'fa-paint-brush' },
-    { id: 'location', label: 'Location de Matériel', icon: 'fa-box-open' },
-    { id: 'takeaway', label: 'Plats à Emporter', icon: 'fa-shopping-bag' }
+    { id: 'restauration-entreprise', label: 'Restauration d\'Entreprise', desc: 'Des repas équilibrés pour vos équipes et vos collaborateurs.', icon: 'fa-briefcase' },
+    { id: 'evenementiel', label: 'Événementiel', desc: 'Mariage - Baptême - Séminaire - Cocktail - Pause-café - Déjeuner - Dîner de gala', icon: 'fa-glass-cheers' },
+    { id: 'takeaway', label: 'Plat à Emporter', desc: 'Des plats faits maison, prêts à être dégustés où que vous soyez.', icon: 'fa-shopping-bag' }
   ];
 
-  cuisineList = [
-    { id: 'classique', label: 'Classique Gourmet', sub: 'Tradition & Excellence', icon: 'fa-heart' },
-    { id: 'moderne', label: 'Créativité Moderne', sub: 'Innovation & Fusion', icon: 'fa-wand-magic-sparkles' },
-    { id: 'haute-couture', label: 'Collection Haute Couture', sub: 'Prestige & Rareté', icon: 'fa-crown' },
-    { id: 'autre', label: 'Autre', sub: 'À préciser', icon: 'fa-pen' }
+  eventNatures = [
+    'Mariage',
+    'Baptême',
+    'Séminaire',
+    'Cocktail',
+    'Pause-café',
+    'Déjeuner',
+    'Dîner de gala'
   ];
 
   constructor(
@@ -1281,12 +1149,42 @@ export class DevisComponent implements OnInit {
     private clientApi: ClientApiService
   ) {}
 
+  onGuestsChange(): void {
+    if (this.form.guests > 400 && this.form.locationType === 'salle-diva') {
+      this.form.locationType = 'autre';
+      this.form.locationDetails = '';
+    }
+  }
+
+  isLocating = false;
+
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       if (params['prestation']) {
         this.form.prestationId = params['prestation'];
       }
     });
+  }
+
+  getLocation(): void {
+    if (navigator.geolocation) {
+      this.isLocating = true;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          this.isLocating = false;
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+          this.form.locationDetails = `https://www.google.com/maps?q=${lat},${lng}`;
+          this.dataService.showToast('Localisation importée avec succès !');
+        },
+        (error) => {
+          this.isLocating = false;
+          this.dataService.showToast('Erreur de localisation. Veuillez vérifier vos permissions GPS.');
+        }
+      );
+    } else {
+      this.dataService.showToast("La géolocalisation n'est pas supportée par votre navigateur.");
+    }
   }
 
   setClientType(type: 'particulier' | 'entreprise'): void {
@@ -1304,30 +1202,19 @@ export class DevisComponent implements OnInit {
     this.form.locationType = type;
     if (type === 'salle-diva') {
       this.form.locationDetails = 'Salle La Diva, Dakar';
-    } else if (type === 'exception') {
-      this.form.locationDetails = 'Villa prestige';
     } else {
       this.form.locationDetails = '';
     }
   }
 
   getLocationDisplay(): string {
-    if (this.form.locationType === 'salle-diva') return 'Salle La Diva, Dakar';
-    if (this.form.locationType === 'exception') return `Lieu d'Exception (${this.form.locationDetails || 'Villa prestige'})`;
+    if (this.form.locationType === 'salle-diva') return 'Salle de Banquet (La DIVA)';
     return `Autre : ${this.form.locationDetails || 'À définir'}`;
   }
 
   getPrestationLabel(id: string): string {
     const found = this.prestationsList.find(p => p.id === id);
-    return found ? found.label : 'Restauration Événementielle';
-  }
-
-  getCuisineLabel(id: string): string {
-    if (id === 'autre') {
-      return this.form.cuisineAutre.trim() || 'Autre (à préciser)';
-    }
-    const found = this.cuisineList.find(c => c.id === id);
-    return found ? found.label : 'Classique Gourmet';
+    return found ? found.label : 'Événementiel';
   }
 
   isStep1Valid(): boolean {
@@ -1338,35 +1225,6 @@ export class DevisComponent implements OnInit {
   }
 
   isStep2Valid(): boolean {
-    return !!this.form.prestationId;
-  }
-
-  isStep3Valid(): boolean {
-    if (!this.form.date || !this.form.time || this.form.guests < 10) {
-      return false;
-    }
-    const today = new Date().toISOString().split('T')[0];
-    if (this.form.date < today) {
-      return false;
-    }
-    return true;
-  }
-
-  isStep4Valid(): boolean {
-    if ((this.form.locationType === 'exception' || this.form.locationType === 'autre') && !this.form.locationDetails.trim()) {
-      return false;
-    }
-    return !!this.form.locationType;
-  }
-
-  isStep5Valid(): boolean {
-    if (this.form.cuisine === 'autre' && !this.form.cuisineAutre.trim()) {
-      return false;
-    }
-    return !!this.form.cuisine;
-  }
-
-  isStep6Valid(): boolean {
     if (!this.form.name.trim() || !this.form.phone.trim() || !this.form.email.trim()) {
       return false;
     }
@@ -1381,6 +1239,32 @@ export class DevisComponent implements OnInit {
     return true;
   }
 
+  isStep3Valid(): boolean {
+    if (!this.form.prestationId) return false;
+    if (this.form.prestationId === 'evenementiel' && !this.form.evenementNature) {
+      return false;
+    }
+    return true;
+  }
+
+  isStep4Valid(): boolean {
+    if (!this.form.date || !this.form.time || this.form.guests < 10) {
+      return false;
+    }
+    const today = new Date().toISOString().split('T')[0];
+    if (this.form.date < today) {
+      return false;
+    }
+    return true;
+  }
+
+  isStep5Valid(): boolean {
+    if (this.form.locationType === 'autre' && !this.form.locationDetails.trim()) {
+      return false;
+    }
+    return !!this.form.locationType;
+  }
+
   goToStep(step: number): void {
     if (step <= this.currentStep || step === 1) {
       this.currentStep = step;
@@ -1391,22 +1275,7 @@ export class DevisComponent implements OnInit {
   nextStep(): void {
     if (this.currentStep === 1 && this.isStep1Valid()) {
       this.currentStep = 2;
-    } else if (this.currentStep === 2 && this.isStep2Valid()) {
-      this.currentStep = 3;
-    } else if (this.currentStep === 3) {
-      const today = new Date().toISOString().split('T')[0];
-      if (this.form.date && this.form.date < today) {
-        this.dataService.showToast("Erreur : La date de l'événement ne peut pas être antérieure à la date du jour.");
-        return;
-      }
-      if (this.isStep3Valid()) {
-        this.currentStep = 4;
-      }
-    } else if (this.currentStep === 4 && this.isStep4Valid()) {
-      this.currentStep = 5;
-    } else if (this.currentStep === 5 && this.isStep5Valid()) {
-      this.currentStep = 6;
-    } else if (this.currentStep === 6) {
+    } else if (this.currentStep === 2) {
       const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       const phoneRegex = /^(\+221|00221)?\s*(7[05678]|33)\s*(\d\s*){7}$/;
       if (this.form.email.trim() && !emailRegex.test(this.form.email.trim())) {
@@ -1417,9 +1286,22 @@ export class DevisComponent implements OnInit {
         this.dataService.showToast("Erreur : Le téléphone doit être un numéro sénégalais valide (ex: +221 77 777 77 77).");
         return;
       }
-      if (this.isStep6Valid()) {
-        this.currentStep = 7;
+      if (this.isStep2Valid()) {
+        this.currentStep = 3;
       }
+    } else if (this.currentStep === 3 && this.isStep3Valid()) {
+      this.currentStep = 4;
+    } else if (this.currentStep === 4) {
+      const today = new Date().toISOString().split('T')[0];
+      if (this.form.date && this.form.date < today) {
+        this.dataService.showToast("Erreur : La date de l'événement ne peut pas être antérieure à la date du jour.");
+        return;
+      }
+      if (this.isStep4Valid()) {
+        this.currentStep = 5;
+      }
+    } else if (this.currentStep === 5 && this.isStep5Valid()) {
+      this.currentStep = 6;
     }
     window.scrollTo({ top: 120, behavior: 'smooth' });
   }
@@ -1434,12 +1316,11 @@ export class DevisComponent implements OnInit {
   getStepIcon(step: number): string {
     switch(step) {
       case 1: return 'fa-user';
-      case 2: return 'fa-concierge-bell';
-      case 3: return 'fa-calendar-alt';
-      case 4: return 'fa-map-marker-alt';
-      case 5: return 'fa-utensils';
-      case 6: return 'fa-phone-alt';
-      case 7: return 'fa-clipboard-check';
+      case 2: return 'fa-id-card';
+      case 3: return 'fa-concierge-bell';
+      case 4: return 'fa-calendar-alt';
+      case 5: return 'fa-map-marker-alt';
+      case 6: return 'fa-clipboard-check';
       default: return 'fa-check';
     }
   }
@@ -1447,12 +1328,11 @@ export class DevisComponent implements OnInit {
   getStepName(step: number): string {
     switch(step) {
       case 1: return 'PROFIL';
-      case 2: return 'PRESTATION';
-      case 3: return 'DATE & CONVIVES';
-      case 4: return 'LIEU';
-      case 5: return 'CUISINE';
-      case 6: return 'CONTACT';
-      case 7: return 'RÉCAPITULATIF';
+      case 2: return 'CONTACT';
+      case 3: return 'PRESTATION';
+      case 4: return 'DATE & CONVIVES';
+      case 5: return 'LIEU';
+      case 6: return 'RÉCAPITULATIF';
       default: return 'DEVIS';
     }
   }
@@ -1460,12 +1340,11 @@ export class DevisComponent implements OnInit {
   getStepSubtitle(step: number): string {
     switch(step) {
       case 1: return 'Qui êtes-vous ?';
-      case 2: return 'Quelle prestation ?';
-      case 3: return 'Date & Convives';
-      case 4: return 'Lieu de l\'événement';
-      case 5: return 'Signature gastronomique';
-      case 6: return 'Vos coordonnées';
-      case 7: return 'Vérification finale';
+      case 2: return 'Vos coordonnées';
+      case 3: return 'Quelle prestation ?';
+      case 4: return 'Date & Convives';
+      case 5: return 'Lieu de l\'événement';
+      case 6: return 'Vérification finale';
       default: return 'Demande de devis';
     }
   }
@@ -1473,12 +1352,11 @@ export class DevisComponent implements OnInit {
   getStepTitle(step: number): string {
     switch(step) {
       case 1: return 'Profil (Qui êtes-vous ?)';
-      case 2: return 'Prestation souhaitée';
-      case 3: return 'Date & Convives';
-      case 4: return 'Lieu de l\'événement';
-      case 5: return 'Signature gastronomique';
-      case 6: return 'Vos coordonnées';
-      case 7: return 'Récapitulatif de votre demande';
+      case 2: return 'Vos coordonnées';
+      case 3: return 'Prestation souhaitée';
+      case 4: return 'Date & Convives';
+      case 5: return 'Lieu de l\'événement';
+      case 6: return 'Récapitulatif de votre demande';
       default: return 'Demande de devis';
     }
   }
@@ -1497,8 +1375,8 @@ export class DevisComponent implements OnInit {
       guests: Number(this.form.guests) || 50,
       isInstitution: this.form.clientType === 'entreprise',
       location: this.getLocationDisplay() || 'Dakar',
-      cuisine: this.getCuisineLabel(this.form.cuisine) || 'Classique Gourmet',
-      message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message || 'RAS'}`
+      evenementNature: this.form.evenementNature || '',
+      message: `${this.getLocationDisplay()} | Prestation: ${this.getPrestationLabel(this.form.prestationId)} ${this.form.evenementNature ? '('+this.form.evenementNature+')' : ''} | ${this.form.message || 'RAS'}`
     };
 
     this.clientApi.creerDemandeDevis(payload).subscribe({
@@ -1511,7 +1389,7 @@ export class DevisComponent implements OnInit {
           guests: Number(this.form.guests),
           isInstitution: this.form.clientType === 'entreprise',
           organization: this.form.organization,
-          message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message}`
+          message: `${this.getLocationDisplay()} | ${this.form.evenementNature ? '('+this.form.evenementNature+')' : ''} | ${this.form.message}`
         });
         this.dataService.showToast('Votre demande de devis a été envoyée et enregistrée dans la base de données avec succès !');
         this.resetForm();
@@ -1531,7 +1409,7 @@ export class DevisComponent implements OnInit {
           guests: Number(this.form.guests),
           isInstitution: this.form.clientType === 'entreprise',
           organization: this.form.organization,
-          message: `${this.getLocationDisplay()} | Cuisine: ${this.getCuisineLabel(this.form.cuisine)} | ${this.form.message}`
+          message: `${this.getLocationDisplay()} | ${this.form.evenementNature ? '('+this.form.evenementNature+')' : ''} | ${this.form.message}`
         });
         this.dataService.showToast('Votre demande de devis a été envoyée avec succès ! Notre équipe commerciale va vous recontacter.');
         this.resetForm();
@@ -1542,12 +1420,9 @@ export class DevisComponent implements OnInit {
 
   private getPrestationTitle(id: string): string {
     const prestas: { [key: string]: string } = {
-      'mariage-royal': 'Mariage Royal & Célébrations de Prestige',
-      'cocktail-dinatoire': 'Cocktail Dînatoire & Gala d\'Entreprise',
-      'chef-domicile': 'Dîner Privé & Chef à Domicile',
-      'buffet-gastronomique': 'Buffet Gastronomique & Live Cooking',
-      'brunch-chic': 'Brunch Chic & Garden Party',
-      'restauration-entreprise': 'Restauration Institutionnelle & Séminaires'
+      'evenementiel': 'Restauration Événementielle',
+      'takeaway': 'Plat à Emporter',
+      'restauration-entreprise': "Restauration d'Entreprise"
     };
     return prestas[id] || id;
   }
@@ -1558,13 +1433,12 @@ export class DevisComponent implements OnInit {
       clientType: 'particulier',
       organization: '',
       prestationId: 'restauration-entreprise',
+      evenementNature: '',
       date: new Date().toISOString().split('T')[0],
       time: '19:00',
       guests: 50,
       locationType: 'salle-diva',
       locationDetails: 'Salle La Diva, Dakar',
-      cuisine: 'classique',
-      cuisineAutre: '',
       name: '',
       phone: '',
       email: '',

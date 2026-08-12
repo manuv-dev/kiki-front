@@ -82,9 +82,10 @@ import { CommonModule } from '@angular/common';
     </section>
 
     <!-- Nos Valeurs (Animation Poêle) -->
-    <section class="section-padding values-section" style="background-color: #721513; color: #fff; padding: 4rem 0;">
-      <div class="container">
-        <h2 style="text-align: center; font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem; color: #fff; font-family: var(--font-heading);">Les Valeurs qui nous Animent</h2>
+    <section class="section-padding values-section" style="position: relative; background: url('assets/images/KIKI TRAITEUR Logo animé Beige.png') center/cover fixed; padding: 4rem 0;">
+      <div style="position: absolute; top:0; left:0; right:0; bottom:0; background: rgba(250, 248, 245, 0.85); z-index: 1;"></div>
+      <div class="container" style="position: relative; z-index: 2;">
+        <h2 style="text-align: center; font-size: 2.5rem; font-weight: 900; margin-bottom: 2rem; color: var(--primary-dark) !important; font-family: var(--font-heading);">Les Valeurs qui nous Animent</h2>
         
         <div class="smoke-container" style="position: relative; height: 450px; width: 100%; display: flex; justify-content: center; align-items: flex-end; overflow: hidden; max-width: 800px; margin: 0 auto;">
           
@@ -111,7 +112,7 @@ import { CommonModule } from '@angular/common';
             <div *ngFor="let val of valeurs; let i = index" 
                  class="smoke-pill" 
                  [style.animation-delay]="(i * 1.5) + 's'">
-              <i class="fas fa-star" style="color: #fff; font-size: 0.9rem;"></i>
+              <i class="fas fa-star" style="color: var(--primary-color); font-size: 0.9rem;"></i>
               {{ val }}
             </div>
           </div>
@@ -315,14 +316,14 @@ import { CommonModule } from '@angular/common';
       left: 50%; /* centré par rapport à la div globale */
       transform: translateX(-50%) scale(0);
       opacity: 0;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(5px);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(114, 21, 19, 0.15);
       padding: 0.8rem 1.8rem;
       border-radius: 50px;
       font-size: 1.2rem;
       font-weight: 700;
-      color: #fff;
+      color: #111 !important;
       white-space: nowrap;
       animation: smokeRise 16.5s infinite linear;
       z-index: 1;

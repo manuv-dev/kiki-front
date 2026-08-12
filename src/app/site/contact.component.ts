@@ -377,8 +377,10 @@ export class ContactComponent implements OnInit {
         }));
       },
       error: (err) => {
-        console.warn('Erreur chargement FAQs depuis NeonDB', err);
-        this.faqs = [];
+        console.warn('Erreur chargement FAQs', err);
+        this.faqs = [
+          { question: "Erreur de connexion", answer: "Impossible de se connecter au serveur backend. Détail: " + (err.message || 'Erreur réseau/CORS'), active: true }
+        ];
       }
     });
   }

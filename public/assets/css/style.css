@@ -923,10 +923,10 @@ nav a:hover::after, nav a.active::after {
   display: block;
 }
 
-.fc1 { top: 15%; left: 0; animation-delay: 0s; }
-.fc2 { bottom: 15%; left: -20px; animation-delay: 1.5s; }
-.fc3 { bottom: 25%; right: 0; animation-delay: 0.7s; }
-.fc4 { top: 20%; right: -20px; animation-delay: 2.2s; }
+.fc1 { top: 15%; left: -80px; animation-delay: 0s; }
+.fc2 { bottom: 15%; left: -100px; animation-delay: 1.5s; }
+.fc3 { bottom: 25%; right: -80px; animation-delay: 0.7s; }
+.fc4 { top: 20%; right: -100px; animation-delay: 2.2s; }
 
 /* Rolling Marquee (Sarab Style) */
 .mqsec {
@@ -1957,17 +1957,14 @@ nav a {
     width: 320px;
     height: 320px;
   }
-  .fc2 {
-    left: 0;
-  }
 }
 
 /* ============================================
-   MOBILE RESPONSIVE — max-width: 768px
+   TABLET & MOBILE MENU — max-width: 1180px
    ============================================ */
-@media (max-width: 768px) {
+@media (max-width: 1180px) {
 
-  /* Hide the entire red topbar on mobile */
+  /* Hide the entire red topbar on mobile/tablet */
   #topbar {
     display: none !important;
   }
@@ -2141,6 +2138,12 @@ nav a {
     color: #fff;
     border-color: var(--primary-color);
   }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE — max-width: 768px
+   ============================================ */
+@media (max-width: 768px) {
 
   /* Hero */
   .hero h1 {

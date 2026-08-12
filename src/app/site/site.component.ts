@@ -188,7 +188,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
     }
 
     /* ─── Menu mobile : liens → boutons → infos contact ─── */
-    @media (max-width: 920px) {
+    @media (max-width: 1180px) {
       nav {
         display: flex;
         flex-direction: column;
@@ -262,7 +262,7 @@ export class SiteComponent implements OnInit {
 
   @HostListener('window:resize')
   onResize(): void {
-    if (window.innerWidth > 920 && this.isMenuOpen) {
+    if (window.innerWidth > 1180 && this.isMenuOpen) {
       this.closeMenu();
     }
   }
