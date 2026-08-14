@@ -1,4 +1,4 @@
-import { Component, ViewEncapsulation, OnInit } from '@angular/core';
+import { Component, ViewEncapsulation, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KikiDataService } from '../../../services/kiki-data.service';
@@ -24,7 +24,7 @@ export class DashboardComponent implements OnInit {
   dashboardStats: DashboardStatsDto | null = null;
   isLoadingStats = false;
 
-  constructor(private dataService: KikiDataService, private apiService: GestionnaireApiService) {}
+  constructor(private dataService: KikiDataService, private apiService: GestionnaireApiService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.updateCurrentMonthLabel();
@@ -32,18 +32,27 @@ export class DashboardComponent implements OnInit {
   }
 
   loadData(): void {
-    this.requests = this.dataService.getRequests() || [];
-    this.clients = this.dataService.getClients() || [];
+    this.apiService.getAllDemandes().subscribe(reqs => {
+      this.requests = reqs;
+      this.cdr.detectChanges();
+    });
+    this.clients = [];
     
     this.isLoadingStats = true;
-    this.apiService.getDashboardStats().subscribe({
+    this.apiService.getDashboardStats(this.currentYear, this.currentMonthIndex + 1).subscribe({
       next: (stats) => {
         this.dashboardStats = stats;
-        this.isLoadingStats = false;
+        setTimeout(() => {
+          this.isLoadingStats = false;
+          this.cdr.detectChanges();
+        }, 2000);
       },
       error: (err) => {
         console.error('Erreur chargement stats', err);
-        this.isLoadingStats = false;
+        setTimeout(() => {
+          this.isLoadingStats = false;
+          this.cdr.detectChanges();
+        }, 2000);
       }
     });
   }
@@ -57,7 +66,7 @@ export class DashboardComponent implements OnInit {
     const yStr = String(this.currentYear);
     const mStr = (this.currentMonthIndex + 1) < 10 ? `0${this.currentMonthIndex + 1}` : `${this.currentMonthIndex + 1}`;
     const prefix = `${yStr}-${mStr}`;
-    return this.requests.filter(r => r.date && String(r.date).startsWith(prefix));
+    return this.requests.filter(r => r.dateSubmitted && String(r.dateSubmitted).startsWith(prefix));
   }
 
   // Local counts removed in favor of API dashboardStats
@@ -83,7 +92,7 @@ export class DashboardComponent implements OnInit {
     const monthList = this.getChartMonthList();
     const data = [];
     for (const m of monthList) {
-      const monthReqs = this.requests.filter(r => r.date && String(r.date).startsWith(m.datePrefix));
+      const monthReqs = this.requests.filter(r => r.dateSubmitted && String(r.dateSubmitted).startsWith(m.datePrefix));
       let count = 0;
       if (this.selectedChartFilter === 'Toutes') {
         count = monthReqs.length;
@@ -143,7 +152,16 @@ export class DashboardComponent implements OnInit {
   getActiveConflictsCount(): number {
     const reqs = this.getRequestsForCurrentMonth();
     if (reqs.length === 0) return 0;
-    return reqs.filter(r => r.status === 'pending' && reqs.filter(o => o.id !== r.id && o.date === r.date).length > 0).length > 0 ? 1 : 0;
+    const divaReqs = reqs.filter(r => r.prestationId === 'salle-diva');
+    const seen = new Set<string>();
+    const conflicting = new Set<string>();
+    for (const r of divaReqs) {
+       if (!r.date) continue;
+       const key = r.date + '_' + (r.time || '');
+       if (seen.has(key)) conflicting.add(key);
+       else seen.add(key);
+    }
+    return conflicting.size;
   }
 
   getRoomBlockedCount(): number {
@@ -168,13 +186,15 @@ export class DashboardComponent implements OnInit {
   }
 
   getRecentRequestsFeed(): any[] {
-    const reqs = this.getRequestsForCurrentMonth();
-    return reqs.slice(0, 5).map(r => ({
-      name: r.clientName && r.clientName !== r.clientId ? r.clientName : this.getClientName(r.clientId),
-      badge: this.getPrestationName(r.prestationId) || r.prestationId,
-      date: r.dateSubmitted ? String(r.dateSubmitted).split('T')[0] : (r.date ? r.date : "Aujourd'hui"),
-      dotColor: r.status === 'accepted' ? '#059669' : (r.status === 'rejected' ? '#DC2626' : '#D97706')
-    }));
+    if (this.dashboardStats && this.dashboardStats.recentRequests) {
+        return this.dashboardStats.recentRequests.map((r: any) => ({
+          name: r.clientName || 'Client Inconnu',
+          badge: this.getPrestationName(r.prestationId) || r.prestationId,
+          date: r.dateSubmitted ? String(r.dateSubmitted).split('T')[0] : "Aujourd'hui",
+          dotColor: (r.status === 'accepted' || r.status === 'aboutis' || r.status === 'approved') ? '#059669' : (r.status === 'rejected' ? '#DC2626' : '#D97706')
+        }));
+    }
+    return [];
   }
 
   prevMonth(): void {
@@ -186,6 +206,7 @@ export class DashboardComponent implements OnInit {
       this.currentMonthIndex--;
     }
     this.updateCurrentMonthLabel();
+    this.loadData();
   }
 
   nextMonth(): void {
@@ -196,6 +217,7 @@ export class DashboardComponent implements OnInit {
       this.currentMonthIndex++;
     }
     this.updateCurrentMonthLabel();
+    this.loadData();
   }
 
   getMonthInputValue(): string {
@@ -214,6 +236,7 @@ export class DashboardComponent implements OnInit {
           this.currentYear = y;
           this.currentMonthIndex = m;
           this.updateCurrentMonthLabel();
+          this.loadData();
         }
       }
     }

@@ -41,6 +41,11 @@ export class DemandesComponent implements OnInit {
 
   showRejectModal = false;
   requestToReject: any = null;
+
+  showPropositionSelectionModal = false;
+  requestToAccept: any = null;
+  propositions: any[] = [];
+  selectedPropositionIds: number[] = [];
   
   isSubmitting = false;
 
@@ -66,7 +71,7 @@ export class DemandesComponent implements OnInit {
     { label: 'Tous', value: 'ALL' },
     { label: 'En attente', value: 'pending' },
     { label: 'Accepté', value: 'accepted' },
-    { label: 'Devis envoyé', value: 'sent' },
+    { label: 'Propositions envoyées', value: 'sent' },
     { label: 'Aboutis', value: 'aboutis' },
     { label: 'Refusé', value: 'rejected' }
   ];
@@ -82,6 +87,16 @@ export class DemandesComponent implements OnInit {
     this.gData.requests$.subscribe(r => this.requests = r);
     this.gData.clients$.subscribe(c => this.clients = c);
     this.gData.devis$.subscribe(d => this.devisList = d);
+    this.loadPropositions();
+  }
+
+  loadPropositions(): void {
+    this.apiService.getPropositions().subscribe({
+      next: (props) => {
+        this.propositions = props;
+      },
+      error: (err) => console.error('Erreur lors du chargement des propositions', err)
+    });
   }
 
   // --- FILTERS & PAGINATION ---
@@ -322,10 +337,10 @@ export class DemandesComponent implements OnInit {
   }
 
   // --- STATUS ACTIONS ---
-  setStatus(id: string, st: string): void {
+  setStatus(id: string, st: string, propIds?: number[]): void {
     const numId = Number(id);
     if (!isNaN(numId) && numId > 0) {
-      this.apiService.updateStatus(numId, st).subscribe({
+      this.apiService.updateStatus(numId, st, propIds).subscribe({
         next: () => { this.dataService.updateRequestStatus(id, st); this.gData.loadAll(); },
         error: () => { this.dataService.updateRequestStatus(id, st); this.gData.loadAll(); }
       });
@@ -336,9 +351,31 @@ export class DemandesComponent implements OnInit {
   }
 
   acceptRequest(req: any): void {
-    this.setStatus(req.id, 'accepted');
-    this.dataService.showToast(`Demande #${req.id} acceptée. Vous pouvez maintenant créer le devis.`);
-    this.openDevisModal(req, false);
+    this.requestToAccept = req;
+    this.selectedPropositionIds = [];
+    this.showPropositionSelectionModal = true;
+  }
+
+  togglePropositionSelection(id: number): void {
+    const index = this.selectedPropositionIds.indexOf(id);
+    if (index > -1) {
+      this.selectedPropositionIds.splice(index, 1);
+    } else {
+      this.selectedPropositionIds.push(id);
+    }
+  }
+
+  confirmAcceptRequest(): void {
+    if (!this.requestToAccept || this.selectedPropositionIds.length === 0) return;
+    this.setStatus(this.requestToAccept.id, 'sent', this.selectedPropositionIds);
+    this.dataService.showToast(`Demande #${this.requestToAccept.id} acceptée et propositions envoyées.`);
+    this.closePropositionSelectionModal();
+  }
+
+  closePropositionSelectionModal(): void {
+    this.showPropositionSelectionModal = false;
+    this.requestToAccept = null;
+    this.selectedPropositionIds = [];
   }
 
   acceptRequestFromDetails(): void {

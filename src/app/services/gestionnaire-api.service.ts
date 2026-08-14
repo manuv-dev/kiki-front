@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface GestionnaireDemandeDto {
@@ -40,6 +40,7 @@ export interface DashboardStatsDto {
 
 export interface UpdateStatusRequestDto {
   status: string;
+  propositionIds?: number[];
 }
 
 @Injectable({
@@ -63,16 +64,41 @@ export class GestionnaireApiService {
     return this.http.post<any>(`${this.apiUrl}/devis/direct`, payload);
   }
 
-  updateStatus(id: number, status: string): Observable<GestionnaireDemandeDto> {
-    return this.http.put<GestionnaireDemandeDto>(`${this.apiUrl}/demandes/${id}/status`, { status });
+  updateStatus(id: number, status: string, propositionIds?: number[]): Observable<GestionnaireDemandeDto> {
+    const payload: UpdateStatusRequestDto = { status };
+    if (propositionIds) payload.propositionIds = propositionIds;
+    return this.http.put<GestionnaireDemandeDto>(`${this.apiUrl}/demandes/${id}/status`, payload);
+  }
+
+  getPropositions(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/propositions`);
+  }
+
+  getPropositionsEnvoyees(): Observable<any[]> {
+    return this.http.get<any[]>(`${this.apiUrl}/propositions-envoyees`);
+  }
+
+  createProposition(prop: any): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/propositions`, prop);
+  }
+
+  updateProposition(id: number, prop: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/propositions/${id}`, prop);
+  }
+
+  deleteProposition(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/propositions/${id}`);
   }
 
   createDemande(demande: any): Observable<any> {
     return this.http.post<any>('http://localhost:8080/api/client/devis', demande);
   }
 
-  getDashboardStats(): Observable<DashboardStatsDto> {
-    return this.http.get<DashboardStatsDto>(`${this.apiUrl}/dashboard/stats`);
+  getDashboardStats(year?: number, month?: number): Observable<DashboardStatsDto> {
+    let params = new HttpParams();
+    if (year) params = params.set('year', year.toString());
+    if (month) params = params.set('month', month.toString());
+    return this.http.get<DashboardStatsDto>(`${this.apiUrl}/dashboard/stats`, { params });
   }
 
   createClient(clientData: any): Observable<any> {

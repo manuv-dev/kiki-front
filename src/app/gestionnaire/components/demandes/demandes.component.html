@@ -58,7 +58,7 @@
                       </span>
                     </td>
                     <td>{{ getPrestationName(req.prestationId) }}</td>
-                    <td>{{ req.location || 'À définir' }}</td>
+                    <td>{{ req.locationDetails || 'À définir' }}</td>
                     <td>{{ formatDate(req.date) }}</td>
                     <td>{{ req.guests || 0 }}</td>
                     <td>
@@ -188,7 +188,7 @@
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
           <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">PRESTATION DEMANDÉE</span>
           <div style="font-size: 0.95rem; font-weight: 700; color: #7A1C1C; margin-top: 0.3rem;">
-            <i class="fas fa-utensils me-1"></i> {{ currentDetailRequest.prestationId || 'Non défini' }}
+            <i class="fas fa-utensils me-1"></i> {{ currentDetailRequest.evenementNature || getPrestationName(currentDetailRequest.prestationId) || 'Non défini' }}
           </div>
         </div>
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
@@ -206,9 +206,9 @@
           </div>
         </div>
         <div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 0.9rem;">
-          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">LIEU / ADRESSE</span>
+          <span style="font-size: 0.72rem; color: #64748B; font-weight: 600; text-transform: uppercase;">LIEU / ADRESSE ({{ currentDetailRequest.locationType || 'autre' }})</span>
           <div style="font-size: 0.95rem; font-weight: 700; color: #1E293B; margin-top: 0.3rem;">
-            <i class="fas fa-map-marker-alt me-1" style="color: #DC2626;"></i> {{ currentDetailRequest.location || 'Dakar / À définir' }}
+            <i class="fas fa-map-marker-alt me-1" style="color: #DC2626;"></i> {{ currentDetailRequest.locationDetails || 'Dakar / À définir' }}
           </div>
         </div>
       </div>
@@ -232,7 +232,7 @@
         <!-- Si en attente : possibilité d'accepter ou refuser -->
         <ng-container *ngIf="currentDetailRequest.status === 'pending' || currentDetailRequest.status === 'En attente'">
           <button type="button" class="btn" style="background: #059669; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="acceptRequestFromDetails()">
-            <i class="fas fa-check me-1"></i> ACCEPTER LA DEMANDE
+            <i class="fas fa-check me-1"></i> ACCEPTER ET ENVOYER PROPOSITIONS
           </button>
           <button type="button" class="btn" style="background: #DC2626; color: white; font-weight: 600; padding: 0.5rem 1.1rem;" (click)="rejectRequestFromDetails()">
             <i class="fas fa-times me-1"></i> REFUSER
@@ -430,6 +430,48 @@
       </button>
       <button type="button" (click)="confirmReject()" style="padding: 0.5rem 1rem; background: #DC2626; border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; display: flex; align-items: center;">
         <i class="fas fa-times" style="margin-right: 0.5rem;"></i> Confirmer le refus
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SELECTION PROPOSITION (POUR ACCEPTATION) -->
+<div *ngIf="showPropositionSelectionModal" class="modal-backdrop" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; display: flex; align-items: center; justify-content: center;">
+  <div class="modal-content" style="background: white; border-radius: 12px; width: 90%; max-width: 600px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); overflow: hidden; animation: slideDown 0.3s ease-out;">
+    <div class="modal-header" style="background: #F8FAFC; padding: 1.5rem; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center;">
+      <h3 style="margin: 0; color: #059669; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center;">
+        <i class="fas fa-check-circle" style="margin-right: 0.75rem;"></i> Accepter et Envoyer une Proposition
+      </h3>
+      <button class="modal-close" (click)="closePropositionSelectionModal()" style="background: none; border: none; font-size: 1.5rem; color: #64748B; cursor: pointer;">&times;</button>
+    </div>
+    
+    <div class="modal-body" style="padding: 1.5rem; color: #475569; font-size: 0.95rem; line-height: 1.5; max-height: 60vh; overflow-y: auto;">
+      <p style="margin-bottom: 1rem;">Veuillez choisir la/les proposition(s) à envoyer au client <strong>{{requestToAccept?.clientName || gData.getClientName(requestToAccept?.clientId)}}</strong>.</p>
+      
+      <div *ngIf="propositions.length === 0" style="padding: 1.5rem; text-align: center; background: #F1F5F9; border-radius: 8px;">
+        Aucune proposition disponible dans le catalogue. Veuillez d'abord en créer une depuis l'onglet "Propositions".
+      </div>
+
+      <div class="proposition-options" style="display: grid; gap: 1rem;">
+        <label *ngFor="let prop of propositions" style="display: flex; align-items: flex-start; padding: 1rem; border: 1px solid #E2E8F0; border-radius: 8px; cursor: pointer; transition: all 0.2s;" [style.borderColor]="selectedPropositionIds.includes(prop.id) ? '#059669' : '#E2E8F0'" [style.background]="selectedPropositionIds.includes(prop.id) ? '#F0FDF4' : 'white'">
+          <input type="checkbox" name="propositionSelection_{{prop.id}}" [value]="prop.id" [checked]="selectedPropositionIds.includes(prop.id)" (change)="togglePropositionSelection(prop.id)" style="margin-top: 0.2rem; margin-right: 1rem;">
+          <div style="flex: 1;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+              <strong style="color: #1E293B;">{{ prop.titre }}</strong>
+              <span style="color: #059669; font-weight: 700;">{{ prop.prixUnitairePersonne | number:'1.0-0':'fr' }} FCFA / pers.</span>
+            </div>
+            <p style="font-size: 0.85rem; color: #64748B; margin: 0;">{{ prop.description | slice:0:100 }}...</p>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="padding: 1.5rem; border-top: 1px solid #E2E8F0; display: flex; justify-content: flex-end; gap: 1rem; background: #F8FAFC;">
+      <button type="button" (click)="closePropositionSelectionModal()" style="padding: 0.5rem 1rem; background: white; border: 1px solid #CBD5E1; border-radius: 6px; color: #475569; font-weight: 600; cursor: pointer;">
+        Annuler
+      </button>
+      <button type="button" [disabled]="selectedPropositionIds.length === 0" (click)="confirmAcceptRequest()" [style.opacity]="selectedPropositionIds.length === 0 ? '0.5' : '1'" [style.cursor]="selectedPropositionIds.length === 0 ? 'not-allowed' : 'pointer'" style="padding: 0.5rem 1rem; background: #059669; border: none; border-radius: 6px; color: white; font-weight: 600; display: flex; align-items: center;">
+        <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i> Confirmer et Envoyer
       </button>
     </div>
   </div>

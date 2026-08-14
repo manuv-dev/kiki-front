@@ -41,6 +41,23 @@ import { GestionnaireDataService } from './services/gestionnaire-data.service';
               <i class="fas fa-file-invoice me-2"></i> Demandes de devis
             </a>
           </li>
+          <li class="nav-item has-submenu">
+            <a routerLink="/gestionnaire/propositions" [queryParams]="{tab: 'envoyees'}" routerLinkActive="active" class="sidebar-link">
+              <i class="fas fa-list-alt me-2"></i> Propositions
+            </a>
+            <ul *ngIf="isPropositionsMenuOpen()" class="submenu" style="list-style-type: none; padding-left: 2rem; margin-top: 0.5rem; font-size: 0.9rem;">
+              <li style="margin-bottom: 0.5rem;">
+                <a routerLink="/gestionnaire/propositions" [queryParams]="{tab: 'catalogue'}" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" style="color: #cbd5e1; text-decoration: none; display: block; padding: 0.3rem 0; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#cbd5e1'">
+                  <i class="fas fa-book me-2" style="font-size: 0.8rem;"></i> Catalogue
+                </a>
+              </li>
+              <li>
+                <a routerLink="/gestionnaire/propositions" [queryParams]="{tab: 'envoyees'}" routerLinkActive="active" style="color: #cbd5e1; text-decoration: none; display: block; padding: 0.3rem 0; transition: color 0.2s;" onmouseover="this.style.color='white'" onmouseout="this.style.color='#cbd5e1'">
+                  <i class="fas fa-paper-plane me-2" style="font-size: 0.8rem;"></i> Envoyées
+                </a>
+              </li>
+            </ul>
+          </li>
           <li>
             <a routerLink="/gestionnaire/agenda" routerLinkActive="active" class="sidebar-link">
               <i class="fas fa-calendar-alt me-2"></i> Calendrier interne
@@ -147,10 +164,15 @@ export class GestionnaireLayoutComponent implements OnInit {
     return !url.includes('demandes');
   }
 
+  isPropositionsMenuOpen(): boolean {
+    return this.router.url.includes('propositions');
+  }
+
   getTitle(): string {
     const url = this.router.url;
     if (url.includes('dashboard')) return 'Tableau de bord';
     if (url.includes('demandes')) return 'Demandes de devis';
+    if (url.includes('propositions')) return 'Catalogue des Propositions';
     if (url.includes('agenda')) return 'Calendrier interne';
     if (url.includes('mediatheque')) return 'Médiathèque';
     if (url.includes('cms')) return 'CMS & Contenus';
@@ -164,6 +186,7 @@ export class GestionnaireLayoutComponent implements OnInit {
     const url = this.router.url;
     if (url.includes('dashboard')) return "Vue d'ensemble de l'activité de Kiki Traiteur.";
     if (url.includes('demandes')) return 'Traitement commercial et validation des devis.';
+    if (url.includes('propositions')) return 'Gestion des modèles de propositions commerciales.';
     if (url.includes('agenda')) return 'Organisation interne et planification logistique.';
     if (url.includes('mediatheque')) return 'Galerie photos, catalogues et documents Kiki Traiteur.';
     if (url.includes('cms')) return 'Gestion des textes, cartes, plats et contenus en ligne.';

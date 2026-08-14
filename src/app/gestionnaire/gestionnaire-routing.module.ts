@@ -11,6 +11,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
       { path: 'dashboard', loadComponent: () => import('./components/dashboard/dashboard.component').then(m => m.DashboardComponent) },
       { path: 'demandes', loadComponent: () => import('./components/demandes/demandes.component').then(m => m.DemandesComponent) },
+      { path: 'propositions', loadComponent: () => import('./components/propositions/propositions.component').then(m => m.PropositionsComponent) },
       { path: 'agenda', loadComponent: () => import('./components/agenda/agenda.component').then(m => m.AgendaComponent) },
       { path: 'mediatheque', loadComponent: () => import('./components/mediatheque/mediatheque.component').then(m => m.MediathequeComponent) },
       { path: 'cms', loadComponent: () => import('./components/cms/cms.component').then(m => m.CmsComponent) },
