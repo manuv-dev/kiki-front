@@ -3,14 +3,16 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { LoadingService } from './services/loading.service';
 import { Observable } from 'rxjs';
+import { AuthService } from '../core/services/auth.service';
 import { KikiDataService } from '../services/kiki-data.service';
 import { GestionnaireDataService } from './services/gestionnaire-data.service';
+import { NotificationBellComponent } from '../shared/notifications/notification-bell.component';
 
 @Component({
   selector: 'app-gestionnaire-layout',
   standalone: true,
   encapsulation: ViewEncapsulation.None,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NotificationBellComponent],
   styleUrls: ['./gestionnaire.css'],
   template: `
     <!-- Global Loading Spinner Overlay -->
@@ -78,9 +80,9 @@ import { GestionnaireDataService } from './services/gestionnaire-data.service';
               <i class="fas fa-users me-2"></i> Clients
             </a>
           </li>
-          <li>
-            <a routerLink="/gestionnaire/personnel" routerLinkActive="active" class="sidebar-link">
-              <i class="fas fa-user-plus me-2"></i> Personnel
+          <li *ngIf="isAdmin()">
+            <a routerLink="/gestionnaire/personnel" routerLinkActive="active" class="sidebar-link" style="color: #f87171;">
+              <i class="fas fa-user-shield me-2"></i> Admin (Personnel)
             </a>
           </li>
           <li>
@@ -96,7 +98,7 @@ import { GestionnaireDataService } from './services/gestionnaire-data.service';
               <div class="user-avatar">{{ getUserInitials() }}</div>
               <div class="user-info">
                 <span class="user-name">{{ getUserName() }}</span>
-                <span class="user-role">GESTIONNAIRE</span>
+                <span class="user-role">{{ getUserRole() }}</span>
               </div>
             </div>
             <a href="javascript:void(0)" (click)="logout()" class="logout-link">
@@ -114,8 +116,9 @@ import { GestionnaireDataService } from './services/gestionnaire-data.service';
             <h1>{{ getTitle() }}</h1>
             <p>{{ getSubtitle() }}</p>
           </div>
-          <div *ngIf="showCreateEventBtn()" class="header-actions">
-            <a routerLink="/gestionnaire/agenda" [queryParams]="{create: 'true'}" class="btn-create-event">
+          <div class="header-actions" style="display: flex; align-items: center; gap: 1.5rem;">
+            <app-notification-bell></app-notification-bell>
+            <a *ngIf="showCreateEventBtn()" routerLink="/gestionnaire/agenda" [queryParams]="{create: 'true'}" class="btn-create-event">
               <i class="fas fa-plus-circle"></i> CRÉER UN ÉVÉNEMENT
             </a>
           </div>
@@ -135,7 +138,8 @@ export class GestionnaireLayoutComponent implements OnInit {
     private router: Router,
     private loadingService: LoadingService,
     private dataService: KikiDataService,
-    private gData: GestionnaireDataService
+    private gData: GestionnaireDataService,
+    private auth: AuthService
   ) {
     this.isLoading$ = this.loadingService.loading$;
   }
@@ -144,12 +148,25 @@ export class GestionnaireLayoutComponent implements OnInit {
     this.gData.loadAll();
   }
 
+  isAdmin(): boolean {
+    const user = this.auth.getCurrentUser();
+    return user ? user.role === 'ADMIN' : false;
+  }
+
+  getUserRole(): string {
+    const user = this.auth.getCurrentUser();
+    return user ? user.role : 'GESTIONNAIRE';
+  }
+
   logout() {
+    this.auth.logout();
     this.dataService.showToast('Déconnexion du module Gestionnaire ERP.');
-    this.router.navigate(['/site/connexion']);
+    this.router.navigate(['/']);
   }
 
   getUserName(): string {
+    const user = this.auth.getCurrentUser();
+    if (user && user.fullName) return user.fullName;
     const stored = localStorage.getItem('kiki_current_staff_name');
     return stored || 'Marie V.';
   }

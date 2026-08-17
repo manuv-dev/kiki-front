@@ -62,11 +62,15 @@ textarea {
 /* =============================================
    CORRECTION DES CHEVAUCHEMENTS ICÔNES / TEXTES
    ============================================= */
-.input-with-icon input,
+div.input-with-icon input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]),
 .input-with-icon .form-control,
 .input-with-icon input.form-control,
 input.input-with-icon-el {
-  padding-left: 2.75rem !important;
+  padding-left: 3rem !important;
+}
+
+div.password-field.input-with-icon input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="submit"]):not([type="button"]) {
+  padding-right: 3rem !important;
 }
 
 .input-with-icon {
@@ -75,8 +79,8 @@ input.input-with-icon-el {
   align-items: center !important;
 }
 
-.input-with-icon .input-icon,
-.input-with-icon i {
+.input-with-icon > .input-icon,
+.input-with-icon > i {
   position: absolute !important;
   left: 0.95rem !important;
   top: 50% !important;

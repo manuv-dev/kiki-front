@@ -1,0 +1,54 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface AdminUserResponse {
+  id: number;
+  username: string;
+  fullName: string;
+  role: string;
+  customLoginSlug: string;
+  active: boolean;
+  createdAt: string;
+  lastLoginAt: string;
+  tempPassword?: string;
+  loginUrl?: string;
+}
+
+export interface AdminCreateUserRequest {
+  fullName: string;
+  username: string;
+  role: string;
+}
+
+export interface AdminUpdateUserRequest {
+  fullName: string;
+  username: string;
+  role: string;
+  active: boolean;
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class AdminPersonnelService {
+  private apiUrl = 'http://localhost:8080/api/admin/users';
+
+  constructor(private http: HttpClient) {}
+
+  getAllStaff(): Observable<AdminUserResponse[]> {
+    return this.http.get<AdminUserResponse[]>(this.apiUrl);
+  }
+
+  createStaffUser(data: AdminCreateUserRequest): Observable<AdminUserResponse> {
+    return this.http.post<AdminUserResponse>(this.apiUrl, data);
+  }
+
+  updateStaffUser(id: number, data: AdminUpdateUserRequest): Observable<AdminUserResponse> {
+    return this.http.put<AdminUserResponse>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteStaffUser(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+}
