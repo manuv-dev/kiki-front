@@ -3,9 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface DemandeDevisRequestDto {
-  clientName: string;
-  clientEmail: string;
-  clientPhone: string;
+  name: string;
+  email: string;
+  phone: string;
   clientType: string;
   organization?: string;
   prestationId: string;
@@ -14,8 +14,10 @@ export interface DemandeDevisRequestDto {
   time: string;
   guests: number;
   isInstitution?: boolean;
-  location?: string;
+  locationType?: string;
+  locationDetails?: string;
   cuisine?: string;
+  evenementNature?: string;
   message?: string;
 }
 

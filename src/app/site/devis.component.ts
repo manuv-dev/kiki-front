@@ -1369,38 +1369,23 @@ export class DevisComponent implements OnInit {
     this.dataService.showToast('Envoi de votre demande en cours...', false);
 
     const payload = {
-      clientName: (this.form.name && this.form.name.trim()) ? this.form.name : 'Client Kiki Traiteur',
-      clientEmail: (this.form.email && this.form.email.trim()) ? this.form.email : 'client@kikitraiteur.com',
-      clientPhone: this.form.phone || '+221 77 000 00 00',
+      name: (this.form.name && this.form.name.trim()) ? this.form.name : 'Client Kiki Traiteur',
+      email: (this.form.email && this.form.email.trim()) ? this.form.email : 'client@kikitraiteur.com',
+      phone: this.form.phone || '+221 77 000 00 00',
       clientType: this.form.clientType || 'particulier',
       organization: this.form.organization || '',
       prestationId: this.form.prestationId || 'restauration-entreprise',
-      prestationTitle: this.getPrestationTitle(this.form.prestationId || 'restauration-entreprise'),
       date: this.form.date || new Date().toISOString().split('T')[0],
       time: this.form.time || '19:00',
       guests: Number(this.form.guests) || 50,
-      isInstitution: this.form.clientType === 'entreprise',
-      location: this.getLocationDisplay() || 'Dakar',
+      locationType: this.form.locationType || 'autre',
+      locationDetails: this.form.locationDetails || 'Dakar',
       evenementNature: this.form.evenementNature || '',
       message: `${this.getLocationDisplay()} | Prestation: ${this.getPrestationLabel(this.form.prestationId)} ${this.form.evenementNature ? '('+this.form.evenementNature+')' : ''} | ${this.form.message || 'RAS'}`
     };
 
-    this.clientApi.creerDemandeDevis(payload).subscribe({
-      next: (res) => {
-        console.log('Réponse API Neon DB (devis créé):', res);
-      },
-      error: (err) => {
-        if (err.status === 400 && err.error) {
-          const errorMsg = err.error.message || (err.error.messages ? Object.values(err.error.messages).join(' | ') : 'Erreur de validation des données.');
-          this.dataService.showToast('Attention : ' + errorMsg, true);
-        } else {
-          console.error('Erreur appel API (fallback local active):', err);
-        }
-      }
-    });
-
     // Simule une attente UX de 1.5s maximum pour garantir une réponse ultra-rapide côté client
-    setTimeout(() => {
+    const successTimeoutId = setTimeout(() => {
       this.isSubmitting = false;
       this.dataService.addRequest({
         clientId: this.form.clientType === 'entreprise' ? 'cli_2' : 'cli_1',
@@ -1415,6 +1400,24 @@ export class DevisComponent implements OnInit {
       this.resetForm();
       this.router.navigate(['/']);
     }, 1500);
+
+    this.clientApi.creerDemandeDevis(payload).subscribe({
+      next: (res) => {
+        console.log('Réponse API Neon DB (devis créé):', res);
+      },
+      error: (err) => {
+        // En cas d'erreur API, on annule le succès UX simulé et on affiche l'erreur
+        clearTimeout(successTimeoutId);
+        this.isSubmitting = false;
+        if (err.status === 400 && err.error) {
+          const errorMsg = err.error.message || (err.error.messages ? Object.values(err.error.messages).join(' | ') : 'Erreur de validation des données.');
+          this.dataService.showToast('Attention : ' + errorMsg, true);
+        } else {
+          console.error('Erreur appel API (fallback local active):', err);
+          this.dataService.showToast('Erreur serveur inattendue. Veuillez réessayer.', true);
+        }
+      }
+    });
   }
 
   private getPrestationTitle(id: string): string {
