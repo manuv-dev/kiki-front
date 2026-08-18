@@ -5,6 +5,8 @@ import { Subscription } from 'rxjs';
 import { AdminPersonnelService, AdminUserResponse, AdminCreateUserRequest, AdminUpdateUserRequest } from '../../services/admin-personnel.service';
 import { KikiDataService } from '../../../services/kiki-data.service';
 
+const CACHE_KEY = 'kiki_personnel_cache';
+
 /** Liste des postes disponibles pour le personnel */
 export const POSTES_PERSONNEL = [
   { value: 'RESPONSABLE_CUISINE', label: 'Responsable Cuisine' },
@@ -48,7 +50,8 @@ export const ROLE_LABELS: Record<string, string> = {
 })
 export class PersonnelComponent implements OnInit, OnDestroy {
   staffList: AdminUserResponse[] = [];
-  loading = false;
+  loading = false;       // true seulement si aucune donnée en cache
+  refreshing = false;    // indicateur discret de rafraîchissement en arrière-plan
 
   showModal = false;
   isEditing = false;
@@ -83,16 +86,34 @@ export class PersonnelComponent implements OnInit, OnDestroy {
     this.subs.forEach(s => s.unsubscribe());
   }
 
-  loadStaff(): void {
-    this.loading = true;
+  loadStaff(silent = false): void {
+    // Afficher le cache immédiatement si disponible
+    const cached = localStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        this.staffList = JSON.parse(cached);
+      } catch { /* ignore */ }
+    }
+
+    // Montrer le spinner seulement si pas de cache
+    if (!cached && !silent) {
+      this.loading = true;
+    } else if (!silent) {
+      this.refreshing = true;
+    }
+
     const sub = this.personnelService.getAllStaff().subscribe({
       next: (data) => {
         this.staffList = data;
         this.loading = false;
+        this.refreshing = false;
+        // Mettre à jour le cache
+        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
       },
       error: () => {
         this.toast.showToast('Erreur lors du chargement du personnel.');
         this.loading = false;
+        this.refreshing = false;
       }
     });
     this.subs.push(sub);
@@ -128,8 +149,6 @@ export class PersonnelComponent implements OnInit, OnDestroy {
     this.showModal = false;
     this.isSubmitting = false;
     this.newlyCreatedUser = null;
-    // Recharger la liste quand la modal se ferme après une création
-    this.loadStaff();
   }
 
   saveUser(): void {
@@ -149,8 +168,8 @@ export class PersonnelComponent implements OnInit, OnDestroy {
         next: () => {
           this.isSubmitting = false;
           this.toast.showToast('Utilisateur mis à jour avec succès.');
-          this.loadStaff();
           this.closeModal();
+          this.loadStaff(true); // rafraîchissement silencieux
         },
         error: (err) => {
           this.isSubmitting = false;
@@ -185,7 +204,7 @@ export class PersonnelComponent implements OnInit, OnDestroy {
       const sub = this.personnelService.deleteStaffUser(id).subscribe({
         next: () => {
           this.toast.showToast('Utilisateur supprimé.');
-          this.loadStaff();
+          this.loadStaff(true); // rafraîchissement silencieux
         },
         error: (err) => {
           this.toast.showToast(err.error?.message || 'Erreur lors de la suppression.');

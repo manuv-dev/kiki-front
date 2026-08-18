@@ -13,9 +13,14 @@
     </button>
   </div>
 
-  <!-- ── Chargement ─────────────────────────────────────────── -->
+  <!-- ── Chargement (seulement si pas de cache) ───────────── -->
   <div class="loading-state" *ngIf="loading">
     <i class="fas fa-spinner fa-spin"></i> Chargement...
+  </div>
+
+  <!-- ── Indicateur de rafraîchissement discret ───────────── -->
+  <div class="refresh-hint" *ngIf="refreshing && !loading">
+    <i class="fas fa-sync fa-spin"></i> Actualisation...
   </div>
 
   <!-- ── Tableau du personnel ──────────────────────────────── -->

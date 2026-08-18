@@ -7,6 +7,30 @@
   padding: 0.5rem 0.25rem;
 }
 
+/* ── État de chargement initial ── */
+.loading-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 4rem 2rem;
+  color: #7A1C1C;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* ── Indicateur de rafraîchissement discret (en haut à droite) ── */
+.refresh-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+  justify-content: flex-end;
+  padding-right: 0.25rem;
+}
+
 /* ── En-tête ── */
 .p-header {
   display: flex;
