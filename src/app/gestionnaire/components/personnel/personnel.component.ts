@@ -53,6 +53,10 @@ export class PersonnelComponent implements OnInit, OnDestroy {
   loading = false;       // true seulement si aucune donnée en cache
   refreshing = false;    // indicateur discret de rafraîchissement en arrière-plan
 
+  // Pagination
+  currentPage = 1;
+  pageSize = 5;
+
   showModal = false;
   isEditing = false;
   isSubmitting = false;
@@ -126,6 +130,21 @@ export class PersonnelComponent implements OnInit, OnDestroy {
   getRoleLabel(role: string): string {
     return this.roleLabels[role] || role;
   }
+
+  // --- Pagination ---
+  getStaffForPage(): AdminUserResponse[] {
+    const start = (this.currentPage - 1) * this.pageSize;
+    return this.staffList.slice(start, start + this.pageSize);
+  }
+
+  getTotalPages(): number {
+    return Math.max(1, Math.ceil(this.staffList.length / this.pageSize));
+  }
+
+  getPageArray(): number[] {
+    return Array.from({ length: this.getTotalPages() }, (_, i) => i + 1);
+  }
+  // ------------------
 
   openCreateModal(): void {
     this.isEditing = false;

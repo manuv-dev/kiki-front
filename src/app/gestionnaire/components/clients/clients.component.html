@@ -36,12 +36,12 @@
             </div>
 
             <!-- PAGINATION CLIENTS -->
-            <div *ngIf="getClientTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
+            <div *ngIf="getClientTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; padding-bottom: 1rem;">
               <button *ngFor="let p of getClientPageArray()" type="button" class="btn btn-sm"
                 [style.background]="clientPage === p ? '#7A1C1C' : 'white'"
                 [style.color]="clientPage === p ? 'white' : '#64748B'"
                 [style.border]="clientPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
-                style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; padding: 0; cursor: pointer; transition: all 0.2s;"
                 (click)="clientPage = p">
                 {{ p }}
               </button>
