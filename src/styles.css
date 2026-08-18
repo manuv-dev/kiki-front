@@ -26,6 +26,30 @@ body {
   gap: 0.5rem;
 }
 
+.toast-msg {
+  background-color: #1e293b;
+  color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  font-family: 'Poppins', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  border-left: 4px solid #10b981;
+}
+
+.toast-msg.error {
+  border-left-color: #ef4444;
+}
+
+.toast-msg.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* =============================================
    GLOBAL INPUT / SELECT / TEXTAREA RESET
    Applies across ALL components (site + gestionnaire)
