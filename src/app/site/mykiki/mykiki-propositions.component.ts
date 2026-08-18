@@ -5,7 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
-const API = 'http://localhost:8080';
+const API = 'https://kiki-backend-iuyo.onrender.com';
 
 @Component({
   selector: 'app-mykiki-propositions',

@@ -24,7 +24,7 @@ export interface UserProfile {
   customLoginSlug?: string;
 }
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = 'https://kiki-backend-iuyo.onrender.com';
 const TOKEN_KEY = 'kiki_jwt_token';
 const USER_KEY = 'kiki_current_user';
 

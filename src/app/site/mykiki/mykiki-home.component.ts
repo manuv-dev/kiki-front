@@ -5,7 +5,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { NotificationService } from '../../core/services/notification.service';
 import { HttpClient } from '@angular/common/http';
 
-const API = 'http://localhost:8080';
+const API = 'https://kiki-backend-iuyo.onrender.com';
 
 @Component({
   selector: 'app-mykiki-home',

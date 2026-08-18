@@ -38,7 +38,7 @@ export interface AdminUpdateUserRequest {
   providedIn: 'root'
 })
 export class AdminPersonnelService {
-  private apiUrl = 'http://localhost:8080/api/admin/users';
+  private apiUrl = 'https://kiki-backend-iuyo.onrender.com/api/admin/users';
 
   constructor(private http: HttpClient) {}
 

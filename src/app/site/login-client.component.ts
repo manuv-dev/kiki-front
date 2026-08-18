@@ -372,7 +372,7 @@ export class LoginClientComponent implements OnInit {
 
   handleGoogleCredentialResponse(response: any): void {
     const credential = response.credential;
-    this.http.post<any>('http://localhost:8080/api/auth/google/login', { credential }).subscribe({
+    this.http.post<any>('https://kiki-backend-iuyo.onrender.com/api/auth/google/login', { credential }).subscribe({
       next: (res) => {
         this.ngZone.run(() => {
           sessionStorage.setItem('token', res.token);
@@ -397,7 +397,7 @@ export class LoginClientComponent implements OnInit {
       return;
     }
     
-    this.http.post<any>('http://localhost:8080/api/auth/login', {
+    this.http.post<any>('https://kiki-backend-iuyo.onrender.com/api/auth/login', {
       username: this.email,
       password: this.password
     }).subscribe({

@@ -4,7 +4,7 @@ import { AuthService } from '../services/auth.service';
 import { catchError, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = 'https://kiki-backend-iuyo.onrender.com';
 
 export const jwtInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const authService = inject(AuthService);

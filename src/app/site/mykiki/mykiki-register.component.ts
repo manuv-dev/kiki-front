@@ -5,7 +5,7 @@ import { Router, RouterModule } from '@angular/router';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 
-const API = 'http://localhost:8080';
+const API = 'https://kiki-backend-iuyo.onrender.com';
 
 @Component({
   selector: 'app-mykiki-register',
@@ -565,7 +565,7 @@ export class MyKikiRegisterComponent implements OnInit {
   handleGoogleCredentialResponse(response: any): void {
     const credential = response.credential;
     this.loading = true;
-    this.http.post<any>('http://localhost:8080/api/auth/google/login', { credential }).subscribe({
+    this.http.post<any>('https://kiki-backend-iuyo.onrender.com/api/auth/google/login', { credential }).subscribe({
       next: (res) => {
         this.ngZone.run(() => {
           sessionStorage.setItem('token', res.token);

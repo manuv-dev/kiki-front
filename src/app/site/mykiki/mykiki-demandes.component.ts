@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 
-const API = 'http://localhost:8080';
+const API = 'https://kiki-backend-iuyo.onrender.com';
 
 @Component({
   selector: 'app-mykiki-demandes',

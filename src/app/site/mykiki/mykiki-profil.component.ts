@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../core/services/auth.service';
 
-const API = 'http://localhost:8080';
+const API = 'https://kiki-backend-iuyo.onrender.com';
 
 @Component({
   selector: 'app-mykiki-profil',

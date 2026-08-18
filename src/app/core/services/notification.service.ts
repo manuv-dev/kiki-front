@@ -13,7 +13,7 @@ export interface AppNotification {
   createdAt: string;
 }
 
-const API_BASE = 'http://localhost:8080';
+const API_BASE = 'https://kiki-backend-iuyo.onrender.com';
 
 @Injectable({ providedIn: 'root' })
 export class NotificationService {
