@@ -49,13 +49,26 @@ export class ClientsComponent implements OnInit {
 
   submitEditClient(): void {
     if (!this.editingClient) return;
-    this.dataService.updateClient(this.editingClient.id, this.editingClient);
-    this.dataService.showToast('Client mis à jour.');
-    // Keep 2s timeout to align with other popup closing logic
-    setTimeout(() => {
-      this.showEditClientModal = false;
-      this.gData.loadAll();
-    }, 2000);
+    
+    // Call the real backend API endpoint
+    this.apiService.updateClient(this.editingClient.id, this.editingClient).subscribe({
+      next: () => {
+        this.dataService.showToast('Client mis à jour avec succès.');
+        this.showEditClientModal = false;
+        this.gData.loadAll();
+      },
+      error: (err) => {
+        const msg = err.error?.message || err.error || 'Erreur lors de la mise à jour.';
+        this.dataService.showToast(msg, true);
+        
+        // Fallback for old local update if API fails (just in case)
+        this.dataService.updateClient(this.editingClient.id, this.editingClient);
+        setTimeout(() => {
+          this.showEditClientModal = false;
+          this.gData.loadAll();
+        }, 2000);
+      }
+    });
   }
 
   openCreateClientModal(): void {

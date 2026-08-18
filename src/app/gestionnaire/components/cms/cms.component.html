@@ -19,18 +19,10 @@
               (click)="cmsFilterTab = 'TESTIMONIALS'">
               <i class="fas fa-star me-1"></i> Témoignages &amp; Commentaires
             </button>
-            <button type="button" class="btn"
-              [style.background]="cmsFilterTab === 'ALL' ? '#7A1C1C' : '#F8FAFC'"
-              [style.color]="cmsFilterTab === 'ALL' ? 'white' : '#475569'"
-              [style.border]="cmsFilterTab === 'ALL' ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
-              style="padding: 0.5rem 1.1rem; border-radius: 6px; font-weight: 600;"
-              (click)="cmsFilterTab = 'ALL'">
-              <i class="fas fa-layer-group me-1"></i> Tous les contenus
-            </button>
           </div>
 
           <!-- FAQ PANEL -->
-          <div *ngIf="cmsFilterTab === 'ALL' || cmsFilterTab === 'FAQS'" class="panel" style="margin-bottom: 1.25rem;">
+          <div *ngIf="cmsFilterTab === 'FAQS'" class="panel" style="margin-bottom: 1.25rem;">
             <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
               <h2 class="panel-title"><i class="fas fa-question-circle me-2" style="color:#7A1C1C;"></i>Questions Fréquentes (FAQs)</h2>
               <button class="btn btn-accent" (click)="openAddFaqModal()"><i class="fas fa-plus me-1"></i> Créer une FAQ</button>
@@ -77,12 +69,12 @@
               </table>
             </div>
             <!-- PAGINATION FAQS -->
-            <div *ngIf="getFaqTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem;">
+            <div *ngIf="getFaqTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; padding-bottom: 1rem;">
               <button *ngFor="let p of getFaqPageArray()" type="button" class="btn btn-sm"
                 [style.background]="faqPage === p ? '#7A1C1C' : 'white'"
                 [style.color]="faqPage === p ? 'white' : '#64748B'"
                 [style.border]="faqPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
-                style="width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; padding: 0;"
+                style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; padding: 0; cursor: pointer; transition: all 0.2s;"
                 (click)="faqPage = p">
                 {{ p }}
               </button>
@@ -90,7 +82,7 @@
           </div>
 
           <!-- TESTIMONIALS PANEL -->
-          <div *ngIf="cmsFilterTab === 'ALL' || cmsFilterTab === 'TESTIMONIALS'" class="panel">
+          <div *ngIf="cmsFilterTab === 'TESTIMONIALS'" class="panel">
             <div class="panel-header" style="flex-wrap: wrap; gap: 0.75rem;">
               <h2 class="panel-title"><i class="fas fa-star me-2" style="color:#D97706;"></i>Témoignages Clients</h2>
               <button class="btn btn-accent" (click)="openAddTestimonialModal()"><i class="fas fa-plus me-1"></i> Ajouter un témoignage</button>
@@ -117,7 +109,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr *ngFor="let t of testimonials">
+                  <tr *ngFor="let t of getTestimonialsForPage()">
                     <td style="white-space: normal; word-break: break-word; font-style: italic; color: #475569; font-size: 0.68rem;">"{{ t.text }}"</td>
                     <td style="white-space: normal; font-size: 0.70rem;"><strong>{{ t.clientName }}</strong></td>
                     <td style="white-space: normal; font-size: 0.68rem; color: #64748B;">{{ t.clientTitle }}</td>
@@ -142,6 +134,18 @@
                   </tr>
                 </tbody>
               </table>
+            </div>
+
+            <!-- PAGINATION TESTIMONIALS -->
+            <div *ngIf="getTestimonialTotalPages() > 1" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 1.25rem; padding-bottom: 1rem;">
+              <button *ngFor="let p of getTestimonialPageArray()" type="button" class="btn btn-sm"
+                [style.background]="testimonialPage === p ? '#7A1C1C' : 'white'"
+                [style.color]="testimonialPage === p ? 'white' : '#64748B'"
+                [style.border]="testimonialPage === p ? '1px solid #7A1C1C' : '1px solid #CBD5E1'"
+                style="width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; padding: 0; cursor: pointer; transition: all 0.2s;"
+                (click)="testimonialPage = p">
+                {{ p }}
+              </button>
             </div>
           </div>
 

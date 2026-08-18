@@ -105,6 +105,10 @@ export class GestionnaireApiService {
     return this.http.post<any>(`${this.apiUrl}/clients`, clientData);
   }
 
+  updateClient(id: number, clientData: any): Observable<any> {
+    return this.http.put<any>(`${this.apiUrl}/clients/${id}`, clientData);
+  }
+
   createOrUpdateDevis(devis: any): Observable<any> {
     return this.http.post<any>(this.devisApiUrl, devis);
   }

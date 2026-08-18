@@ -61,6 +61,10 @@ export class PersonnelComponent implements OnInit, OnDestroy {
   isEditing = false;
   isSubmitting = false;
 
+  /** Utilisateur sélectionné pour la vue détaillée (popup Voir) */
+  viewUser: AdminUserResponse | null = null;
+  showViewModal = false;
+
   /** Résultat d'un reset d'accès, affiché dans une modal dédiée */
   resetResult: AdminUserResponse | null = null;
   showResetModal = false;
@@ -129,6 +133,17 @@ export class PersonnelComponent implements OnInit, OnDestroy {
 
   getRoleLabel(role: string): string {
     return this.roleLabels[role] || role;
+  }
+
+  // --- Modal Voir ---
+  openViewModal(user: AdminUserResponse): void {
+    this.viewUser = user;
+    this.showViewModal = true;
+  }
+
+  closeViewModal(): void {
+    this.showViewModal = false;
+    this.viewUser = null;
   }
 
   // --- Pagination ---

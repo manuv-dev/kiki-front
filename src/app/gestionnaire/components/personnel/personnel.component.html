@@ -43,8 +43,8 @@
             <th>Identifiant / Email</th>
             <th>Poste</th>
             <th>Statut</th>
-            <th>Lien / Dernière connexion</th>
-            <th class="col-actions">Actions</th>
+            <th>Accès</th>
+            <th class="col-actions" style="width: 140px;">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -81,11 +81,15 @@
                   <i class="fas fa-copy"></i>
                 </button>
               </div>
-              <span *ngIf="!staff.loginUrl">
-                {{ staff.lastLoginAt ? (staff.lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Jamais connecté' }}
+              <span *ngIf="!staff.loginUrl" style="color: #94a3b8; font-style: italic;">
+                Standard
               </span>
             </td>
             <td class="actions-cell">
+              <!-- Voir -->
+              <button class="btn-icon" style="color: #10b981;" title="Voir les détails et l'historique" (click)="openViewModal(staff)">
+                <i class="fas fa-eye"></i>
+              </button>
               <!-- Modifier -->
               <button class="btn-icon btn-edit" title="Modifier" (click)="openEditModal(staff)">
                 <i class="fas fa-edit"></i>
@@ -125,6 +129,68 @@
         (click)="currentPage = p">
         {{ p }}
       </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Modal Voir Utilisateur                                     -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showViewModal" (click)="$event.target === $event.currentTarget && closeViewModal()">
+  <div class="modal-card">
+    <div class="modal-card-header">
+      <div class="modal-title-group">
+        <div class="modal-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+          <i class="fas fa-user"></i>
+        </div>
+        <h3>Détails du profil</h3>
+      </div>
+      <button class="modal-close-btn" (click)="closeViewModal()" title="Fermer">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="modal-card-body" *ngIf="viewUser">
+      <div style="display: flex; gap: 1rem; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+        <div class="staff-avatar" style="width: 60px; height: 60px; font-size: 1.5rem; border-radius: 16px;">
+          {{ viewUser.fullName.charAt(0) }}
+        </div>
+        <div>
+          <h4 style="margin: 0; font-size: 1.2rem; color: #1e293b; font-weight: 700;">{{ viewUser.fullName }}</h4>
+          <span style="color: #64748b; font-size: 0.9rem; font-family: monospace;">{{ viewUser.username }}</span>
+          <div style="margin-top: 0.4rem;">
+            <span class="role-badge" [ngClass]="'role-' + viewUser.role.toLowerCase()">
+              {{ getRoleLabel(viewUser.role) }}
+            </span>
+            <span class="status-badge" [ngClass]="viewUser.active ? 'status-active' : 'status-inactive'" style="margin-left: 0.5rem;">
+              <i class="fas fa-circle"></i> {{ viewUser.active ? 'Actif' : 'Inactif' }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <h5 style="margin: 0 0 1rem 0; color: #334155; font-size: 0.95rem;"><i class="fas fa-history" style="color: #64748b; margin-right: 0.5rem;"></i>Historique de connexion</h5>
+      
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem;">
+        <div *ngIf="viewUser.lastLoginAt" style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; flex-direction: column;">
+            <strong style="color: #1e293b; font-size: 0.9rem;">Dernière connexion</strong>
+            <span style="color: #64748b; font-size: 0.8rem;">Session réussie</span>
+          </div>
+          <span style="background: #dcfce7; color: #15803d; padding: 0.3rem 0.6rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">
+            {{ viewUser.lastLoginAt | date:'dd MMM yyyy, HH:mm' }}
+          </span>
+        </div>
+        
+        <div *ngIf="!viewUser.lastLoginAt" style="text-align: center; color: #94a3b8; font-size: 0.9rem; padding: 1rem 0;">
+          <i class="fas fa-clock" style="font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.5;"></i><br>
+          Cet utilisateur ne s'est jamais connecté.
+        </div>
+      </div>
+      
+      <div style="display: flex; justify-content: flex-end; margin-top: 1.5rem;">
+        <button class="btn-add" (click)="closeViewModal()">Fermer</button>
+      </div>
     </div>
   </div>
 </div>

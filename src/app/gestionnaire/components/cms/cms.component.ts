@@ -19,6 +19,9 @@ export class CmsComponent implements OnInit {
   faqPage = 1;
   faqPageSize = 5;
 
+  testimonialPage = 1;
+  testimonialPageSize = 5;
+
   showFaqModal = false;
   isEditingFaq = false;
   faqForm = { id: '', question: '', answer: '', category: 'Général' };
@@ -82,6 +85,10 @@ export class CmsComponent implements OnInit {
   }
 
   // --- TESTIMONIALS ---
+  getTestimonialsForPage(): any[] { const start = (this.testimonialPage - 1) * this.testimonialPageSize; return this.testimonials.slice(start, start + this.testimonialPageSize); }
+  getTestimonialTotalPages(): number { return Math.max(1, Math.ceil(this.testimonials.length / this.testimonialPageSize)); }
+  getTestimonialPageArray(): number[] { return Array.from({ length: this.getTestimonialTotalPages() }, (_, i) => i + 1); }
+
   getStarsArray(n: number): number[] { return Array.from({ length: n || 5 }, (_, i) => i); }
 
   openAddTestimonialModal(): void {
