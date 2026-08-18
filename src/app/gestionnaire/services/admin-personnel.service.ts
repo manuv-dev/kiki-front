@@ -9,6 +9,7 @@ export interface AdminUserResponse {
   role: string;
   customLoginSlug: string;
   active: boolean;
+  tempPasswordChangeRequired: boolean;
   createdAt: string;
   lastLoginAt: string;
   tempPassword?: string;
@@ -56,5 +57,20 @@ export class AdminPersonnelService {
 
   deleteStaffUser(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  /**
+   * Réinitialise l'accès : nouveau mot de passe temporaire généré côté backend.
+   * Retourne la réponse avec tempPassword visible une seule fois.
+   */
+  resetAccess(id: number): Observable<AdminUserResponse> {
+    return this.http.post<AdminUserResponse>(`${this.apiUrl}/${id}/reset-access`, {});
+  }
+
+  /**
+   * Active ou désactive un compte utilisateur.
+   */
+  toggleActive(id: number, active: boolean): Observable<AdminUserResponse> {
+    return this.http.patch<AdminUserResponse>(`${this.apiUrl}/${id}/toggle-active?active=${active}`, {});
   }
 }

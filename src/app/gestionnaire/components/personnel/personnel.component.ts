@@ -55,7 +55,11 @@ export class PersonnelComponent implements OnInit, OnDestroy {
 
   showModal = false;
   isEditing = false;
-  isSubmitting = false;   // ← NOUVEAU : prévient les doubles clics
+  isSubmitting = false;
+
+  /** Résultat d'un reset d'accès, affiché dans une modal dédiée */
+  resetResult: AdminUserResponse | null = null;
+  showResetModal = false;
 
   formData: any = {
     id: null,
@@ -204,7 +208,7 @@ export class PersonnelComponent implements OnInit, OnDestroy {
       const sub = this.personnelService.deleteStaffUser(id).subscribe({
         next: () => {
           this.toast.showToast('Utilisateur supprimé.');
-          this.loadStaff(true); // rafraîchissement silencieux
+          this.loadStaff(true);
         },
         error: (err) => {
           this.toast.showToast(err.error?.message || 'Erreur lors de la suppression.');
@@ -212,5 +216,60 @@ export class PersonnelComponent implements OnInit, OnDestroy {
       });
       this.subs.push(sub);
     }
+  }
+
+  /**
+   * Réinitialise l'accès d'un utilisateur :
+   * génère un nouveau mot de passe temporaire et ouvre la modal de résultat.
+   */
+  resetAccess(user: AdminUserResponse): void {
+    if (!confirm(`Réinitialiser l'accès de ${user.fullName} ? Un nouveau mot de passe temporaire sera généré.`)) return;
+    const sub = this.personnelService.resetAccess(user.id).subscribe({
+      next: (result) => {
+        this.resetResult = result;
+        this.showResetModal = true;
+        this.loadStaff(true);
+      },
+      error: (err) => {
+        this.toast.showToast(err.error?.message || 'Erreur lors de la réinitialisation.');
+      }
+    });
+    this.subs.push(sub);
+  }
+
+  closeResetModal(): void {
+    this.showResetModal = false;
+    this.resetResult = null;
+  }
+
+  /**
+   * Active ou désactive un compte en 1 clic.
+   */
+  toggleActive(user: AdminUserResponse): void {
+    const action = user.active ? 'bloquer' : 'activer';
+    if (!confirm(`Voulez-vous ${action} le compte de ${user.fullName} ?`)) return;
+    const sub = this.personnelService.toggleActive(user.id, !user.active).subscribe({
+      next: (updated) => {
+        // Mise à jour locale immédiate
+        const idx = this.staffList.findIndex(s => s.id === updated.id);
+        if (idx !== -1) this.staffList[idx] = updated;
+        this.toast.showToast(`Compte ${updated.active ? 'activé' : 'bloqué'} avec succès.`);
+        // Mettre à jour le cache
+        localStorage.setItem('kiki_personnel_cache', JSON.stringify(this.staffList));
+      },
+      error: (err) => {
+        this.toast.showToast(err.error?.message || 'Erreur lors du changement de statut.');
+      }
+    });
+    this.subs.push(sub);
+  }
+
+  /**
+   * Copie le lien de connexion dans le presse-papier.
+   */
+  copyLoginUrl(url: string): void {
+    navigator.clipboard.writeText(url).then(() => {
+      this.toast.showToast('Lien de connexion copié !');
+    });
   }
 }

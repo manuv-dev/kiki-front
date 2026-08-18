@@ -43,16 +43,22 @@
             <th>Identifiant / Email</th>
             <th>Poste</th>
             <th>Statut</th>
-            <th>Dernière Connexion</th>
+            <th>Lien / Dernière connexion</th>
             <th class="col-actions">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let staff of staffList" class="table-row">
+          <tr *ngFor="let staff of staffList" class="table-row" [class.row-inactive]="!staff.active">
             <td>
               <div class="staff-name-cell">
-                <div class="staff-avatar">{{ staff.fullName.charAt(0) }}</div>
-                <span>{{ staff.fullName }}</span>
+                <div class="staff-avatar" [class.avatar-inactive]="!staff.active">{{ staff.fullName.charAt(0) }}</div>
+                <div class="staff-name-info">
+                  <span>{{ staff.fullName }}</span>
+                  <!-- Badge 1er login -->
+                  <span class="badge-first-login" *ngIf="staff.tempPasswordChangeRequired" title="N'a pas encore changé son mot de passe">
+                    <i class="fas fa-key"></i> 1er login
+                  </span>
+                </div>
               </div>
             </td>
             <td class="username-cell">{{ staff.username }}</td>
@@ -63,17 +69,41 @@
             </td>
             <td>
               <span class="status-badge" [ngClass]="staff.active ? 'status-active' : 'status-inactive'">
-                <i class="fas" [ngClass]="staff.active ? 'fa-circle' : 'fa-circle'"></i>
+                <i class="fas fa-circle"></i>
                 {{ staff.active ? 'Actif' : 'Inactif' }}
               </span>
             </td>
             <td class="date-cell">
-              {{ staff.lastLoginAt ? (staff.lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Jamais connecté' }}
+              <!-- Lien copier pour Gestionnaire/Admin -->
+              <div *ngIf="staff.loginUrl" class="login-url-cell">
+                <span class="login-url-text" title="{{ staff.loginUrl }}">Lien personnalisé</span>
+                <button class="btn-copy" (click)="copyLoginUrl(staff.loginUrl!)" title="Copier le lien de connexion">
+                  <i class="fas fa-copy"></i>
+                </button>
+              </div>
+              <span *ngIf="!staff.loginUrl">
+                {{ staff.lastLoginAt ? (staff.lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Jamais connecté' }}
+              </span>
             </td>
             <td class="actions-cell">
+              <!-- Modifier -->
               <button class="btn-icon btn-edit" title="Modifier" (click)="openEditModal(staff)">
                 <i class="fas fa-edit"></i>
               </button>
+              <!-- Réinitialiser l'accès -->
+              <button class="btn-icon btn-reset" title="Réinitialiser l'accès"
+                      *ngIf="staff.role !== 'ADMIN'"
+                      (click)="resetAccess(staff)">
+                <i class="fas fa-redo-alt"></i>
+              </button>
+              <!-- Activer / Bloquer -->
+              <button class="btn-icon" title="{{ staff.active ? 'Bloquer' : 'Activer' }}"
+                      [ngClass]="staff.active ? 'btn-block' : 'btn-activate'"
+                      *ngIf="staff.role !== 'ADMIN'"
+                      (click)="toggleActive(staff)">
+                <i class="fas" [ngClass]="staff.active ? 'fa-ban' : 'fa-check-circle'"></i>
+              </button>
+              <!-- Supprimer -->
               <button class="btn-icon btn-delete" title="Supprimer"
                       *ngIf="staff.role !== 'ADMIN'"
                       (click)="deleteUser(staff.id)">
@@ -221,3 +251,49 @@
     </div><!-- /modal-card-body -->
   </div><!-- /modal-card -->
 </div><!-- /modal-overlay -->
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Modal Réinitialisation d'accès                            -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showResetModal" (click)="$event.target === $event.currentTarget && closeResetModal()">
+  <div class="modal-card modal-card-sm">
+    <div class="modal-card-header">
+      <div class="modal-title-group">
+        <div class="modal-icon modal-icon-warning">
+          <i class="fas fa-redo-alt"></i>
+        </div>
+        <h3>Accès réinitialisé</h3>
+      </div>
+      <button class="modal-close-btn" (click)="closeResetModal()" title="Fermer">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-card-body" *ngIf="resetResult">
+      <p class="success-hint">
+        Transmettez ces nouveaux identifiants à <strong>{{ resetResult.fullName }}</strong>.<br>
+        <strong>Le mot de passe ne sera affiché qu'une seule fois.</strong>
+      </p>
+      <div class="credentials-box">
+        <div class="cred-row" *ngIf="resetResult.loginUrl">
+          <span class="cred-label"><i class="fas fa-link"></i> Lien</span>
+          <code class="cred-value link-value">{{ resetResult.loginUrl }}</code>
+          <button class="btn-cred-copy" (click)="copyLoginUrl(resetResult.loginUrl!)" title="Copier">
+            <i class="fas fa-copy"></i>
+          </button>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label"><i class="fas fa-user"></i> Identifiant</span>
+          <code class="cred-value">{{ resetResult.username }}</code>
+        </div>
+        <div class="cred-row">
+          <span class="cred-label"><i class="fas fa-key"></i> Mot de passe</span>
+          <code class="cred-value password-value">{{ resetResult.tempPassword }}</code>
+        </div>
+      </div>
+      <button class="btn-close-success" (click)="closeResetModal()">
+        <i class="fas fa-check"></i> Fermer
+      </button>
+    </div>
+  </div>
+</div>
