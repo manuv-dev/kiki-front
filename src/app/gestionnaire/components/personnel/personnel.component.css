@@ -211,21 +211,6 @@
   gap: 0.2rem;
 }
 
-/* ── Badge 1er login ── */
-.badge-first-login {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: #b45309;
-  background: #fef3c7;
-  border: 1px solid #fde68a;
-  padding: 0.1rem 0.45rem;
-  border-radius: 50px;
-  width: fit-content;
-}
-
 /* ── Lien copier ── */
 .login-url-cell {
   display: flex;

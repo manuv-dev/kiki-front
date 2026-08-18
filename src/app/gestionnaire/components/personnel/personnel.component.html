@@ -54,10 +54,6 @@
                 <div class="staff-avatar" [class.avatar-inactive]="!staff.active">{{ staff.fullName.charAt(0) }}</div>
                 <div class="staff-name-info">
                   <span>{{ staff.fullName }}</span>
-                  <!-- Badge 1er login -->
-                  <span class="badge-first-login" *ngIf="staff.tempPasswordChangeRequired" title="N'a pas encore changé son mot de passe">
-                    <i class="fas fa-key"></i> 1er login
-                  </span>
                 </div>
               </div>
             </td>
