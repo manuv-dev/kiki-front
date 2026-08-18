@@ -15,10 +15,16 @@ export interface AdminUserResponse {
   loginUrl?: string;
 }
 
+export type PersonnelRole =
+  'ADMIN' | 'GESTIONNAIRE' | 'PERSONNEL' |
+  'RESPONSABLE_CUISINE' | 'SOUS_CHEF' | 'ECONOME' | 'MAGASINIER' |
+  'CONTROLEUR' | 'CUISINIER' | 'SERVEUR' | 'AIDE_CUISINIER' |
+  'CHAUFFEUR' | 'PLONGEUR' | 'AGENT_SECURITE';
+
 export interface AdminCreateUserRequest {
   fullName: string;
   username: string;
-  role: string;
+  role: PersonnelRole;
 }
 
 export interface AdminUpdateUserRequest {

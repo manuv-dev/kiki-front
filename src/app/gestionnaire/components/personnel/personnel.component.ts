@@ -1,8 +1,43 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 import { AdminPersonnelService, AdminUserResponse, AdminCreateUserRequest, AdminUpdateUserRequest } from '../../services/admin-personnel.service';
 import { KikiDataService } from '../../../services/kiki-data.service';
+
+/** Liste des postes disponibles pour le personnel */
+export const POSTES_PERSONNEL = [
+  { value: 'RESPONSABLE_CUISINE', label: 'Responsable Cuisine' },
+  { value: 'SOUS_CHEF',           label: 'Sous-Chef Cuisinier' },
+  { value: 'ECONOME',             label: 'Economes' },
+  { value: 'MAGASINIER',          label: 'Magasiniers' },
+  { value: 'CONTROLEUR',          label: 'Contrôleurs' },
+  { value: 'CUISINIER',           label: 'Cuisiniers' },
+  { value: 'SERVEUR',             label: 'Serveurs' },
+  { value: 'AIDE_CUISINIER',      label: 'Aide Cuisiniers' },
+  { value: 'CHAUFFEUR',           label: 'Chauffeurs' },
+  { value: 'PLONGEUR',            label: 'Plongeurs' },
+  { value: 'AGENT_SECURITE',      label: 'Agents de Sécurité' },
+  { value: 'GESTIONNAIRE',        label: 'Gestionnaire (Accès Back-office)' },
+];
+
+/** Labels lisibles pour les rôles */
+export const ROLE_LABELS: Record<string, string> = {
+  ADMIN:              'Administrateur',
+  GESTIONNAIRE:       'Gestionnaire',
+  PERSONNEL:          'Personnel',
+  RESPONSABLE_CUISINE:'Responsable Cuisine',
+  SOUS_CHEF:          'Sous-Chef Cuisinier',
+  ECONOME:            'Econome',
+  MAGASINIER:         'Magasinier',
+  CONTROLEUR:         'Contrôleur',
+  CUISINIER:          'Cuisinier',
+  SERVEUR:            'Serveur',
+  AIDE_CUISINIER:     'Aide Cuisinier',
+  CHAUFFEUR:          'Chauffeur',
+  PLONGEUR:           'Plongeur',
+  AGENT_SECURITE:     'Agent de Sécurité',
+};
 
 @Component({
   selector: 'app-personnel',
@@ -11,22 +46,29 @@ import { KikiDataService } from '../../../services/kiki-data.service';
   templateUrl: './personnel.component.html',
   styleUrls: ['./personnel.component.css']
 })
-export class PersonnelComponent implements OnInit {
+export class PersonnelComponent implements OnInit, OnDestroy {
   staffList: AdminUserResponse[] = [];
   loading = false;
-  
+
   showModal = false;
   isEditing = false;
-  
+  isSubmitting = false;   // ← NOUVEAU : prévient les doubles clics
+
   formData: any = {
     id: null,
     fullName: '',
     username: '',
-    role: 'PERSONNEL',
+    role: 'RESPONSABLE_CUISINE',
     active: true
   };
-  
+
   newlyCreatedUser: AdminUserResponse | null = null;
+
+  /** Expose la liste des postes au template */
+  readonly postes = POSTES_PERSONNEL;
+  readonly roleLabels = ROLE_LABELS;
+
+  private subs: Subscription[] = [];
 
   constructor(
     private personnelService: AdminPersonnelService,
@@ -37,30 +79,41 @@ export class PersonnelComponent implements OnInit {
     this.loadStaff();
   }
 
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
+  }
+
   loadStaff(): void {
     this.loading = true;
-    this.personnelService.getAllStaff().subscribe({
+    const sub = this.personnelService.getAllStaff().subscribe({
       next: (data) => {
         this.staffList = data;
         this.loading = false;
       },
-      error: (err) => {
+      error: () => {
         this.toast.showToast('Erreur lors du chargement du personnel.');
         this.loading = false;
       }
     });
+    this.subs.push(sub);
+  }
+
+  getRoleLabel(role: string): string {
+    return this.roleLabels[role] || role;
   }
 
   openCreateModal(): void {
     this.isEditing = false;
     this.newlyCreatedUser = null;
-    this.formData = { id: null, fullName: '', username: '', role: 'PERSONNEL', active: true };
+    this.isSubmitting = false;
+    this.formData = { id: null, fullName: '', username: '', role: 'RESPONSABLE_CUISINE', active: true };
     this.showModal = true;
   }
 
   openEditModal(user: AdminUserResponse): void {
     this.isEditing = true;
     this.newlyCreatedUser = null;
+    this.isSubmitting = false;
     this.formData = {
       id: user.id,
       fullName: user.fullName,
@@ -73,9 +126,17 @@ export class PersonnelComponent implements OnInit {
 
   closeModal(): void {
     this.showModal = false;
+    this.isSubmitting = false;
+    this.newlyCreatedUser = null;
+    // Recharger la liste quand la modal se ferme après une création
+    this.loadStaff();
   }
 
   saveUser(): void {
+    // Prévenir les doubles soumissions
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
+
     if (this.isEditing) {
       const request: AdminUpdateUserRequest = {
         fullName: this.formData.fullName,
@@ -83,41 +144,45 @@ export class PersonnelComponent implements OnInit {
         role: this.formData.role,
         active: this.formData.active
       };
-      
-      this.personnelService.updateStaffUser(this.formData.id, request).subscribe({
-        next: (updatedUser) => {
+
+      const sub = this.personnelService.updateStaffUser(this.formData.id, request).subscribe({
+        next: () => {
+          this.isSubmitting = false;
           this.toast.showToast('Utilisateur mis à jour avec succès.');
           this.loadStaff();
           this.closeModal();
         },
         error: (err) => {
+          this.isSubmitting = false;
           this.toast.showToast(err.error?.message || 'Erreur lors de la mise à jour.');
         }
       });
+      this.subs.push(sub);
     } else {
       const request: AdminCreateUserRequest = {
         fullName: this.formData.fullName,
         username: this.formData.username,
         role: this.formData.role
       };
-      
-      this.personnelService.createStaffUser(request).subscribe({
+
+      const sub = this.personnelService.createStaffUser(request).subscribe({
         next: (createdUser) => {
-          this.toast.showToast('Utilisateur créé avec succès.');
+          this.isSubmitting = false;
           this.newlyCreatedUser = createdUser;
-          this.loadStaff();
-          // On ne ferme pas la modal pour laisser l'admin copier le mot de passe
+          // Ne pas fermer la modal : l'admin doit voir et copier le mot de passe
         },
         error: (err) => {
+          this.isSubmitting = false;
           this.toast.showToast(err.error?.message || 'Erreur lors de la création.');
         }
       });
+      this.subs.push(sub);
     }
   }
 
   deleteUser(id: number): void {
     if (confirm('Voulez-vous vraiment supprimer cet utilisateur ? Cette action est irréversible.')) {
-      this.personnelService.deleteStaffUser(id).subscribe({
+      const sub = this.personnelService.deleteStaffUser(id).subscribe({
         next: () => {
           this.toast.showToast('Utilisateur supprimé.');
           this.loadStaff();
@@ -126,6 +191,7 @@ export class PersonnelComponent implements OnInit {
           this.toast.showToast(err.error?.message || 'Erreur lors de la suppression.');
         }
       });
+      this.subs.push(sub);
     }
   }
 }

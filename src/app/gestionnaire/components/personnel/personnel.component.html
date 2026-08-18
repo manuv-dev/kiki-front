@@ -1,109 +1,218 @@
 <div class="personnel-container">
-  <div class="header-actions">
-    <h2>Gestion du Personnel</h2>
-    <button class="btn-primary" (click)="openCreateModal()">
-      <i class="fas fa-plus"></i> Ajouter un employé
+
+  <!-- ── En-tête ──────────────────────────────────────────── -->
+  <div class="p-header">
+    <div class="p-header-left">
+      <h2 class="p-title">
+        <i class="fas fa-users-cog"></i> Gestion du Personnel
+      </h2>
+      <span class="p-subtitle">Équipes culinaires et logistique de Kiki Traiteur</span>
+    </div>
+    <button class="btn-add" (click)="openCreateModal()">
+      <i class="fas fa-plus"></i> Ajouter un personnel
     </button>
   </div>
 
+  <!-- ── Chargement ─────────────────────────────────────────── -->
   <div class="loading-state" *ngIf="loading">
     <i class="fas fa-spinner fa-spin"></i> Chargement...
   </div>
 
-  <div class="table-responsive" *ngIf="!loading">
-    <table class="kiki-table">
-      <thead>
-        <tr>
-          <th>Nom Complet</th>
-          <th>Identifiant / Email</th>
-          <th>Rôle</th>
-          <th>Statut</th>
-          <th>Dernière Connexion</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let staff of staffList">
-          <td>{{ staff.fullName }}</td>
-          <td>{{ staff.username }}</td>
-          <td>
-            <span class="role-badge" [ngClass]="'role-' + staff.role.toLowerCase()">
-              {{ staff.role }}
-            </span>
-          </td>
-          <td>
-            <span class="status-badge" [ngClass]="staff.active ? 'status-active' : 'status-inactive'">
-              {{ staff.active ? 'Actif' : 'Inactif' }}
-            </span>
-          </td>
-          <td>{{ staff.lastLoginAt ? (staff.lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Jamais' }}</td>
-          <td class="actions-cell">
-            <button class="btn-icon text-info" title="Modifier" (click)="openEditModal(staff)">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="btn-icon text-danger" title="Supprimer" *ngIf="staff.role !== 'ADMIN'" (click)="deleteUser(staff.id)">
-              <i class="fas fa-trash-alt"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <!-- ── Tableau du personnel ──────────────────────────────── -->
+  <div class="table-card" *ngIf="!loading">
 
-  <!-- Modal Création / Modification -->
-  <div class="modal-overlay" *ngIf="showModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>{{ isEditing ? 'Modifier l\\'employé' : 'Nouvel employé' }}</h3>
-        <button class="close-btn" (click)="closeModal()"><i class="fas fa-times"></i></button>
-      </div>
-      
-      <div class="modal-body">
-        <!-- Message de succès après création (pour afficher le mot de passe) -->
-        <div class="success-alert" *ngIf="newlyCreatedUser">
-          <h4><i class="fas fa-check-circle"></i> Compte créé avec succès !</h4>
-          <p>Voici les identifiants à transmettre à l'employé (ils ne seront affichés qu'une seule fois) :</p>
-          <div class="credentials-box">
-            <p><strong>Lien :</strong> {{ newlyCreatedUser.loginUrl }}</p>
-            <p><strong>Identifiant :</strong> {{ newlyCreatedUser.username }}</p>
-            <p><strong>Mot de passe :</strong> <code>{{ newlyCreatedUser.tempPassword }}</code></p>
-          </div>
-          <button class="btn-secondary mt-3" (click)="closeModal()">Fermer</button>
-        </div>
+    <!-- État vide -->
+    <div class="empty-state" *ngIf="staffList.length === 0">
+      <i class="fas fa-users-slash"></i>
+      <p>Aucun personnel enregistré</p>
+      <button class="btn-add-sm" (click)="openCreateModal()">
+        <i class="fas fa-plus"></i> Ajouter un personnel
+      </button>
+    </div>
 
-        <form (ngSubmit)="saveUser()" *ngIf="!newlyCreatedUser">
-          <div class="form-group">
-            <label>Nom complet</label>
-            <input type="text" [(ngModel)]="formData.fullName" name="fullName" required class="form-control" placeholder="Ex: Jean Dupont">
-          </div>
-          
-          <div class="form-group">
-            <label>Identifiant ou Email</label>
-            <input type="text" [(ngModel)]="formData.username" name="username" required class="form-control" placeholder="Ex: jean.dupont">
-          </div>
-          
-          <div class="form-group">
-            <label>Rôle</label>
-            <select [(ngModel)]="formData.role" name="role" required class="form-control" [disabled]="isEditing && formData.role === 'ADMIN'">
-              <option value="PERSONNEL">Personnel (Equipe Culinaires / Serveurs)</option>
-              <option value="GESTIONNAIRE">Gestionnaire (Accès Back-office)</option>
-              <option value="ADMIN" *ngIf="isEditing && formData.role === 'ADMIN'">Administrateur</option>
-            </select>
-          </div>
-
-          <div class="form-group checkbox-group" *ngIf="isEditing && formData.role !== 'ADMIN'">
-            <label>
-              <input type="checkbox" [(ngModel)]="formData.active" name="active">
-              Compte actif (décocher pour bloquer l'accès)
-            </label>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
-            <button type="submit" class="btn-primary" [disabled]="!formData.fullName || !formData.username">Enregistrer</button>
-          </div>
-        </form>
-      </div>
+    <div class="table-responsive" *ngIf="staffList.length > 0">
+      <table class="kiki-table">
+        <thead>
+          <tr>
+            <th>Nom Complet</th>
+            <th>Identifiant / Email</th>
+            <th>Poste</th>
+            <th>Statut</th>
+            <th>Dernière Connexion</th>
+            <th class="col-actions">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let staff of staffList" class="table-row">
+            <td>
+              <div class="staff-name-cell">
+                <div class="staff-avatar">{{ staff.fullName.charAt(0) }}</div>
+                <span>{{ staff.fullName }}</span>
+              </div>
+            </td>
+            <td class="username-cell">{{ staff.username }}</td>
+            <td>
+              <span class="role-badge" [ngClass]="'role-' + staff.role.toLowerCase()">
+                {{ getRoleLabel(staff.role) }}
+              </span>
+            </td>
+            <td>
+              <span class="status-badge" [ngClass]="staff.active ? 'status-active' : 'status-inactive'">
+                <i class="fas" [ngClass]="staff.active ? 'fa-circle' : 'fa-circle'"></i>
+                {{ staff.active ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+            <td class="date-cell">
+              {{ staff.lastLoginAt ? (staff.lastLoginAt | date:'dd/MM/yyyy HH:mm') : 'Jamais connecté' }}
+            </td>
+            <td class="actions-cell">
+              <button class="btn-icon btn-edit" title="Modifier" (click)="openEditModal(staff)">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="btn-icon btn-delete" title="Supprimer"
+                      *ngIf="staff.role !== 'ADMIN'"
+                      (click)="deleteUser(staff.id)">
+                <i class="fas fa-trash-alt"></i>
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Modal Création / Modification                              -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showModal" (click)="$event.target === $event.currentTarget && !newlyCreatedUser && closeModal()">
+  <div class="modal-card">
+
+    <!-- ─ Header de la modal ─ -->
+    <div class="modal-card-header">
+      <div class="modal-title-group">
+        <div class="modal-icon">
+          <i class="fas" [ngClass]="isEditing ? 'fa-user-edit' : 'fa-user-plus'"></i>
+        </div>
+        <h3>{{ isEditing ? 'Modifier le personnel' : 'Nouveau Personnel' }}</h3>
+      </div>
+      <button class="modal-close-btn" (click)="closeModal()" title="Fermer">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- ─ Corps ─ -->
+    <div class="modal-card-body">
+
+      <!-- Succès : affichage du mot de passe généré -->
+      <div class="success-panel" *ngIf="newlyCreatedUser">
+        <div class="success-panel-header">
+          <i class="fas fa-check-circle"></i>
+          <h4>Compte créé avec succès !</h4>
+        </div>
+        <p class="success-hint">
+          Transmettez ces identifiants à la personne concernée.<br>
+          <strong>Ils ne seront affichés qu'une seule fois.</strong>
+        </p>
+        <div class="credentials-box">
+          <div class="cred-row" *ngIf="newlyCreatedUser.loginUrl">
+            <span class="cred-label"><i class="fas fa-link"></i> Lien</span>
+            <code class="cred-value link-value">{{ newlyCreatedUser.loginUrl }}</code>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label"><i class="fas fa-user"></i> Identifiant</span>
+            <code class="cred-value">{{ newlyCreatedUser.username }}</code>
+          </div>
+          <div class="cred-row">
+            <span class="cred-label"><i class="fas fa-key"></i> Mot de passe</span>
+            <code class="cred-value password-value">{{ newlyCreatedUser.tempPassword }}</code>
+          </div>
+        </div>
+        <button class="btn-close-success" (click)="closeModal()">
+          <i class="fas fa-check"></i> Fermer
+        </button>
+      </div>
+
+      <!-- Formulaire -->
+      <form (ngSubmit)="saveUser()" *ngIf="!newlyCreatedUser" #personnelForm="ngForm">
+
+        <div class="form-row">
+          <div class="form-field">
+            <label class="field-label">NOM COMPLET <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <i class="fas fa-user field-icon"></i>
+              <input
+                type="text"
+                [(ngModel)]="formData.fullName"
+                name="fullName"
+                required
+                class="field-input"
+                placeholder="Ex: Jean Dupont"
+                [disabled]="isSubmitting">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label class="field-label">IDENTIFIANT / EMAIL <span class="required">*</span></label>
+            <div class="field-input-wrap">
+              <i class="fas fa-at field-icon"></i>
+              <input
+                type="text"
+                [(ngModel)]="formData.username"
+                name="username"
+                required
+                class="field-input"
+                placeholder="Ex: jean.dupont"
+                [disabled]="isEditing || isSubmitting">
+            </div>
+            <span class="field-hint" *ngIf="isEditing">L'identifiant ne peut pas être modifié.</span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label class="field-label">POSTE / RÔLE <span class="required">*</span></label>
+          <div class="field-input-wrap">
+            <i class="fas fa-briefcase field-icon"></i>
+            <select
+              [(ngModel)]="formData.role"
+              name="role"
+              required
+              class="field-input field-select"
+              [disabled]="(isEditing && formData.role === 'ADMIN') || isSubmitting">
+              <option value="" disabled>— Sélectionner un poste —</option>
+              <option *ngFor="let poste of postes" [value]="poste.value">{{ poste.label }}</option>
+              <option value="ADMIN" *ngIf="isEditing && formData.role === 'ADMIN'">Administrateur</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-field checkbox-field" *ngIf="isEditing && formData.role !== 'ADMIN'">
+          <label class="checkbox-label">
+            <input type="checkbox" [(ngModel)]="formData.active" name="active" class="checkbox-input">
+            <span class="checkbox-text">Compte actif (décocher pour bloquer l'accès)</span>
+          </label>
+        </div>
+
+        <!-- Footer du formulaire -->
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="closeModal()" [disabled]="isSubmitting">
+            Annuler
+          </button>
+          <button
+            type="submit"
+            class="btn-submit"
+            [disabled]="isSubmitting || !formData.fullName || !formData.username || !formData.role">
+            <span *ngIf="!isSubmitting">
+              <i class="fas fa-save"></i>
+              {{ isEditing ? 'Mettre à jour' : 'Enregistrer' }}
+            </span>
+            <span *ngIf="isSubmitting">
+              <i class="fas fa-spinner fa-spin"></i> Traitement...
+            </span>
+          </button>
+        </div>
+
+      </form>
+    </div><!-- /modal-card-body -->
+  </div><!-- /modal-card -->
+</div><!-- /modal-overlay -->

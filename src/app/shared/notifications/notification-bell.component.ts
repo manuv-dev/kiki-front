@@ -60,24 +60,26 @@ import { Subscription } from 'rxjs';
 
     .notif-bell-btn {
       position: relative;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
+      background: #ffffff;
+      border: 1.5px solid #e2e8f0;
       border-radius: 12px;
       width: 42px; height: 42px;
       display: flex;
       align-items: center;
       justify-content: center;
-      color: rgba(255,255,255,0.7);
+      color: #7A1C1C;
       cursor: pointer;
       transition: all 0.2s;
       font-size: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
     .notif-bell-btn:hover,
     .notif-bell-btn.has-notif {
-      background: rgba(139, 34, 64, 0.3);
-      border-color: rgba(139, 34, 64, 0.5);
+      background: #7A1C1C;
+      border-color: #7A1C1C;
       color: white;
+      box-shadow: 0 4px 12px rgba(122, 28, 28, 0.3);
     }
 
     .notif-bell-btn.has-notif {

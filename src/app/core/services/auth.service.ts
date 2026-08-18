@@ -95,9 +95,17 @@ export class AuthService {
     return this.getCurrentUser()?.role === 'CLIENT';
   }
 
+  /** Ensemble des rôles qui ont accès au back-office */
+  private static readonly BACK_OFFICE_ROLES = new Set([
+    'ADMIN', 'GESTIONNAIRE', 'PERSONNEL',
+    'RESPONSABLE_CUISINE', 'SOUS_CHEF', 'ECONOME', 'MAGASINIER',
+    'CONTROLEUR', 'CUISINIER', 'SERVEUR', 'AIDE_CUISINIER',
+    'CHAUFFEUR', 'PLONGEUR', 'AGENT_SECURITE'
+  ]);
+
   isBackOfficeUser(): boolean {
     const role = this.getCurrentUser()?.role;
-    return role === 'ADMIN' || role === 'GESTIONNAIRE' || role === 'PERSONNEL';
+    return !!role && AuthService.BACK_OFFICE_ROLES.has(role);
   }
 
   needsPasswordChange(): boolean {

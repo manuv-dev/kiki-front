@@ -76,21 +76,20 @@ export class ClientsComponent implements OnInit {
       this.dataService.showToast('Le nom de l\'entreprise est requis.', true);
       return;
     }
+    if (this.isCreating) return; // Prévenir le double clic
 
     this.isCreating = true;
     this.apiService.createClient(this.newClientForm).subscribe({
-      next: (res) => {
+      next: () => {
+        this.isCreating = false;
+        this.closeCreateClientModal();
         this.dataService.showToast('Client créé avec succès.');
-        setTimeout(() => {
-          this.isCreating = false;
-          this.closeCreateClientModal();
-          this.gData.loadAll(); // Refresh client list
-        }, 2000);
+        this.gData.loadAll(); // Rafraîchir la liste
       },
       error: (err) => {
-        console.error(err);
         this.isCreating = false;
-        this.dataService.showToast('Erreur lors de la création du client', true);
+        const msg = err.error?.message || err.error || 'Erreur lors de la création du client.';
+        this.dataService.showToast(msg, true);
       }
     });
   }
