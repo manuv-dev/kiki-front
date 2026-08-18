@@ -310,6 +310,7 @@
           <button
             type="submit"
             class="btn-submit"
+            (click)="saveUser()"
             [disabled]="isSubmitting || !formData.fullName || !formData.username || !formData.role">
             <span *ngIf="!isSubmitting">
               <i class="fas fa-save"></i>
