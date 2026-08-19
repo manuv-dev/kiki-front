@@ -741,12 +741,12 @@ export class AdminDashboardComponent implements OnInit {
             type: c.clientType || c.type || 'particulier',
             organization: c.organization || c.clientOrganization || ''
           }));
-          this.calculateStats();
+          this.updateLocalMetrics();
         }
       },
       error: () => {
         this.clients = this.dataService.getClients();
-        this.calculateStats();
+        this.updateLocalMetrics();
       }
     });
 
