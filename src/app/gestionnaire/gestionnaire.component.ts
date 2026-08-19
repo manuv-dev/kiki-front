@@ -24,12 +24,8 @@ import { NotificationBellComponent } from '../shared/notifications/notification-
     <div class="dashboard-container">
       <!-- Sidebar -->
       <aside class="sidebar">
-        <div class="sidebar-logo">
-          <img src="assets/images/logo.png" alt="Kiki Traiteur Logo" onerror="this.style.display='none'">
-          <div class="brand-text">
-            <span class="brand-title">KIKI TRAITEUR</span>
-            <span class="brand-subtitle">La poésie des saveurs</span>
-          </div>
+        <div class="sidebar-logo" style="display: flex; justify-content: center; padding: 1rem 0;">
+          <img src="assets/images/KIKI TRAITEUR Logo Blanc.png" alt="Kiki Traiteur Logo" style="max-width: 60px; height: auto; display: block;" onerror="this.style.display='none'">
         </div>
 
         <ul class="sidebar-menu">
@@ -81,8 +77,8 @@ import { NotificationBellComponent } from '../shared/notifications/notification-
             </a>
           </li>
           <li *ngIf="isAdmin()">
-            <a routerLink="/gestionnaire/personnel" routerLinkActive="active" class="sidebar-link" style="color: #f87171;">
-              <i class="fas fa-user-shield me-2"></i> Admin (Personnel)
+            <a routerLink="/gestionnaire/personnel" routerLinkActive="active" class="sidebar-link">
+              <i class="fas fa-user-shield me-2"></i> Personnels
             </a>
           </li>
           <li>

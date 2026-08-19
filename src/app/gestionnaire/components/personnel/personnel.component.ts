@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
@@ -69,6 +69,18 @@ export class PersonnelComponent implements OnInit, OnDestroy {
   resetResult: AdminUserResponse | null = null;
   showResetModal = false;
 
+  // --- Modal Confirmation Générique ---
+  showConfirmModal = false;
+  confirmTitle = '';
+  confirmMessage = '';
+  confirmBtnText = '';
+  confirmBtnClass = '';
+  confirmBtnIcon = '';
+  confirmIconClass = '';
+  confirmIcon = '';
+  pendingAction = false;
+  confirmActionFn: () => void = () => {};
+
   formData: any = {
     id: null,
     fullName: '',
@@ -87,7 +99,8 @@ export class PersonnelComponent implements OnInit, OnDestroy {
 
   constructor(
     private personnelService: AdminPersonnelService,
-    private toast: KikiDataService
+    private toast: KikiDataService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -121,6 +134,7 @@ export class PersonnelComponent implements OnInit, OnDestroy {
         this.refreshing = false;
         // Mettre à jour le cache
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+        this.cdr.detectChanges();
       },
       error: () => {
         this.toast.showToast('Erreur lors du chargement du personnel.');
@@ -193,6 +207,7 @@ export class PersonnelComponent implements OnInit, OnDestroy {
     // Prévenir les doubles soumissions
     if (this.isSubmitting) return;
     this.isSubmitting = true;
+    console.log("saveUser() called, isEditing:", this.isEditing);
 
     if (this.isEditing) {
       const request: AdminUpdateUserRequest = {
@@ -202,16 +217,21 @@ export class PersonnelComponent implements OnInit, OnDestroy {
         active: this.formData.active
       };
 
+      console.log("Sending PUT request to update user...", request);
       const sub = this.personnelService.updateStaffUser(this.formData.id, request).subscribe({
         next: () => {
+          console.log("PUT request successful!");
           this.isSubmitting = false;
           this.toast.showToast('Utilisateur mis à jour avec succès.');
           this.closeModal();
           this.loadStaff(true); // rafraîchissement silencieux
+          this.cdr.detectChanges();
         },
         error: (err) => {
+          console.error("PUT request failed:", err);
           this.isSubmitting = false;
           this.toast.showToast(err.error?.message || 'Erreur lors de la mise à jour.');
+          this.cdr.detectChanges();
         }
       });
       this.subs.push(sub);
@@ -222,34 +242,54 @@ export class PersonnelComponent implements OnInit, OnDestroy {
         role: this.formData.role
       };
 
+      console.log("Sending POST request to create user...", request);
       const sub = this.personnelService.createStaffUser(request).subscribe({
         next: (createdUser) => {
+          console.log("POST request successful!", createdUser);
           this.isSubmitting = false;
           this.newlyCreatedUser = createdUser;
           // Ne pas fermer la modal : l'admin doit voir et copier le mot de passe
+          this.cdr.detectChanges();
         },
         error: (err) => {
+          console.error("POST request failed:", err);
           this.isSubmitting = false;
           this.toast.showToast(err.error?.message || 'Erreur lors de la création.');
+          this.cdr.detectChanges();
         }
       });
       this.subs.push(sub);
     }
   }
 
-  deleteUser(id: number): void {
-    if (confirm('Voulez-vous vraiment supprimer cet utilisateur ? Cette action est irréversible.')) {
-      const sub = this.personnelService.deleteStaffUser(id).subscribe({
+  deleteUser(user: AdminUserResponse): void {
+    this.confirmTitle = 'Supprimer le personnel';
+    this.confirmMessage = `Voulez-vous vraiment supprimer <strong>${user.fullName}</strong> ?<br>Cette action est irréversible.`;
+    this.confirmBtnText = 'Supprimer';
+    this.confirmBtnClass = 'btn-delete-confirm';
+    this.confirmBtnIcon = 'fa-trash-alt';
+    this.confirmIconClass = 'modal-icon-danger';
+    this.confirmIcon = 'fa-exclamation-triangle';
+    
+    this.confirmActionFn = () => {
+      this.pendingAction = true;
+      const sub = this.personnelService.deleteStaffUser(user.id).subscribe({
         next: () => {
+          this.pendingAction = false;
+          this.showConfirmModal = false;
           this.toast.showToast('Utilisateur supprimé.');
           this.loadStaff(true);
+          this.cdr.detectChanges();
         },
         error: (err) => {
+          this.pendingAction = false;
           this.toast.showToast(err.error?.message || 'Erreur lors de la suppression.');
+          this.cdr.detectChanges();
         }
       });
       this.subs.push(sub);
-    }
+    };
+    this.showConfirmModal = true;
   }
 
   /**
@@ -257,18 +297,34 @@ export class PersonnelComponent implements OnInit, OnDestroy {
    * génère un nouveau mot de passe temporaire et ouvre la modal de résultat.
    */
   resetAccess(user: AdminUserResponse): void {
-    if (!confirm(`Réinitialiser l'accès de ${user.fullName} ? Un nouveau mot de passe temporaire sera généré.`)) return;
-    const sub = this.personnelService.resetAccess(user.id).subscribe({
-      next: (result) => {
-        this.resetResult = result;
-        this.showResetModal = true;
-        this.loadStaff(true);
-      },
-      error: (err) => {
-        this.toast.showToast(err.error?.message || 'Erreur lors de la réinitialisation.');
-      }
-    });
-    this.subs.push(sub);
+    this.confirmTitle = 'Réinitialiser l\'accès';
+    this.confirmMessage = `Voulez-vous réinitialiser l'accès de <strong>${user.fullName}</strong> ?<br>Un nouveau mot de passe temporaire sera généré.`;
+    this.confirmBtnText = 'Réinitialiser';
+    this.confirmBtnClass = 'btn-warning-confirm';
+    this.confirmBtnIcon = 'fa-redo-alt';
+    this.confirmIconClass = 'modal-icon-warning';
+    this.confirmIcon = 'fa-redo-alt';
+
+    this.confirmActionFn = () => {
+      this.pendingAction = true;
+      const sub = this.personnelService.resetAccess(user.id).subscribe({
+        next: (result) => {
+          this.pendingAction = false;
+          this.showConfirmModal = false;
+          this.resetResult = result;
+          this.showResetModal = true;
+          this.loadStaff(true);
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.pendingAction = false;
+          this.toast.showToast(err.error?.message || 'Erreur lors de la réinitialisation.');
+          this.cdr.detectChanges();
+        }
+      });
+      this.subs.push(sub);
+    };
+    this.showConfirmModal = true;
   }
 
   closeResetModal(): void {
@@ -281,21 +337,39 @@ export class PersonnelComponent implements OnInit, OnDestroy {
    */
   toggleActive(user: AdminUserResponse): void {
     const action = user.active ? 'bloquer' : 'activer';
-    if (!confirm(`Voulez-vous ${action} le compte de ${user.fullName} ?`)) return;
-    const sub = this.personnelService.toggleActive(user.id, !user.active).subscribe({
-      next: (updated) => {
-        // Mise à jour locale immédiate
-        const idx = this.staffList.findIndex(s => s.id === updated.id);
-        if (idx !== -1) this.staffList[idx] = updated;
-        this.toast.showToast(`Compte ${updated.active ? 'activé' : 'bloqué'} avec succès.`);
-        // Mettre à jour le cache
-        localStorage.setItem('kiki_personnel_cache', JSON.stringify(this.staffList));
-      },
-      error: (err) => {
-        this.toast.showToast(err.error?.message || 'Erreur lors du changement de statut.');
-      }
-    });
-    this.subs.push(sub);
+    const isBlocking = user.active;
+    
+    this.confirmTitle = isBlocking ? 'Bloquer le compte' : 'Activer le compte';
+    this.confirmMessage = `Voulez-vous vraiment ${action} le compte de <strong>${user.fullName}</strong> ?`;
+    this.confirmBtnText = isBlocking ? 'Bloquer' : 'Activer';
+    this.confirmBtnClass = isBlocking ? 'btn-delete-confirm' : 'btn-success-confirm';
+    this.confirmBtnIcon = isBlocking ? 'fa-ban' : 'fa-check-circle';
+    this.confirmIconClass = isBlocking ? 'modal-icon-danger' : 'modal-icon-success';
+    this.confirmIcon = isBlocking ? 'fa-ban' : 'fa-check-circle';
+
+    this.confirmActionFn = () => {
+      this.pendingAction = true;
+      const sub = this.personnelService.toggleActive(user.id, !user.active).subscribe({
+        next: (updated) => {
+          this.pendingAction = false;
+          this.showConfirmModal = false;
+          // Mise à jour locale immédiate
+          const idx = this.staffList.findIndex(s => s.id === updated.id);
+          if (idx !== -1) this.staffList[idx] = updated;
+          this.toast.showToast(`Compte ${updated.active ? 'activé' : 'bloqué'} avec succès.`);
+          // Mettre à jour le cache
+          localStorage.setItem('kiki_personnel_cache', JSON.stringify(this.staffList));
+          this.cdr.detectChanges();
+        },
+        error: (err) => {
+          this.pendingAction = false;
+          this.toast.showToast(err.error?.message || 'Erreur lors du changement de statut.');
+          this.cdr.detectChanges();
+        }
+      });
+      this.subs.push(sub);
+    };
+    this.showConfirmModal = true;
   }
 
   /**
@@ -305,5 +379,17 @@ export class PersonnelComponent implements OnInit, OnDestroy {
     navigator.clipboard.writeText(url).then(() => {
       this.toast.showToast('Lien de connexion copié !');
     });
+  }
+
+  // --- Modal Confirmation Methods ---
+  closeConfirmModal(): void {
+    if (this.pendingAction) return;
+    this.showConfirmModal = false;
+  }
+
+  executeConfirmAction(): void {
+    if (this.confirmActionFn) {
+      this.confirmActionFn();
+    }
   }
 }

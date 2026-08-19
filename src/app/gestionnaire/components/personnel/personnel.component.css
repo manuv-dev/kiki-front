@@ -178,7 +178,7 @@
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  font-weight: 600;
+  font-weight: normal;
   color: #1e293b;
 }
 
@@ -266,20 +266,20 @@
   display: inline-block;
 }
 
-.role-admin             { background: #fee2e2; color: #991b1b; }
-.role-gestionnaire      { background: #dbeafe; color: #1d4ed8; }
-.role-personnel         { background: #ede9fe; color: #6d28d9; }
-.role-responsable_cuisine { background: #fef3c7; color: #92400e; }
-.role-sous_chef         { background: #fde8d8; color: #c2410c; }
-.role-econome           { background: #d1fae5; color: #065f46; }
-.role-magasinier        { background: #e0f2fe; color: #0369a1; }
-.role-controleur        { background: #f3e8ff; color: #7e22ce; }
-.role-cuisinier         { background: #fef3c7; color: #b45309; }
-.role-serveur           { background: #dcfce7; color: #15803d; }
-.role-aide_cuisinier    { background: #fff7ed; color: #c2410c; }
-.role-chauffeur         { background: #f0fdf4; color: #166534; }
-.role-plongeur          { background: #f0f9ff; color: #0c4a6e; }
-.role-agent_securite    { background: #fef2f2; color: #b91c1c; }
+.role-admin             { background: #E51D24; color: #ffffff; border: none; } /* Rouge vif de la marque */
+.role-gestionnaire      { background: #F59E0B; color: #ffffff; border: none; } /* Jaune / Ambre brillant */
+.role-personnel         { background: #8B5CF6; color: #ffffff; border: none; } /* Violet vif */
+.role-responsable_cuisine { background: #E11D48; color: #ffffff; border: none; } /* Rose / Rouge vif */
+.role-sous_chef         { background: #F97316; color: #ffffff; border: none; } /* Orange vif */
+.role-econome           { background: #14B8A6; color: #ffffff; border: none; } /* Turquoise vif */
+.role-magasinier        { background: #0EA5E9; color: #ffffff; border: none; } /* Bleu ciel vif */
+.role-controleur        { background: #6366F1; color: #ffffff; border: none; } /* Indigo vif */
+.role-cuisinier         { background: #F97316; color: #ffffff; border: none; } /* Orange vif */
+.role-serveur           { background: #22C55E; color: #ffffff; border: none; } /* Vert brillant */
+.role-aide_cuisinier    { background: #F59E0B; color: #ffffff; border: none; } /* Ambre brillant */
+.role-chauffeur         { background: #10B981; color: #ffffff; border: none; } /* Émeraude brillant */
+.role-plongeur          { background: #3B82F6; color: #ffffff; border: none; } /* Bleu brillant */
+.role-agent_securite    { background: #475569; color: #ffffff; border: none; } /* Gris ardoise foncé */
 
 .status-badge {
   padding: 0.28rem 0.7rem;

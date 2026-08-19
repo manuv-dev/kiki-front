@@ -13,12 +13,8 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
     <div class="dashboard-container">
       <!-- Sidebar -->
       <aside class="sidebar">
-        <div class="sidebar-logo">
-          <img src="assets/images/logo.png" alt="Kiki Traiteur Logo">
-          <div class="brand-text">
-            <span class="brand-title" style="color: white; font-size: 1.1rem;">Kiki Traiteur</span>
-            <span class="brand-subtitle" style="color: var(--accent-color); font-size: 0.6rem;">Administration</span>
-          </div>
+        <div class="sidebar-logo" style="display: flex; justify-content: center; padding: 1rem 0;">
+          <img src="assets/images/KIKI TRAITEUR Logo Blanc.png" alt="Kiki Traiteur Logo" style="max-width: 60px; height: auto; display: block;" onerror="this.style.display='none'">
         </div>
 
         <ul class="sidebar-menu">
@@ -332,6 +328,7 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
                     <th>Société / Org</th>
                     <th>E-mail</th>
                     <th>Type</th>
+                    <th style="width: 80px;">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -340,13 +337,228 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
                     <td>{{ c.name }}</td>
                     <td>{{ c.organization || '-' }}</td>
                     <td>{{ c.email }}</td>
-                    <td><span class="badge" style="background:#E2E8F0; color:#334155;">{{ c.organization ? 'Entreprise' : 'Particulier' }}</span></td>
+                    <td>
+                      <span class="badge" 
+                            [style.background]="c.organization ? '#F59E0B' : '#10B981'" 
+                            [style.color]="'#ffffff'"
+                            style="padding: 0.4rem 0.8rem; font-weight: 700; border-radius: 50px; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {{ c.organization ? 'ENTREPRISE' : 'PARTICULIER' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                        <button class="btn btn-sm btn-outline" style="color: #10B981; border-color: #10B981;" (click)="showViewClientModal = true; viewingClient = c" title="Voir Détails">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline" (click)="openEditClientModal(c)" title="Modifier Client">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline" style="color: #EF4444; border-color: #FCA5A5;" (click)="openDeleteClientModal(c)" title="Supprimer Client">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
+                    </td>
                   </tr>
                 </tbody>
               </table>
+
+              <!-- PAGINATION CLIENTS -->
+              <div *ngIf="clients.length > 0" style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-top: 1px solid #f1f5f9; background: #f8fafc; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                <div style="color: #64748B; font-size: 0.875rem;">
+                  Affichage de <span style="font-weight: 600; color: #1e293b;">{{ (clientPage - 1) * clientPageSize + 1 }}</span> à 
+                  <span style="font-weight: 600; color: #1e293b;">{{ clientPage * clientPageSize > clients.length ? clients.length : clientPage * clientPageSize }}</span> 
+                  sur <span style="font-weight: 600; color: #1e293b;">{{ clients.length }}</span> clients
+                </div>
+                <div style="display: flex; gap: 0.25rem;">
+                  <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; border-color: #e2e8f0; color: #64748B;" 
+                          [disabled]="clientPage === 1" (click)="clientPage = clientPage - 1">
+                    <i class="fas fa-chevron-left"></i>
+                  </button>
+                  <button *ngFor="let p of getClientPageArray()" class="btn" 
+                          [ngStyle]="{'background': p === clientPage ? '#9333EA' : 'transparent', 'color': p === clientPage ? 'white' : '#64748B', 'border-color': p === clientPage ? '#9333EA' : '#e2e8f0'}"
+                          style="padding: 0.4rem 0.85rem; font-weight: 600;" (click)="clientPage = p">
+                    {{ p }}
+                  </button>
+                  <button class="btn btn-outline" style="padding: 0.4rem 0.75rem; border-color: #e2e8f0; color: #64748B;" 
+                          [disabled]="clientPage === getClientTotalPages()" (click)="clientPage = clientPage + 1">
+                    <i class="fas fa-chevron-right"></i>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
+
+        <!-- VIEW CLIENT MODAL (ADMIN) -->
+        <div class="modal-overlay" *ngIf="showViewClientModal" (click)="$event.target === $event.currentTarget && closeViewClientModal()">
+          <div class="modal-card">
+            <div class="modal-card-header">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="background: #fef3c7; color: #d97706; padding: 0.4rem; border-radius: 8px; font-size: 1.1rem;">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <h3 class="modal-title" style="font-size: 1.1rem;">Profil Client (Admin)</h3>
+              </div>
+              <button class="modal-close-btn" (click)="closeViewClientModal()" title="Fermer">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <div class="modal-card-body" *ngIf="viewingClient">
+              <!-- En-tête Client -->
+              <div style="display: flex; gap: 1.5rem; align-items: flex-start; padding-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+                <div class="client-avatar-lg" style="margin-top: 0.25rem;">
+                  {{ viewingClient.name.charAt(0).toUpperCase() }}
+                </div>
+                <div style="flex: 1;">
+                  <h4 style="margin: 0 0 0.4rem 0; font-size: 1.25rem; color: #1e293b; font-weight: 800; line-height: 1.2;">{{ viewingClient.name }}</h4>
+                  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span class="badge" 
+                          [style.background]="viewingClient.organization ? '#F59E0B' : '#10B981'" 
+                          [style.color]="'#ffffff'"
+                          style="font-size: 0.65rem; font-weight: 800; padding: 0.35rem 0.7rem; border-radius: 50px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <i class="fas fa-building me-1" *ngIf="viewingClient.organization"></i>
+                      <i class="fas fa-user me-1" *ngIf="!viewingClient.organization"></i>
+                      {{ viewingClient.organization ? 'ENTREPRISE' : 'PARTICULIER' }}
+                    </span>
+                    <span *ngIf="viewingClient.organization" style="color: #64748b; font-size: 0.8rem; font-weight: 600;">
+                      {{ viewingClient.organization }}
+                    </span>
+                  </div>
+                  <div style="color: #475569; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <div *ngIf="viewingClient.email" style="display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="fas fa-envelope" style="color: #94a3b8; font-size: 0.9rem;"></i> 
+                      <span>{{ viewingClient.email }}</span>
+                    </div>
+                    <div *ngIf="viewingClient.phone" style="display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="fas fa-phone-alt" style="color: #94a3b8; font-size: 0.9rem;"></i> 
+                      <span>{{ viewingClient.phone }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Historique des Demandes -->
+              <h5 style="margin: 0 0 1rem 0; color: #334155; font-size: 1rem; font-weight: 700;">
+                <i class="fas fa-history" style="color: #721513; margin-right: 0.5rem;"></i>Historique des demandes
+              </h5>
+              
+              <div *ngIf="clientRequests.length > 0" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                <table class="history-table">
+                  <thead>
+                    <tr>
+                      <th>Date / Événement</th>
+                      <th>Prestation</th>
+                      <th>Invités</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let req of clientRequests">
+                      <td>
+                        <strong style="display: block; color: #1e293b;">{{ formatDate(req.date) }}</strong>
+                        <span style="font-size: 0.8rem; color: #64748b;">Soumis le {{ formatDate(req.dateSubmitted) }}</span>
+                      </td>
+                      <td>{{ req.prestationTitle || getPrestationName(req.prestationId) }}</td>
+                      <td>{{ req.guests }}</td>
+                      <td>
+                        <span class="status-badge-elegant" [ngClass]="'status-' + (req.status === 'aboutis' || req.status === 'accepted' ? 'aboutis' : req.status === 'rejected' ? 'rejected' : req.status === 'quoted' ? 'quoted' : 'pending')">
+                          <i class="fas" [ngClass]="{'fa-check-circle': req.status === 'aboutis' || req.status === 'accepted', 'fa-clock': req.status === 'pending', 'fa-times-circle': req.status === 'rejected', 'fa-file-invoice': req.status === 'quoted'}"></i>
+                          {{ getStatusLabel(req.status) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div *ngIf="clientRequests.length === 0" style="text-align: center; color: #94a3b8; font-size: 0.95rem; padding: 2rem 1rem; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                <div style="font-size: 2rem; margin-bottom: 0.75rem; color: #cbd5e1;"><i class="fas fa-folder-open"></i></div>
+                Aucune demande enregistrée pour ce client.
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button class="btn btn-primary" style="padding: 0.6rem 2rem; border-radius: 8px;" (click)="closeViewClientModal()">Fermer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDIT CLIENT MODAL -->
+        <div class="modal-overlay" *ngIf="showEditClientModal" (click)="$event.target === $event.currentTarget && closeEditClientModal()">
+          <div class="modal-card">
+            <div class="modal-card-header">
+              <h3 class="modal-title">Modifier le Client</h3>
+              <button class="modal-close-btn" (click)="closeEditClientModal()">&times;</button>
+            </div>
+            <div class="modal-card-body" *ngIf="editingClient">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">NOM DU CLIENT <span style="color: #DC2626;">*</span></label>
+                  <input type="text" [(ngModel)]="editingClient.name" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">TYPE DE CLIENT <span style="color: #DC2626;">*</span></label>
+                  <select [(ngModel)]="editingClient.type" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; background: white; transition: border-color 0.2s;">
+                    <option value="particulier">Particulier</option>
+                    <option value="entreprise">Entreprise</option>
+                    <option value="institution">Institution</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">EMAIL <span style="color: #DC2626;">*</span></label>
+                  <input type="email" [(ngModel)]="editingClient.email" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">TÉLÉPHONE</label>
+                  <input type="text" [(ngModel)]="editingClient.phone" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div *ngIf="editingClient.type === 'entreprise' || editingClient.type === 'institution'" style="grid-column: span 2;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">NOM DE L'ENTREPRISE / INSTITUTION <span style="color: #DC2626;">*</span></label>
+                  <input type="text" [(ngModel)]="editingClient.organization" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline" style="padding: 0.6rem 1.5rem; border-radius: 8px;" (click)="closeEditClientModal()" [disabled]="isEditing">Annuler</button>
+              <button class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 8px; position: relative;" (click)="submitEditClient()" [disabled]="isEditing || !editingClient?.name || !editingClient?.email || ((editingClient?.type === 'entreprise' || editingClient?.type === 'institution') && !editingClient?.organization)">
+                <span [style.opacity]="isEditing ? '0' : '1'"><i class="fas fa-save me-2"></i> Enregistrer</span>
+                <i *ngIf="isEditing" class="fas fa-spinner fa-spin" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETE CLIENT MODAL -->
+        <div class="modal-overlay" *ngIf="showDeleteClientModal" (click)="$event.target === $event.currentTarget && closeDeleteClientModal()">
+          <div class="modal-card" style="max-width: 450px;">
+            <div class="modal-card-header" style="background: #FEF2F2; border-bottom-color: #FEE2E2;">
+              <h3 class="modal-title" style="color: #991B1B; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-exclamation-triangle text-red-600"></i>
+                Confirmation de suppression
+              </h3>
+              <button class="modal-close-btn" (click)="closeDeleteClientModal()">&times;</button>
+            </div>
+            <div class="modal-card-body" *ngIf="deletingClient" style="text-align: center; padding: 2rem 1.5rem;">
+              <div style="font-size: 3rem; color: #EF4444; margin-bottom: 1rem;">
+                <i class="fas fa-trash-alt"></i>
+              </div>
+              <p style="font-size: 1.1rem; color: #334155; margin-bottom: 0.5rem;">
+                Êtes-vous sûr de vouloir supprimer le client <strong>{{ deletingClient.name }}</strong> ?
+              </p>
+              <p style="font-size: 0.9rem; color: #64748B;">
+                Cette action est définitive et toutes les données associées seront effacées.
+              </p>
+            </div>
+            <div class="modal-footer" style="background: #F8FAFC;">
+              <button class="btn btn-outline" style="padding: 0.6rem 1.5rem; border-radius: 8px;" (click)="closeDeleteClientModal()" [disabled]="isDeleting">Annuler</button>
+              <button class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 8px; background: #EF4444; border-color: #EF4444; position: relative;" (click)="confirmDeleteClient()" [disabled]="isDeleting">
+                <span [style.opacity]="isDeleting ? '0' : '1'"><i class="fas fa-trash me-2"></i> Supprimer</span>
+                <i *ngIf="isDeleting" class="fas fa-spinner fa-spin" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></i>
+              </button>
+            </div>
+          </div>
+        </div>
 
         <!-- TAB 5: SETTINGS -->
         <section *ngIf="activeTab === 'settings'" class="dashboard-section active">
@@ -416,6 +628,38 @@ import { GestionnaireApiService } from './services/gestionnaire-api.service';
     .admin-card-trend.up {
       color: #059669;
     }
+    
+    /* ── Modal Overlay avec Glassmorphism ── */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+      display: flex; align-items: center; justify-content: center; z-index: 1050; padding: 1rem;
+    }
+    .modal-content, .modal-card {
+      background: #ffffff; border-radius: 16px; width: 100%; max-width: 600px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      display: flex; flex-direction: column; overflow: hidden; max-height: 90vh;
+    }
+    .modal-header, .modal-card-header {
+      padding: 1.5rem; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;
+    }
+    .modal-title { margin: 0; font-size: 1.25rem; font-weight: 700; color: #1e293b; }
+    .modal-close, .modal-close-btn { background: none; border: none; font-size: 1.5rem; line-height: 1; color: #64748b; cursor: pointer; transition: color 0.2s; }
+    .modal-close-btn:hover { color: #ef4444; }
+    .modal-body, .modal-card-body { padding: 1.5rem; overflow-y: auto; }
+    .modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 1rem; background: #f8fafc; }
+    
+    /* Badges */
+    .status-badge-elegant { padding: 0.35rem 0.75rem; border-radius: 50px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; white-space: nowrap; }
+    .status-badge-elegant.status-aboutis { background: #10B981; color: white; }
+    .status-badge-elegant.status-pending { background: #F59E0B; color: white; }
+    .status-badge-elegant.status-rejected { background: #EF4444; color: white; }
+    .status-badge-elegant.status-quoted { background: #64748B; color: white; }
+    
+    .history-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 1rem; }
+    .history-table th { text-align: left; padding: 0.75rem 1rem; background: #f1f5f9; color: #475569; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+    .history-table td { padding: 1rem; font-size: 0.9rem; color: #334155; border-bottom: 1px solid #e2e8f0; }
+    .client-avatar-lg { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, #721513, #e51d24); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 700; }
     `
   ]
 })
@@ -423,6 +667,21 @@ export class AdminDashboardComponent implements OnInit {
   activeTab: 'dashboard' | 'requests' | 'agenda' | 'clients' | 'settings' = 'dashboard';
   requests: any[] = [];
   clients: any[] = [];
+  
+  showViewClientModal = false;
+  viewingClient: any = null;
+  clientRequests: any[] = [];
+
+  showEditClientModal = false;
+  editingClient: any = null;
+  isEditing = false;
+
+  showDeleteClientModal = false;
+  deletingClient: any = null;
+  isDeleting = false;
+
+  clientPage = 1;
+  clientPageSize = 5;
 
   dashboardStats: any = {
     totalRequests: 0,
@@ -453,10 +712,43 @@ export class AdminDashboardComponent implements OnInit {
     this.loadData();
   }
 
+  // --- PAGINATION CLIENTS ---
+  getClientsForPage(): any[] {
+    const start = (this.clientPage - 1) * this.clientPageSize;
+    return this.clients.slice(start, start + this.clientPageSize);
+  }
+  
+  getClientTotalPages(): number {
+    return Math.max(1, Math.ceil(this.clients.length / this.clientPageSize));
+  }
+  
+  getClientPageArray(): number[] {
+    return Array.from({ length: this.getClientTotalPages() }, (_, i) => i + 1);
+  }
+
   loadData(): void {
     this.requests = this.dataService.getRequests();
-    this.clients = this.dataService.getClients();
-    this.updateLocalMetrics();
+    
+    // Charger les clients via l'API
+    this.gestionnaireApiService.getAllClients().subscribe({
+      next: (data) => {
+        if (data && Array.isArray(data)) {
+          this.clients = data.map(c => ({
+            id: String(c.id),
+            name: c.name || c.nom || 'Client',
+            email: c.email || '',
+            phone: c.phone || c.telephone || '',
+            type: c.clientType || c.type || 'particulier',
+            organization: c.organization || c.clientOrganization || ''
+          }));
+          this.calculateStats();
+        }
+      },
+      error: () => {
+        this.clients = this.dataService.getClients();
+        this.calculateStats();
+      }
+    });
 
     this.gestionnaireApiService.getAllDemandes().subscribe({
       next: (data) => {
@@ -602,6 +894,18 @@ export class AdminDashboardComponent implements OnInit {
     }
   }
 
+  openViewClientModal(c: any): void {
+    this.viewingClient = { ...c };
+    this.clientRequests = this.requests.filter(req => String(req.clientId) === String(c.id));
+    this.showViewClientModal = true;
+  }
+  
+  closeViewClientModal(): void {
+    this.showViewClientModal = false;
+    this.viewingClient = null;
+    this.clientRequests = [];
+  }
+
   getAcceptedRequests(): any[] {
     return this.requests.filter(r => r.status === 'accepted');
   }
@@ -649,5 +953,94 @@ export class AdminDashboardComponent implements OnInit {
   logout(): void {
     this.dataService.showToast('Déconnexion Administrateur effectuée.');
     this.router.navigate(['/auth'], { queryParams: { type: 'staff' } });
+  }
+
+  deleteClient(c: any): void {
+    this.openDeleteClientModal(c);
+  }
+
+  // --- GESTION DES MODALES CLIENT ---
+
+  closeAllClientModals(): void {
+    this.showViewClientModal = false;
+    this.showEditClientModal = false;
+    this.showDeleteClientModal = false;
+  }
+
+  openEditClientModal(c: any): void {
+    this.closeAllClientModals();
+    this.editingClient = { ...c };
+    this.isEditing = false;
+    this.showEditClientModal = true;
+  }
+
+  closeEditClientModal(): void {
+    this.showEditClientModal = false;
+    this.editingClient = null;
+  }
+
+  submitEditClient(): void {
+    if (!this.editingClient || this.isEditing) return;
+    this.isEditing = true;
+    
+    this.gestionnaireApiService.updateClient(this.editingClient.id, this.editingClient).subscribe({
+      next: () => {
+        this.isEditing = false;
+        this.closeEditClientModal();
+        this.dataService.showToast('Client mis à jour avec succès.');
+        this.loadData();
+      },
+      error: (err: any) => {
+        this.isEditing = false;
+        console.error("API Update Error:", err);
+        let msg = 'Erreur lors de la mise à jour.';
+        if (err.error && typeof err.error === 'string') {
+          msg = err.error;
+        } else if (err.error && err.error.message) {
+          msg = err.error.message;
+        } else if (err.message) {
+          msg = err.message;
+        }
+        this.dataService.showToast(msg, true);
+        this.closeEditClientModal();
+      }
+    });
+  }
+
+  openDeleteClientModal(c: any): void {
+    this.closeAllClientModals();
+    this.deletingClient = { ...c };
+    this.isDeleting = false;
+    this.showDeleteClientModal = true;
+  }
+
+  closeDeleteClientModal(): void {
+    this.showDeleteClientModal = false;
+    this.deletingClient = null;
+  }
+
+  confirmDeleteClient(): void {
+    if (!this.deletingClient || this.isDeleting) return;
+    this.isDeleting = true;
+
+    this.gestionnaireApiService.deleteClient(this.deletingClient.id).subscribe({
+      next: () => {
+        this.dataService.showToast('Client supprimé avec succès.');
+        this.closeDeleteClientModal();
+        this.loadData();
+      },
+      error: (err: any) => {
+        this.isDeleting = false;
+        console.error("Erreur suppression client:", err);
+        let msg = 'Erreur lors de la suppression.';
+        if (err.error && typeof err.error === 'string') {
+          msg = err.error;
+        } else if (err.error && err.error.message) {
+          msg = err.error.message;
+        }
+        this.dataService.showToast(msg, true);
+        this.closeDeleteClientModal();
+      }
+    });
   }
 }

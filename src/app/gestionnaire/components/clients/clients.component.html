@@ -24,11 +24,26 @@
                     <td>{{ c.name }}</td>
                     <td>{{ c.organization || '-' }}</td>
                     <td>{{ c.email }}</td>
-                    <td><span class="badge" style="background:#E2E8F0; color:#334155;">{{ c.organization ? 'Entreprise' : 'Particulier' }}</span></td>
                     <td>
-                      <button class="btn btn-sm btn-outline" (click)="openEditClientModal(c)" title="Modifier Client">
-                        <i class="fas fa-edit"></i>
-                      </button>
+                      <span class="badge" 
+                            [style.background]="c.organization ? '#F59E0B' : '#10B981'" 
+                            [style.color]="'#ffffff'"
+                            style="padding: 0.4rem 0.8rem; font-weight: 700; border-radius: 50px; font-size: 0.75rem; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        {{ c.organization ? 'ENTREPRISE' : 'PARTICULIER' }}
+                      </span>
+                    </td>
+                    <td>
+                      <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                        <button class="btn btn-sm btn-outline" style="color: #10B981; border-color: #10B981;" (click)="openViewClientModal(c)" title="Voir Détails">
+                          <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline" (click)="openEditClientModal(c)" title="Modifier Client">
+                          <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline" style="color: #EF4444; border-color: #FCA5A5;" (click)="openDeleteClientModal(c)" title="Supprimer Client">
+                          <i class="fas fa-trash"></i>
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 </tbody>
@@ -50,44 +65,216 @@
         </section>
 
         <!-- CREATE CLIENT MODAL -->
-        <div class="modal-overlay" *ngIf="showCreateClientModal">
-          <div class="modal-content" style="max-width: 500px;">
-            <div class="modal-header">
+        <div class="modal-overlay" *ngIf="showCreateClientModal" (click)="$event.target === $event.currentTarget && closeCreateClientModal()">
+          <div class="modal-card">
+            <div class="modal-card-header">
               <h3 class="modal-title">Créer un Nouveau Client</h3>
-              <button class="modal-close" (click)="closeCreateClientModal()">&times;</button>
+              <button class="modal-close-btn" (click)="closeCreateClientModal()">&times;</button>
             </div>
-            <div class="modal-body">
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+            <div class="modal-card-body">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
                 <div>
-                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">NOM DU CLIENT <span style="color: #DC2626;">*</span></label>
-                  <input type="text" [(ngModel)]="newClientForm.name" placeholder="Ex: Jane Doe" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">NOM DU CLIENT <span style="color: #DC2626;">*</span></label>
+                  <input type="text" [(ngModel)]="newClientForm.name" placeholder="Ex: Jane Doe" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
                 </div>
                 <div>
-                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">TYPE DE CLIENT <span style="color: #DC2626;">*</span></label>
-                  <select [(ngModel)]="newClientForm.type" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none; background: white;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">TYPE DE CLIENT <span style="color: #DC2626;">*</span></label>
+                  <select [(ngModel)]="newClientForm.type" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; background: white; transition: border-color 0.2s;">
                     <option value="particulier">Particulier</option>
                     <option value="entreprise">Entreprise</option>
                   </select>
                 </div>
                 <div>
-                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">EMAIL <span style="color: #DC2626;">*</span></label>
-                  <input type="email" [(ngModel)]="newClientForm.email" placeholder="jane@example.com" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">EMAIL <span style="color: #DC2626;">*</span></label>
+                  <input type="email" [(ngModel)]="newClientForm.email" placeholder="jane@example.com" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
                 </div>
                 <div>
-                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">TÉLÉPHONE</label>
-                  <input type="text" [(ngModel)]="newClientForm.phone" placeholder="+221..." style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">TÉLÉPHONE</label>
+                  <input type="text" [(ngModel)]="newClientForm.phone" placeholder="+221..." style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
                 </div>
                 <div *ngIf="newClientForm.type === 'entreprise'" style="grid-column: span 2;">
-                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.25rem;">NOM DE L'ENTREPRISE <span style="color: #DC2626;">*</span></label>
-                  <input type="text" [(ngModel)]="newClientForm.organization" placeholder="Ex: Kiki Traiteur SAS" style="width: 100%; padding: 0.6rem; border: 1px solid #CBD5E1; border-radius: 4px; outline: none;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">NOM DE L'ENTREPRISE <span style="color: #DC2626;">*</span></label>
+                  <input type="text" [(ngModel)]="newClientForm.organization" placeholder="Ex: Kiki Traiteur SAS" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
                 </div>
               </div>
             </div>
             <div class="modal-footer">
-              <button class="btn btn-outline" (click)="closeCreateClientModal()" [disabled]="isCreating">Annuler</button>
-              <button class="btn btn-primary" (click)="submitCreateClient()" [disabled]="isCreating || !newClientForm.name || !newClientForm.email || (newClientForm.type === 'entreprise' && !newClientForm.organization)" style="position: relative; min-width: 120px;">
-                <span [style.opacity]="isCreating ? '0' : '1'">Enregistrer</span>
+              <button class="btn btn-outline" style="padding: 0.6rem 1.5rem; border-radius: 8px;" (click)="closeCreateClientModal()" [disabled]="isCreating">Annuler</button>
+              <button class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 8px;" (click)="submitCreateClient()" [disabled]="isCreating || !newClientForm.name || !newClientForm.email || (newClientForm.type === 'entreprise' && !newClientForm.organization)">
+                <span [style.opacity]="isCreating ? '0' : '1'"><i class="fas fa-save me-2"></i> Enregistrer</span>
                 <i *ngIf="isCreating" class="fas fa-spinner fa-spin" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW CLIENT MODAL -->
+        <div class="modal-overlay" *ngIf="showViewClientModal" (click)="$event.target === $event.currentTarget && closeViewClientModal()">
+          <div class="modal-card">
+            <div class="modal-card-header">
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div style="background: #fef3c7; color: #d97706; padding: 0.4rem; border-radius: 8px; font-size: 1.1rem;">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <h3 class="modal-title" style="font-size: 1.1rem;">Profil Client</h3>
+              </div>
+              <button class="modal-close-btn" (click)="closeViewClientModal()" title="Fermer">
+                <i class="fas fa-times"></i>
+              </button>
+            </div>
+            
+            <div class="modal-card-body" *ngIf="viewingClient">
+            <div class="modal-card-body" *ngIf="viewingClient">
+              <!-- En-tête Client -->
+              <div style="display: flex; gap: 1.5rem; align-items: flex-start; padding-bottom: 1.5rem; border-bottom: 1px solid #f1f5f9; margin-bottom: 1.5rem;">
+                <div class="client-avatar-lg" style="margin-top: 0.25rem;">
+                  {{ viewingClient.name.charAt(0).toUpperCase() }}
+                </div>
+                <div style="flex: 1;">
+                  <h4 style="margin: 0 0 0.4rem 0; font-size: 1.25rem; color: #1e293b; font-weight: 800; line-height: 1.2;">{{ viewingClient.name }}</h4>
+                  <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
+                    <span class="badge" 
+                          [style.background]="viewingClient.organization ? '#F59E0B' : '#10B981'" 
+                          [style.color]="'#ffffff'"
+                          style="font-size: 0.65rem; font-weight: 800; padding: 0.35rem 0.7rem; border-radius: 50px; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                      <i class="fas fa-building me-1" *ngIf="viewingClient.organization"></i>
+                      <i class="fas fa-user me-1" *ngIf="!viewingClient.organization"></i>
+                      {{ viewingClient.organization ? 'ENTREPRISE' : 'PARTICULIER' }}
+                    </span>
+                    <span *ngIf="viewingClient.organization" style="color: #64748b; font-size: 0.8rem; font-weight: 600;">
+                      {{ viewingClient.organization }}
+                    </span>
+                  </div>
+                  <div style="color: #475569; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.4rem;">
+                    <div *ngIf="viewingClient.email" style="display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="fas fa-envelope" style="color: #94a3b8; font-size: 0.9rem;"></i> 
+                      <span>{{ viewingClient.email }}</span>
+                    </div>
+                    <div *ngIf="viewingClient.phone" style="display: flex; align-items: center; gap: 0.5rem;">
+                      <i class="fas fa-phone-alt" style="color: #94a3b8; font-size: 0.9rem;"></i> 
+                      <span>{{ viewingClient.phone }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Historique des Demandes -->
+              <h5 style="margin: 0 0 1rem 0; color: #334155; font-size: 1rem; font-weight: 700;">
+                <i class="fas fa-history" style="color: #721513; margin-right: 0.5rem;"></i>Historique des demandes
+              </h5>
+              
+              <div *ngIf="clientRequests.length > 0" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; overflow: hidden;">
+                <table class="history-table">
+                  <thead>
+                    <tr>
+                      <th>Date / Événement</th>
+                      <th>Prestation</th>
+                      <th>Invités</th>
+                      <th>Statut</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let req of clientRequests">
+                      <td>
+                        <strong style="display: block; color: #1e293b;">{{ gData.formatDate(req.date) }}</strong>
+                        <span style="font-size: 0.8rem; color: #64748b;">Soumis le {{ gData.formatDate(req.dateSubmitted) }}</span>
+                      </td>
+                      <td>{{ req.prestationTitle }}</td>
+                      <td>{{ req.guests }}</td>
+                      <td>
+                        <span class="status-badge-elegant" [ngClass]="'status-' + (req.status === 'aboutis' || req.status === 'accepted' ? 'aboutis' : req.status === 'rejected' ? 'rejected' : req.status === 'quoted' ? 'quoted' : 'pending')">
+                          <i class="fas" [ngClass]="{'fa-check-circle': req.status === 'aboutis' || req.status === 'accepted', 'fa-clock': req.status === 'pending', 'fa-times-circle': req.status === 'rejected', 'fa-file-invoice': req.status === 'quoted'}"></i>
+                          {{ gData.getStatusLabel(req.status) }}
+                        </span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              
+              <div *ngIf="clientRequests.length === 0" style="text-align: center; color: #94a3b8; font-size: 0.95rem; padding: 2rem 1rem; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+                <div style="font-size: 2rem; margin-bottom: 0.75rem; color: #cbd5e1;"><i class="fas fa-folder-open"></i></div>
+                Aucune demande enregistrée pour ce client.
+              </div>
+            </div>
+            
+            <div class="modal-footer">
+              <button class="btn btn-primary" style="padding: 0.6rem 2rem; border-radius: 8px;" (click)="closeViewClientModal()">Fermer</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- EDIT CLIENT MODAL -->
+        <div class="modal-overlay" *ngIf="showEditClientModal" (click)="$event.target === $event.currentTarget && closeEditClientModal()">
+          <div class="modal-card">
+            <div class="modal-card-header">
+              <h3 class="modal-title">Modifier le Client</h3>
+              <button class="modal-close-btn" (click)="closeEditClientModal()">&times;</button>
+            </div>
+            <div class="modal-card-body" *ngIf="editingClient">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1rem;">
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">NOM DU CLIENT <span style="color: #DC2626;">*</span></label>
+                  <input type="text" [(ngModel)]="editingClient.name" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">TYPE DE CLIENT <span style="color: #DC2626;">*</span></label>
+                  <select [(ngModel)]="editingClient.type" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; background: white; transition: border-color 0.2s;">
+                    <option value="particulier">Particulier</option>
+                    <option value="entreprise">Entreprise</option>
+                    <option value="institution">Institution</option>
+                  </select>
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">EMAIL <span style="color: #DC2626;">*</span></label>
+                  <input type="email" [(ngModel)]="editingClient.email" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div>
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">TÉLÉPHONE</label>
+                  <input type="text" [(ngModel)]="editingClient.phone" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+                <div *ngIf="editingClient.type === 'entreprise' || editingClient.type === 'institution'" style="grid-column: span 2;">
+                  <label style="display: block; font-weight: 600; font-size: 0.75rem; color: #64748B; margin-bottom: 0.5rem; text-transform: uppercase;">NOM DE L'ENTREPRISE / INSTITUTION <span style="color: #DC2626;">*</span></label>
+                  <input type="text" [(ngModel)]="editingClient.organization" style="width: 100%; padding: 0.75rem; border: 1px solid #CBD5E1; border-radius: 8px; outline: none; transition: border-color 0.2s;">
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline" style="padding: 0.6rem 1.5rem; border-radius: 8px;" (click)="closeEditClientModal()" [disabled]="isEditing">Annuler</button>
+              <button class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 8px; position: relative;" (click)="submitEditClient()" [disabled]="isEditing || !editingClient?.name || !editingClient?.email || ((editingClient?.type === 'entreprise' || editingClient?.type === 'institution') && !editingClient?.organization)">
+                <span [style.opacity]="isEditing ? '0' : '1'"><i class="fas fa-save me-2"></i> Enregistrer</span>
+                <i *ngIf="isEditing" class="fas fa-spinner fa-spin" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- DELETE CLIENT MODAL -->
+        <div class="modal-overlay" *ngIf="showDeleteClientModal" (click)="$event.target === $event.currentTarget && closeDeleteClientModal()">
+          <div class="modal-card" style="max-width: 450px;">
+            <div class="modal-card-header" style="background: #FEF2F2; border-bottom-color: #FEE2E2;">
+              <h3 class="modal-title" style="color: #991B1B; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="fas fa-exclamation-triangle text-red-600"></i>
+                Confirmation de suppression
+              </h3>
+              <button class="modal-close-btn" (click)="closeDeleteClientModal()">&times;</button>
+            </div>
+            <div class="modal-card-body" *ngIf="deletingClient" style="text-align: center; padding: 2rem 1.5rem;">
+              <div style="font-size: 3rem; color: #EF4444; margin-bottom: 1rem;">
+                <i class="fas fa-trash-alt"></i>
+              </div>
+              <p style="font-size: 1.1rem; color: #334155; margin-bottom: 0.5rem;">
+                Êtes-vous sûr de vouloir supprimer le client <strong>{{ deletingClient.name }}</strong> ?
+              </p>
+              <p style="font-size: 0.9rem; color: #64748B;">
+                Cette action est définitive et toutes les données associées seront effacées.
+              </p>
+            </div>
+            <div class="modal-footer" style="background: #F8FAFC;">
+              <button class="btn btn-outline" style="padding: 0.6rem 1.5rem; border-radius: 8px;" (click)="closeDeleteClientModal()" [disabled]="isDeleting">Annuler</button>
+              <button class="btn btn-primary" style="padding: 0.6rem 1.5rem; border-radius: 8px; background: #EF4444; border-color: #EF4444; position: relative;" (click)="confirmDeleteClient()" [disabled]="isDeleting">
+                <span [style.opacity]="isDeleting ? '0' : '1'"><i class="fas fa-trash me-2"></i> Supprimer</span>
+                <i *ngIf="isDeleting" class="fas fa-spinner fa-spin" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);"></i>
               </button>
             </div>
           </div>

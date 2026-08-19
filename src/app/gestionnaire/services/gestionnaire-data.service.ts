@@ -64,24 +64,6 @@ export class GestionnaireDataService {
           }));
           this.requestsSubject.next(reqs);
 
-          const clientMap = new Map<string, any>();
-          data.forEach((d: any) => {
-            const cid = String(d.clientId || '');
-            if (cid && !clientMap.has(cid)) {
-              clientMap.set(cid, {
-                id: cid,
-                name: d.clientName || 'Client inconnu',
-                email: d.clientEmail || '',
-                phone: d.clientPhone || '',
-                type: d.clientType || (d.isInstitution ? 'institution' : 'particular'),
-                organization: d.organization || d.clientOrganization || ''
-              });
-            }
-          });
-          if (clientMap.size > 0) {
-            this.clientsSubject.next(Array.from(clientMap.values()));
-          }
-
           const evs = reqs
             .filter(r => ['accepted', 'approved', 'aboutis', 'confirmé'].includes(r.status))
             .map(r => ({
@@ -114,7 +96,7 @@ export class GestionnaireDataService {
             name: c.name || c.nom || 'Client',
             email: c.email || '',
             phone: c.phone || c.telephone || '',
-            type: c.clientType || 'particular',
+            type: c.clientType || c.type || 'particulier',
             organization: c.organization || c.clientOrganization || ''
           })));
         }

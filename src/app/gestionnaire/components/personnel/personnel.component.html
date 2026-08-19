@@ -51,7 +51,6 @@
           <tr *ngFor="let staff of getStaffForPage()" class="table-row" [class.row-inactive]="!staff.active">
             <td>
               <div class="staff-name-cell">
-                <div class="staff-avatar" [class.avatar-inactive]="!staff.active">{{ staff.fullName.charAt(0) }}</div>
                 <div class="staff-name-info">
                   <span>{{ staff.fullName }}</span>
                 </div>
@@ -106,7 +105,7 @@
               <!-- Supprimer -->
               <button class="btn-icon btn-delete" title="Supprimer"
                       *ngIf="staff.role !== 'ADMIN'"
-                      (click)="deleteUser(staff.id)">
+                      (click)="deleteUser(staff)">
                 <i class="fas fa-trash-alt"></i>
               </button>
             </td>
@@ -256,6 +255,7 @@
                 name="fullName"
                 required
                 class="field-input"
+                style="padding-left: 2.8rem !important;"
                 placeholder="Ex: Jean Dupont"
                 [disabled]="isSubmitting">
             </div>
@@ -271,10 +271,10 @@
                 name="username"
                 required
                 class="field-input"
+                style="padding-left: 2.8rem !important;"
                 placeholder="Ex: jean.dupont"
-                [disabled]="isEditing || isSubmitting">
+                [disabled]="isSubmitting">
             </div>
-            <span class="field-hint" *ngIf="isEditing">L'identifiant ne peut pas être modifié.</span>
           </div>
         </div>
 
@@ -287,6 +287,7 @@
               name="role"
               required
               class="field-input field-select"
+              style="padding-left: 2.8rem !important;"
               [disabled]="(isEditing && formData.role === 'ADMIN') || isSubmitting">
               <option value="" disabled>— Sélectionner un poste —</option>
               <option *ngFor="let poste of postes" [value]="poste.value">{{ poste.label }}</option>
@@ -295,12 +296,7 @@
           </div>
         </div>
 
-        <div class="form-field checkbox-field" *ngIf="isEditing && formData.role !== 'ADMIN'">
-          <label class="checkbox-label">
-            <input type="checkbox" [(ngModel)]="formData.active" name="active" class="checkbox-input">
-            <span class="checkbox-text">Compte actif (décocher pour bloquer l'accès)</span>
-          </label>
-        </div>
+
 
         <!-- Footer du formulaire -->
         <div class="form-actions">
@@ -308,9 +304,9 @@
             Annuler
           </button>
           <button
-            type="submit"
-            class="btn-submit"
+            type="button"
             (click)="saveUser()"
+            class="btn-submit"
             [disabled]="isSubmitting || !formData.fullName || !formData.username || !formData.role">
             <span *ngIf="!isSubmitting">
               <i class="fas fa-save"></i>
@@ -372,3 +368,41 @@
     </div>
   </div>
 </div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<!-- Modal Confirmation                                         -->
+<!-- ══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showConfirmModal" (click)="$event.target === $event.currentTarget && !pendingAction && closeConfirmModal()">
+  <div class="modal-card modal-card-sm">
+    <div class="modal-card-header">
+      <div class="modal-title-group">
+        <div class="modal-icon" [ngClass]="confirmIconClass || 'modal-icon-warning'">
+          <i class="fas" [ngClass]="confirmIcon || 'fa-exclamation-triangle'"></i>
+        </div>
+        <h3>{{ confirmTitle }}</h3>
+      </div>
+      <button class="modal-close-btn" (click)="closeConfirmModal()" title="Fermer" [disabled]="pendingAction">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="modal-card-body">
+      <p style="color: #475569; font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;" [innerHTML]="confirmMessage"></p>
+      
+      <div class="form-actions" style="margin-top: 0; padding-top: 0; border-top: none;">
+        <button type="button" class="btn-cancel" (click)="closeConfirmModal()" [disabled]="pendingAction">
+          Annuler
+        </button>
+        <button type="button" class="btn-submit" [ngClass]="confirmBtnClass" (click)="executeConfirmAction()" [disabled]="pendingAction">
+          <span *ngIf="!pendingAction">
+            <i class="fas" [ngClass]="confirmBtnIcon || 'fa-check'"></i> {{ confirmBtnText }}
+          </span>
+          <span *ngIf="pendingAction">
+            <i class="fas fa-spinner fa-spin"></i> Traitement...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+

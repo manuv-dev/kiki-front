@@ -29,9 +29,9 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
 
           <form (ngSubmit)="onSubmit()" *ngIf="!success">
-            <div class="field" *ngIf="!isForced">
-              <label>Mot de passe actuel</label>
-              <input type="password" [(ngModel)]="current" name="current" placeholder="••••••••">
+            <div class="field">
+              <label>Mot de passe actuel {{ isForced ? '(Temporaire)' : '' }}</label>
+              <input type="password" [(ngModel)]="current" name="current" placeholder="••••••••" required>
             </div>
             <div class="field">
               <label>Nouveau mot de passe</label>
@@ -45,7 +45,7 @@ import { AuthService } from '../../core/services/auth.service';
               <label>Confirmer le mot de passe</label>
               <input type="password" [(ngModel)]="confirm" name="confirm" placeholder="Répétez le mot de passe">
             </div>
-            <button type="submit" class="submit-btn" [disabled]="loading || !newPwd || newPwd !== confirm">
+            <button type="submit" class="submit-btn" [disabled]="loading || !current || !newPwd || newPwd !== confirm">
               <span *ngIf="!loading"><i class="fas fa-save"></i> Enregistrer</span>
               <span *ngIf="loading"><i class="fas fa-spinner fa-spin"></i></span>
             </button>
